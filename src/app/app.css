@@ -13,20 +13,28 @@
   align-items: center;
   border-bottom: 3px solid #d3c0a6;
   width: 100%;
+  letter-spacing: 4px;
+  padding: 10px;
+  margin-bottom: 60px;
 }
 
 h1{
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin: 0 auto ;
 }
 h2{
   font-size: 3rem;
   margin: 0 auto ;
+  font-weight: 100;
+  text-transform: uppercase;
+
 }
 h3{
   font-size: 1.2rem;
   margin: 0 auto ;
   padding-bottom: 3rem;
+  font-weight: 400;
+  font-style: italic;
 }
 
 #first-species-box{
