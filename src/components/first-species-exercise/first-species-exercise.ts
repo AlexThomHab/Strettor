@@ -1,8 +1,11 @@
 import { Component } from '@angular/core';
+import {Staff} from '../staff/staff';
 
 @Component({
   selector: 'app-first-species-exercise',
-  imports: [],
+  imports: [
+    Staff
+  ],
   templateUrl: './first-species-exercise.html',
   styleUrl: './first-species-exercise.css',
 })
