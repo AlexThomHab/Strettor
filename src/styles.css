@@ -5,7 +5,14 @@ body {
   background: #fbf3ed;
   margin: 0;
   padding: 0;
-  box-sizing: border-box
+  box-sizing: border-box;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 28px,
+    rgba(180, 160, 120, 0.08) 28px,
+    rgba(180, 160, 120, 0.08) 29px
+  );
 }
 h1{
   font-size: 2.5rem;
