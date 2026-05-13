@@ -1,6 +1,36 @@
-<div id="exercise-box">
-  First Species Exercise
-  <div id="staff">
-    <app-staff></app-staff>
+<div id="page-layout">
+
+  <div id="exercise-panel">
+    <div id="panel-header">
+      <h3>First Species Exercise</h3>
+      <h4>Enter counterpoint against the given cantus firmus</h4>
+    </div>
+
+    <div id="panel-body">
+      <p id="staff-label">YOUR COUNTERPOINT</p>
+      <div id="staff-area">
+        <app-staff></app-staff>
+      </div>
+    </div>
+
+    <div id="controls">
+      <button class="btn btn-primary">Check Counterpoint</button>
+      <button class="btn btn-ghost">Reset</button>
+      <button class="btn btn-ghost">Next Exercise</button>
+    </div>
   </div>
+
+  <aside id="rules-sidebar">
+    <h5>First Species Rules</h5>
+    <ul>
+      <li>Use consonant intervals only</li>
+      <li>Avoid parallel perfect fifths and octaves</li>
+      <li>Avoid direct (hidden) fifths and octaves</li>
+      <li>Prefer contrary or oblique motion</li>
+      <li>Begin and end with perfect consonances</li>
+      <li>Avoid unisons except at beginning and end</li>
+      <li>No voice crossing</li>
+    </ul>
+  </aside>
+
 </div>

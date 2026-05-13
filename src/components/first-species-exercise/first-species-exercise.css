@@ -1,6 +1,129 @@
-#exercise-box {
-  border: 1px solid #000;
+#page-layout {
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  gap: 1.5rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+#exercise-panel {
+  flex: 2;
+  min-width: 0;
+  border: 1px solid #d3c0a6;
+  display: flex;
   flex-direction: column;
+  background: #fdfaf5;
+  overflow: hidden;
+}
+
+#panel-header {
+  width: 100%;
+  background: #fdf1e0;
+  border-bottom: 2px solid #e4d5bf;
+  padding: 1rem 1.5rem;
+}
+
+#panel-header h3 {
+  margin: 0;
+  padding: 0;
+}
+
+#panel-header h4 {
+  margin: 0;
+  padding: 0;
+}
+
+#panel-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1.5rem 2rem 1.5rem 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#staff-label {
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: #8b6432;
+  margin: 0 0 0.5rem 0;
+  font-style: italic;
+}
+
+#staff-area {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e4d5bf;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+#controls {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e4d5bf;
+}
+
+.btn {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  border-radius: 3px;
+  padding: 0.5rem 1.25rem;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: #6b3a2a;
+  color: #fdf8f0;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #8b6432;
+  border: 1px solid #d3c0a6;
+}
+
+#rules-sidebar {
+  flex: 1;
+  border: 1px solid #d3c0a6;
+  background: #fdfaf5;
+  padding: 1.25rem;
+}
+
+#rules-sidebar h5 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c1f0e;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e4d5bf;
+  letter-spacing: 0.04em;
+}
+
+#rules-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#rules-sidebar li {
+  font-size: 0.9rem;
+  color: #3d2b14;
+  padding-left: 1rem;
+  position: relative;
+  line-height: 1.4;
+}
+
+#rules-sidebar li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: #8b6432;
 }

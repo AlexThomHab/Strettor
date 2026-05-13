@@ -16,9 +16,10 @@ export class Staff {
   ngAfterViewInit() {
     const { Renderer, Stave } = Vex;
     const renderer = new Renderer(this.staffContainer.nativeElement, Renderer.Backends.SVG);
+    const width = this.staffContainer.nativeElement.clientWidth;
     renderer.resize(500, 200);
     const context = renderer.getContext();
-    const stave = new Stave(10, 40, 400);
+    const stave = new Stave(30, 40, width - 20);
     stave.addClef('treble');
     stave.setContext(context).draw();
   }
