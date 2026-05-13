@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "vitest",
+    "test:debug": "vitest --inspect-brk --run"
   },
   "prettier": {
     "printWidth": 100,
@@ -39,6 +40,6 @@
     "@angular/compiler-cli": "^21.0.0",
     "jsdom": "^27.1.0",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "vitest": "^3.2.4"
   }
 }
