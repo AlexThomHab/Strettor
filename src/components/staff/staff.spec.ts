@@ -1,23 +1,27 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { describe, it, expect, beforeEach } from 'vitest';
 import { Staff } from './staff';
+import { Note } from '../../models/note';
 
-describe('Staff', () => {
-  let component: Staff;
-  let fixture: ComponentFixture<Staff>;
+describe('Staff - toVexKey', () => {
+  let staff: Staff;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [Staff]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(Staff);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
+  beforeEach(() => {
+    staff = new Staff();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('converts a natural note to vex key format', () => {
+    expect((staff as any).toVexKey(new Note('D', 4))).toBe('d/4');
+  });
+
+  it('converts a natural note in a higher octave', () => {
+    expect((staff as any).toVexKey(new Note('G', 5))).toBe('g/5');
+  });
+
+  it('converts a sharp note to vex key format', () => {
+    expect((staff as any).toVexKey(new Note('C#', 4))).toBe('c#/4');
+  });
+
+  it('converts a natural note in a lower octave', () => {
+    expect((staff as any).toVexKey(new Note('E', 3))).toBe('e/3');
   });
 });

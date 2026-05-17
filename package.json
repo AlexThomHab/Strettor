@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "vitest",
-    "test:debug": "vitest --inspect-brk --run"
+    "test:debug": "vitest --inspect-brk --no-file-parallelism --run"
   },
   "prettier": {
     "printWidth": 100,

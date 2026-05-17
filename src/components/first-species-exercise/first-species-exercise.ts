@@ -3,9 +3,7 @@ import {Staff} from '../staff/staff';
 
 @Component({
   selector: 'app-first-species-exercise',
-  imports: [
-    Staff
-  ],
+  imports: [Staff],
   templateUrl: './first-species-exercise.html',
   styleUrl: './first-species-exercise.css',
 })

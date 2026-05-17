@@ -42,14 +42,6 @@
   box-sizing: border-box;
 }
 
-#staff-label {
-  font-size: 0.75rem;
-  letter-spacing: 2px;
-  color: #8b6432;
-  margin: 0 0 0.5rem 0;
-  font-style: italic;
-}
-
 #staff-area {
   width: 100%;
   background: #fff;
