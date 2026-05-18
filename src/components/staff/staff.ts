@@ -1,6 +1,7 @@
-import {Component, ElementRef, Input, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import Vex, {Stave, StaveNote, Voice} from 'vexflow'
 import {Note} from '../../models/note';
+import {CounterpointValidator} from '../../service/CounterpointValidator';
 
 @Component({
   selector: 'app-staff',
@@ -12,9 +13,10 @@ export class Staff {
   @ViewChild('staffContainer')
   private staffContainer!: ElementRef;
   private stave!: Stave;
-
+  private counterpointValidator : CounterpointValidator = new CounterpointValidator();
   @Input() cantusFirmus: Note[] = [];
-  @Input() counterpoint: (Note | null)[] = Array(10).fill(null);
+  @Input() counterpoint: (Note | null)[] = Array(6).fill(null);
+  @Output() counterpointResult: EventEmitter<boolean> = new EventEmitter();
 
   ngAfterViewInit() {
     this.drawExercise(this.counterpoint)
@@ -42,10 +44,6 @@ export class Staff {
       new StaveNote({keys: ['G/4'], duration: 'w'}),
       new StaveNote({keys: ['a/4'], duration: 'w'}),
       new StaveNote({keys: ['d/4'], duration: 'w'}),
-      new StaveNote({keys: ['e/4'], duration: 'w'}),
-      new StaveNote({keys: ['f/4'], duration: 'w'}),
-      new StaveNote({keys: ['G/4'], duration: 'w'}),
-      new StaveNote({keys: ['a/4'], duration: 'w'})
     ]
 
     this.stave = new Stave(10, 80, width - 30);
@@ -99,7 +97,22 @@ export class Staff {
     return note.noteValue.toLowerCase() + '/' + note.pitchClass;
   }
   public onReset(){
-    this.counterpoint = Array(10).fill(null)
+    this.counterpoint = Array(6).fill(null)
     this.drawExercise(this.counterpoint)
+  }
+
+
+  public onCheck(){
+    let cantusFirmus1: Note[] = [
+      new Note("D", 4),
+      new Note("E", 4),
+      new Note("F", 4),
+      new Note("G", 4),
+      new Note("A", 4),
+      new Note("D", 4),
+    ];
+    let isCounterpointValid = this.counterpointValidator.isValidSolution(cantusFirmus1, this.counterpoint.filter(note => note !== null) as Note[]);
+    this.counterpointResult.emit(isCounterpointValid)
+    return isCounterpointValid
   }
 }

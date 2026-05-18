@@ -8,13 +8,18 @@
 
     <div id="panel-body">
       <div id="staff-area">
-        <app-staff #staff></app-staff>
+        <app-staff #staff (counterpointResult)="result = $event"></app-staff>
+      </div>
+      <div> @if (result !== null) {
+      <p> {{result ? 'Correct' : 'Failed'}}</p>
+        }
+
       </div>
     </div>
 
     <div id="controls">
-      <button class="btn btn-primary">Check Counterpoint</button>
-      <button class="btn btn-ghost" (click) = "staff.onReset()">Reset</button>
+      <button class="btn btn-primary" (click)="staff.onCheck()">Check Counterpoint</button>
+      <button class="btn btn-ghost" (click)="staff.onReset()">Reset</button>
       <button class="btn btn-ghost">Next Exercise</button>
     </div>
   </div>

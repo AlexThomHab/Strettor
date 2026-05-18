@@ -8,5 +8,6 @@ import {Staff} from '../staff/staff';
   styleUrl: './first-species-exercise.css',
 })
 export class FirstSpeciesExercise {
+  result: boolean | null = null;
 
 }
