@@ -8,13 +8,13 @@
 
     <div id="panel-body">
       <div id="staff-area">
-        <app-staff></app-staff>
+        <app-staff #staff></app-staff>
       </div>
     </div>
 
     <div id="controls">
       <button class="btn btn-primary">Check Counterpoint</button>
-      <button class="btn btn-ghost">Reset</button>
+      <button class="btn btn-ghost" (click) = "staff.onReset()">Reset</button>
       <button class="btn btn-ghost">Next Exercise</button>
     </div>
   </div>

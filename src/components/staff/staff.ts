@@ -98,4 +98,8 @@ export class Staff {
   private toVexKey(note: Note): string {
     return note.noteValue.toLowerCase() + '/' + note.pitchClass;
   }
+  public onReset(){
+    this.counterpoint = Array(10).fill(null)
+    this.drawExercise(this.counterpoint)
+  }
 }
