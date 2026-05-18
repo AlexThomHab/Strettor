@@ -58,9 +58,8 @@ export class Staff {
 
   private addNote(clickXAxis: number, clickYAxis: number) {
     const svg = this.staffContainer.nativeElement.querySelector('svg');
-    let eLineYAxis = this.stave.getYForLine(4); //lowest line on treble clef(E)
-    let gLineAxis = this.stave.getYForLine(3);
-    let yDifferenceBetweenTwoLines = eLineYAxis - gLineAxis; //lowest line on treble clef(E)
+    let eLineYAxis = this.stave.getBottomLineY(); //lowest line on treble clef(E)
+    let yDifferenceBetweenTwoLines =this.stave.getSpacingBetweenLines(); //lowest line on treble clef(E)
     //wanna split a gap into quarters. e.g F in FACE, lower quarter will go to E, 2 middle will go to F and then upper will go to G like in Tonesavvy
     let listOfPossibleInputNotes: Note[] = [
      /* new Note("A", 3),
@@ -79,13 +78,12 @@ export class Staff {
       new Note("G", 5),
       new Note("A", 5)
     ];
-  //use modulus function for this type stuff
-    let quarterOfGap = yDifferenceBetweenTwoLines/4
     const rect = svg.getBoundingClientRect(); //convert clickYAxis to svgClickY because we only get the axis relative to the context not viewport
     clickYAxis = clickYAxis - rect.top;
-    let yFromLowerLineToClick =  eLineYAxis - clickYAxis
-    let notesUpFromE = Math.floor(yFromLowerLineToClick / quarterOfGap);
-    let inputNote = listOfPossibleInputNotes[notesUpFromE]
+    let noteLineValue = this.stave.getLineForY(clickYAxis)
+    let noteIndexRounded = Math.round(noteLineValue * 2) / 2
+    let noteIndexInList = (4 - noteIndexRounded) / 0.5
+    let inputNote = listOfPossibleInputNotes[noteIndexInList]
     this.counterpoint.push(inputNote)
     const {StaveNote, Formatter, Voice, Renderer} = Vex;
 
@@ -94,10 +92,7 @@ export class Staff {
     voice.addTickables([new StaveNote({keys: [this.toVexKey(inputNote)], duration: 'w'})])
     new Formatter().joinVoices([voice]).format([voice], this.stave.getWidth() - 60)
     const renderer = new Renderer(this.staffContainer.nativeElement, Renderer.Backends.SVG);
-    const width = this.staffContainer.nativeElement.clientWidth;
-    renderer.resize(width, 200);
     const context = renderer.getContext();
-    this.stave.setContext(context).draw(); //create staff with clef THEN we add CF
     voice.draw(context, this.stave);
   }
 }
