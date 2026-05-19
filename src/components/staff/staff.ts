@@ -15,6 +15,7 @@ export class Staff {
   @ViewChild('staffContainer')
   private staffContainer!: ElementRef;
   private stave!: Stave;
+  private readonly scaleFactor = 1.5;
   private counterpointValidator : CounterpointValidator = new CounterpointValidator();
   cantusFirmus: Note[] = [];
   @Input() counterpoint: (Note | null)[] = Array(6).fill(null);
@@ -34,8 +35,8 @@ export class Staff {
     const width = this.staffContainer.nativeElement.clientWidth;
     const renderer = new Renderer(this.staffContainer.nativeElement, Renderer.Backends.SVG);
     const context = renderer.getContext(); //context is the canvas that renderer renders to then draw on
-
-    renderer.resize(width, 250);
+    renderer.resize(width, 350);
+    context.scale(this.scaleFactor, this.scaleFactor);
 
     if (this.cantusFirmus.length === 0) {
       this.cantusFirmus = this.getRandomCantusFirmus()
@@ -47,7 +48,8 @@ export class Staff {
 
     const cantusFirmusStaveNotes = this.notesToStaveNotes(this.cantusFirmus);
 
-    this.stave = new Stave(10, 80, width - 30);
+    // @ts-ignore
+    this.stave = new Stave(10, 65, (width - 30) / this.scaleFactor, {spacing_between_lines_px: 20});
     this.stave.addClef('treble');
     this.stave.setContext(context).draw();
 
@@ -84,7 +86,7 @@ export class Staff {
       new Note("A", 5)
     ];
     const rect = svg.getBoundingClientRect();
-    clickYAxis = clickYAxis - rect.top;
+    clickYAxis = (clickYAxis - rect.top) / this.scaleFactor;
     let noteLineValue = this.stave.getLineForY(clickYAxis)
     let noteIndexRounded = Math.round(noteLineValue * 2) / 2
     let noteIndexInList = (4 - noteIndexRounded) / 0.5
