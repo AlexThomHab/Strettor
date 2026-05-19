@@ -119,3 +119,50 @@
   left: 0;
   color: #8b6432;
 }
+
+#result-pass {
+  color: #2e7d32;
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+
+#result-fail {
+  color: #b71c1c;
+  font-weight: 600;
+  margin-top: 0.75rem;
+}
+
+#broken-rules {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+#broken-rules li {
+  font-size: 0.875rem;
+  padding-left: 1rem;
+  position: relative;
+}
+
+#broken-rules li.error {
+  color: #b71c1c;
+}
+
+#broken-rules li.error::before {
+  content: '✕';
+  position: absolute;
+  left: 0;
+}
+
+#broken-rules li.warning {
+  color: #e65100;
+}
+
+#broken-rules li.warning::before {
+  content: '⚠';
+  position: absolute;
+  left: 0;
+}

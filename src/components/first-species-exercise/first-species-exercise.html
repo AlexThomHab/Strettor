@@ -8,13 +8,21 @@
 
     <div id="panel-body">
       <div id="staff-area">
-        <app-staff #staff (counterpointResult)="result = $event"></app-staff>
+        <app-staff #staff (counterpointResult)="brokenRules = $event"></app-staff>
       </div>
-      <div> @if (result !== null) {
-      <p> {{result ? 'Correct' : 'Failed'}}</p>
-        }
 
-      </div>
+      @if (brokenRules !== null) {
+        @if (brokenRules.length === 0) {
+          <p id="result-pass">Correct ✓</p>
+        } @else {
+          <p id="result-fail">Failed — rules broken:</p>
+          <ul id="broken-rules">
+            @for (rule of brokenRules; track rule.description) {
+              <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
+            }
+          </ul>
+        }
+      }
     </div>
 
     <div id="controls">

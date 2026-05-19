@@ -1,5 +1,6 @@
 import {IntervalCalculator} from './IntervalCalculator';
 import {Note} from '../models/note';
+import {describe, it, expect, beforeEach} from 'vitest';
 
 describe('Interval Calculator', () => {
   let intervalCalculator: IntervalCalculator;
@@ -70,5 +71,5 @@ describe('Interval Calculator', () => {
   it('C3 to C5 should be 24', () => {
     expect(intervalCalculator.calculateSemitoneInterval(new Note("C", 3), new Note("C", 5))).toBe(24);
   });
- 
+
 });

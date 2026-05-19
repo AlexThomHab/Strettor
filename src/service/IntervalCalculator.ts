@@ -9,6 +9,7 @@ export class IntervalCalculator {
   }
 
   public calculateSemitoneInterval(noteA: Note, noteB: Note): number {
+
     var highestNote = this.getHighestNote(noteA, noteB);
     var lowestNote = this.getLowestNote(noteA, noteB);
 

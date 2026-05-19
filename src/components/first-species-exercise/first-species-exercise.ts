@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {Staff} from '../staff/staff';
+import {Rule} from '../../models/rule';
 
 @Component({
   selector: 'app-first-species-exercise',
@@ -8,6 +9,5 @@ import {Staff} from '../staff/staff';
   styleUrl: './first-species-exercise.css',
 })
 export class FirstSpeciesExercise {
-  result: boolean | null = null;
-
+  brokenRules: Rule[] | null = null;
 }

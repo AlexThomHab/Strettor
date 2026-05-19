@@ -2,6 +2,7 @@ import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@an
 import Vex, {Stave, StaveNote, Voice} from 'vexflow'
 import {Note} from '../../models/note';
 import {CounterpointValidator} from '../../service/CounterpointValidator';
+import {Rule} from '../../models/rule';
 
 @Component({
   selector: 'app-staff',
@@ -16,7 +17,7 @@ export class Staff {
   private counterpointValidator : CounterpointValidator = new CounterpointValidator();
   @Input() cantusFirmus: Note[] = [];
   @Input() counterpoint: (Note | null)[] = Array(6).fill(null);
-  @Output() counterpointResult: EventEmitter<boolean> = new EventEmitter();
+  @Output() counterpointResult: EventEmitter<Rule[]> = new EventEmitter();
 
   ngAfterViewInit() {
     this.drawExercise(this.counterpoint)
@@ -111,8 +112,7 @@ export class Staff {
       new Note("A", 4),
       new Note("D", 4),
     ];
-    let isCounterpointValid = this.counterpointValidator.isValidSolution(cantusFirmus1, this.counterpoint.filter(note => note !== null) as Note[]);
-    this.counterpointResult.emit(isCounterpointValid)
-    return isCounterpointValid
+    const brokenRules = this.counterpointValidator.getBrokenRules(cantusFirmus1, this.counterpoint.filter(note => note !== null) as Note[]);
+    this.counterpointResult.emit(brokenRules);
   }
 }
