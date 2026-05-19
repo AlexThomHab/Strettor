@@ -4,6 +4,7 @@ import {Note} from '../../models/note';
 import {CounterpointValidator} from '../../service/CounterpointValidator';
 import {Rule} from '../../models/rule';
 import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
+import {RuleIdEnum} from '../../models/rule'
 
 @Component({
   selector: 'app-staff',
@@ -17,6 +18,7 @@ export class Staff {
   private stave!: Stave;
   private readonly scaleFactor = 1.5;
   private counterpointValidator : CounterpointValidator = new CounterpointValidator();
+  private disabledRules : number[] = [];
   cantusFirmus: Note[] = [];
   @Input() counterpoint: (Note | null)[] = Array(6).fill(null);
   @Output() counterpointResult: EventEmitter<Rule[] | null> = new EventEmitter();
@@ -112,8 +114,8 @@ export class Staff {
   }
 
   public onCheck(){
-
-    const brokenRules = this.counterpointValidator.getBrokenRules(this.cantusFirmus, this.counterpoint.filter(note => note !== null) as Note[]);
+    let counterpoint = this.counterpoint.filter(note => note !== null) as Note[];
+    const brokenRules = this.counterpointValidator.getBrokenRules(this.cantusFirmus, counterpoint, this.disabledRules);
     this.counterpointResult.emit(brokenRules);
   }
   private getRandomCantusFirmus(){

@@ -17,9 +17,9 @@
         } @else if (hasOnlyWarnings()) {
           <p id="result-warning">Warnings only - close but check your counterpoint</p>
           <ul class="broken-rules">
-          @for (rule of brokenRules; track rule.description){
-            <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
-          }
+            @for (rule of brokenRules; track rule.description) {
+              <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
+            }
           </ul>
         } @else {
           <p id="result-fail">Failed - rules broken:</p>
@@ -41,14 +41,9 @@
 
   <aside id="rules-sidebar">
     <h5>First Species Rules</h5>
-    <ul>
-      <li>Use consonant intervals only</li>
-      <li>Avoid parallel perfect fifths and octaves</li>
-      <li>Avoid direct (a.k.a hidden/similar) fifths and octaves</li>
-      <li>Prefer contrary or oblique motion</li>
-      <li>Begin and end with perfect consonances</li>
-      <li>Avoid unisons</li>
-      <li>No voice crossing</li>
+    <ul> @for (rule of listOfRules; track rule) {
+      <li> {{ rule.description }}</li>
+    }
     </ul>
   </aside>
 
