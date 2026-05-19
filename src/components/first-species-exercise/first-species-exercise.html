@@ -40,11 +40,33 @@
   </div>
 
   <aside id="rules-sidebar">
-    <h5>First Species Rules</h5>
-    <ul> @for (rule of listOfRules; track rule) {
-      <li> {{ rule.description }}</li>
-    }
-    </ul>
+    <h5>Rules</h5>
+
+    <div class="rule-group">
+      <div class="rule-group-label error-label">Errors</div>
+      @for (rule of listOfRules; track rule.id) {
+        <div class="rule-row" >
+          <span class="rule-description">{{ rule.description }}</span>
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      }
+    </div>
+
+    <div class="rule-group">
+      <div class="rule-group-label warning-label">Warnings</div>
+      @for (rule of warningRules; track rule.id) {
+        <div class="rule-row" >
+          <span class="rule-description">{{ rule.description }}</span>
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      }
+    </div>
   </aside>
 
 </div>

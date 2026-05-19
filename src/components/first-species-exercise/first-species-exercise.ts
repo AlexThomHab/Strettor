@@ -15,6 +15,7 @@ export class FirstSpeciesExercise {
   protected readonly length = length;
   listOfRules: Rule[] = [];
   ruleService: RuleService = new RuleService();
+  warningRules: any;
 
   ngOnInit() {
     this.listOfRules = this.ruleService.getAllRules()
