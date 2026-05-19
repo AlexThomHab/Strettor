@@ -17,7 +17,7 @@ export class Staff {
   private counterpointValidator : CounterpointValidator = new CounterpointValidator();
   @Input() cantusFirmus: Note[] = [];
   @Input() counterpoint: (Note | null)[] = Array(6).fill(null);
-  @Output() counterpointResult: EventEmitter<Rule[]> = new EventEmitter();
+  @Output() counterpointResult: EventEmitter<Rule[] | null> = new EventEmitter();
 
   ngAfterViewInit() {
     this.drawExercise(this.counterpoint)
@@ -99,6 +99,7 @@ export class Staff {
   }
   public onReset(){
     this.counterpoint = Array(6).fill(null)
+    this.counterpointResult.emit(null);
     this.drawExercise(this.counterpoint)
   }
 

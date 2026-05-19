@@ -16,12 +16,14 @@
           <p id="result-pass">Correct ✓</p>
         } @else if (hasOnlyWarnings()) {
           <p id="result-warning">Warnings only - close but check your counterpoint</p>
+          <ul class="broken-rules">
           @for (rule of brokenRules; track rule.description){
             <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
           }
+          </ul>
         } @else {
           <p id="result-fail">Failed - rules broken:</p>
-          <ul id="broken-rules">
+          <ul class="broken-rules">
             @for (rule of brokenRules; track rule.description) {
               <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
             }
