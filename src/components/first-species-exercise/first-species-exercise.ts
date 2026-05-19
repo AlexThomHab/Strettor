@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {Staff} from '../staff/staff';
-import {Rule} from '../../models/rule';
+import {Rule, Severity} from '../../models/rule';
 
 @Component({
   selector: 'app-first-species-exercise',
@@ -10,4 +10,13 @@ import {Rule} from '../../models/rule';
 })
 export class FirstSpeciesExercise {
   brokenRules: Rule[] | null = null;
+  protected readonly Error = Error;
+  protected readonly length = length;
+
+  hasOnlyWarnings(): boolean {
+    return this.brokenRules !== null
+      && this.brokenRules.length > 0
+      && this.brokenRules.every(r => r.severity === Severity.Warning);
+  }
 }
+

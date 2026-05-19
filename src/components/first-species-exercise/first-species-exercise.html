@@ -14,8 +14,13 @@
       @if (brokenRules !== null) {
         @if (brokenRules.length === 0) {
           <p id="result-pass">Correct ✓</p>
+        } @else if (hasOnlyWarnings()) {
+          <p id="result-warning">Warnings only - close but check your counterpoint</p>
+          @for (rule of brokenRules; track rule.description){
+            <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
+          }
         } @else {
-          <p id="result-fail">Failed — rules broken:</p>
+          <p id="result-fail">Failed - rules broken:</p>
           <ul id="broken-rules">
             @for (rule of brokenRules; track rule.description) {
               <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
