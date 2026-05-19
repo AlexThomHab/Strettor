@@ -1,23 +1,106 @@
-#page{
-  display: flex;
-  flex-direction: column;
-  margin: 0 auto ;
-  align-items: center;
-  max-width: 1200px;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-#header{
-  display: flex;
-  flex-direction: column;
-  margin: 0 auto ;
-  align-items: center;
-  border-bottom: 3px solid #e4d5bf;
+#navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
   width: 100%;
-  letter-spacing: 4px;
-  padding: 10px;
-  margin-bottom: 60px;
+  height: 48px;
+  background: #2c1f0e;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 2rem;
+  border-bottom: 2px solid #6b3a2a;
 }
 
-#first-species-box{
+#brand {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fdf1e0;
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.nav-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-btn {
+  background: transparent;
+  border: none;
+  color: #d3c0a6;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  padding: 0.4rem 0.75rem;
+  border-radius: 3px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.nav-btn:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fdf1e0;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+  display: flex;
+}
+
+.dropdown-menu {
+  display: none;
+  flex-direction: column;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #2c1f0e;
+  border: 1px solid #6b3a2a;
+  border-top: none;
+  min-width: 160px;
+  z-index: 200;
+}
+
+.dropdown-item {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  color: #d3c0a6;
+  text-decoration: none;
+  padding: 0.6rem 1rem;
+  letter-spacing: 0.03em;
+  transition: background 0.1s;
+}
+
+.dropdown-item:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fdf1e0;
+}
+
+.dropdown-item.active {
+  color: #fdf1e0;
+  font-weight: 600;
+}
+
+.dropdown-item.disabled {
+  color: #6b5a48;
+  pointer-events: none;
+}
+
+#content {
   width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
 }
