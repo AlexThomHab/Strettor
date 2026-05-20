@@ -6,4 +6,5 @@ export class Note {
     this.noteValue = noteValue;
     this.pitchClass = pitchClass;
   }
+
 }
