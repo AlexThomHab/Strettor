@@ -6,7 +6,7 @@ import {Rule, RuleIdEnum, Severity} from '../models/rule';
 describe('CounterpointValidator — rule enabling/disabling', () => {
   let validator: CounterpointValidator;
 
-  // A known-valid solution (D Dorian) reused from the brokenRules suite
+  // A known-valid solution (D Dorian)
   const dorianCF: Note[] = [
     new Note("D", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
     new Note("A", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
@@ -18,8 +18,7 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
     new Note("E", 4), new Note("D", 4)
   ];
 
-  // CF and CP with identical pitches — violates:
-  //   NoParallelUnisons, NoUnisonsInMiddle, NoVoiceOverlap, CoincidingClimax
+  // Identical CF and CP — violates: NoParallelUnisons, NoUnisonsInMiddle, NoVoiceOverlap, CoincidingClimax
   const unisonCF: Note[] = [new Note("C", 4), new Note("D", 4), new Note("E", 4)];
   const unisonCP: Note[] = [new Note("C", 4), new Note("D", 4), new Note("E", 4)];
   const unisonViolations = [
@@ -32,6 +31,10 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
   beforeEach(() => {
     validator = new CounterpointValidator();
   });
+
+  // Returns the ids of every broken rule for a given CF/CP pair
+  const brokenIds = (cf: Note[], cp: Note[], disabled: number[] = []) =>
+    validator.getBrokenRules(cf, cp, disabled).map(r => r.id);
 
   describe('default rule state', () => {
     it('every rule has a numeric id', () => {
@@ -55,54 +58,169 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
     });
 
     it('passes when every violated rule is disabled', () => {
-      expect(
-        validator.isValidSolution(unisonCF, unisonCP, unisonViolations)
-      ).toBe(true);
+      expect(validator.isValidSolution(unisonCF, unisonCP, unisonViolations)).toBe(true);
     });
 
     it('still fails when only some violated rules are disabled', () => {
-      // Disable only CoincidingClimax — the other three still fire
-      expect(
-        validator.isValidSolution(unisonCF, unisonCP, [RuleIdEnum.CoincidingClimax])
-      ).toBe(false);
+      expect(validator.isValidSolution(unisonCF, unisonCP, [RuleIdEnum.CoincidingClimax])).toBe(false);
     });
 
     it('disabling an irrelevant rule has no effect', () => {
-      // NoParallelFifths is not violated by unisonCP — disabling it changes nothing
-      expect(
-        validator.isValidSolution(unisonCF, unisonCP, [RuleIdEnum.NoParallelFifths])
-      ).toBe(false);
+      expect(validator.isValidSolution(unisonCF, unisonCP, [RuleIdEnum.NoParallelFifths])).toBe(false);
     });
 
     it('disabling a rule does not affect a passing solution', () => {
-      // Disabling an arbitrary rule on a valid solution should still pass
-      expect(
-        validator.isValidSolution(dorianCF, validCP, [RuleIdEnum.NoParallelFifths])
-      ).toBe(true);
+      expect(validator.isValidSolution(dorianCF, validCP, [RuleIdEnum.NoParallelFifths])).toBe(true);
     });
   });
 
   describe('disabling specific rules by RuleId', () => {
     it('NoParallelUnisons — violation ignored when disabled', () => {
-      // unisonCP has consecutive unisons; disable just that rule (plus the other co-violations)
-      const withoutUnisons = [RuleIdEnum.NoUnisonsInMiddle, RuleIdEnum.NoVoiceOverlap, RuleIdEnum.CoincidingClimax];
-      // Still fails because NoParallelUnisons is enabled
-      expect(validator.isValidSolution(unisonCF, unisonCP, withoutUnisons)).toBe(false);
-      // Now disable it too — should pass
-      expect(validator.isValidSolution(unisonCF, unisonCP, [...withoutUnisons, RuleIdEnum.NoParallelUnisons])).toBe(true);
+      const others = [RuleIdEnum.NoUnisonsInMiddle, RuleIdEnum.NoVoiceOverlap, RuleIdEnum.CoincidingClimax];
+      expect(validator.isValidSolution(unisonCF, unisonCP, others)).toBe(false);
+      expect(validator.isValidSolution(unisonCF, unisonCP, [...others, RuleIdEnum.NoParallelUnisons])).toBe(true);
     });
 
     it('NoUnisonsInMiddle — violation ignored when disabled', () => {
-      const withoutMiddle = [RuleIdEnum.NoParallelUnisons, RuleIdEnum.NoVoiceOverlap, RuleIdEnum.CoincidingClimax];
-      expect(validator.isValidSolution(unisonCF, unisonCP, withoutMiddle)).toBe(false);
-      expect(validator.isValidSolution(unisonCF, unisonCP, [...withoutMiddle, RuleIdEnum.NoUnisonsInMiddle])).toBe(true);
+      const others = [RuleIdEnum.NoParallelUnisons, RuleIdEnum.NoVoiceOverlap, RuleIdEnum.CoincidingClimax];
+      expect(validator.isValidSolution(unisonCF, unisonCP, others)).toBe(false);
+      expect(validator.isValidSolution(unisonCF, unisonCP, [...others, RuleIdEnum.NoUnisonsInMiddle])).toBe(true);
     });
 
-    it('SameLength — mismatched lengths always blocked (early-return fires regardless)', () => {
-      // getBrokenRules short-circuits on length mismatch before checking enabledRules
+    it('SameLength — mismatched lengths always blocked regardless of disabled rules', () => {
       const cf = [new Note("C", 4), new Note("D", 4)];
       const cp = [new Note("E", 5)];
       expect(validator.isValidSolution(cf, cp, [RuleIdEnum.SameLength])).toBe(false);
+    });
+  });
+
+  describe('each rule fires and can be silenced individually', () => {
+    it('OnlyConsonantIntervals — fourth at a middle position', () => {
+      // D4 to G4 = 5 semitones (perfect fourth — dissonant in first species)
+      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
+      const cp = [new Note("C", 4), new Note("G", 4), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.OnlyConsonantIntervals);
+      expect(brokenIds(cf, cp, [RuleIdEnum.OnlyConsonantIntervals])).not.toContain(RuleIdEnum.OnlyConsonantIntervals);
+    });
+
+    it('ValidBeginningInterval — major second above is not a valid opening', () => {
+      // D4 over C4 = 2 semitones
+      const cf = [new Note("C", 4), new Note("D", 4)];
+      const cp = [new Note("D", 4), new Note("D", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.ValidBeginningInterval);
+      expect(brokenIds(cf, cp, [RuleIdEnum.ValidBeginningInterval])).not.toContain(RuleIdEnum.ValidBeginningInterval);
+    });
+
+    it('ValidEndingInterval — ending on a perfect fifth is not allowed', () => {
+      // G4 over C4 = 7 semitones
+      const cf = [new Note("C", 4), new Note("C", 4)];
+      const cp = [new Note("C", 4), new Note("G", 4)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.ValidEndingInterval);
+      expect(brokenIds(cf, cp, [RuleIdEnum.ValidEndingInterval])).not.toContain(RuleIdEnum.ValidEndingInterval);
+    });
+
+    it('NoParallelFifths — two consecutive fifths moving in the same direction', () => {
+      // C4/G4 = 7, D4/A4 = 7, both up
+      const cf = [new Note("C", 4), new Note("D", 4), new Note("D", 4)];
+      const cp = [new Note("G", 4), new Note("A", 4), new Note("D", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoParallelFifths);
+      expect(brokenIds(cf, cp, [RuleIdEnum.NoParallelFifths])).not.toContain(RuleIdEnum.NoParallelFifths);
+    });
+
+    it('NoParallelOctaves — two consecutive octaves moving in the same direction', () => {
+      // C4/C5 = 12, D4/D5 = 12, both up
+      const cf = [new Note("C", 4), new Note("D", 4), new Note("D", 4)];
+      const cp = [new Note("C", 5), new Note("D", 5), new Note("D", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoParallelOctaves);
+      expect(brokenIds(cf, cp, [RuleIdEnum.NoParallelOctaves])).not.toContain(RuleIdEnum.NoParallelOctaves);
+    });
+
+    it('NoHiddenPerfectIntervals — leaping to a perfect fifth by direct motion', () => {
+      // G4→C5 is a leap (5 semitones); F4/C5 = 7 (perfect fifth); both voices move up
+      const cf = [new Note("C", 4), new Note("F", 4), new Note("C", 4)];
+      const cp = [new Note("G", 4), new Note("C", 5), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoHiddenPerfectIntervals);
+      expect(brokenIds(cf, cp, [RuleIdEnum.NoHiddenPerfectIntervals])).not.toContain(RuleIdEnum.NoHiddenPerfectIntervals);
+    });
+
+    it('NoAugmentedOrDiminishedMelodicIntervals — tritone leap (6 semitones)', () => {
+      // C4 to F#4 = 6 semitones
+      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
+      const cp = [new Note("C", 4), new Note("F#", 4), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals);
+      expect(brokenIds(cf, cp, [RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals])).not.toContain(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals);
+    });
+
+    it('NoAugmentedOrDiminishedMelodicIntervals — minor seventh leap (10 semitones)', () => {
+      // C4 to A#4 = 10 semitones
+      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
+      const cp = [new Note("C", 4), new Note("A#", 4), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals);
+      expect(brokenIds(cf, cp, [RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals])).not.toContain(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals);
+    });
+
+    it('NoUnisonsInMiddle — unison at an inner position', () => {
+      // E4/E4 = 0 at index 1
+      const cf = [new Note("C", 4), new Note("E", 4), new Note("C", 4)];
+      const cp = [new Note("C", 4), new Note("E", 4), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoUnisonsInMiddle);
+      expect(brokenIds(cf, cp, [RuleIdEnum.NoUnisonsInMiddle])).not.toContain(RuleIdEnum.NoUnisonsInMiddle);
+    });
+
+    it('NoVoiceCrossing — counterpoint dips below cantus firmus', () => {
+      // F4 (53) < G4 (55) at index 1
+      const cf = [new Note("C", 4), new Note("G", 4), new Note("C", 4)];
+      const cp = [new Note("E", 4), new Note("F", 4), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoVoiceCrossing);
+      expect(brokenIds(cf, cp, [RuleIdEnum.NoVoiceCrossing])).not.toContain(RuleIdEnum.NoVoiceCrossing);
+    });
+
+    it('NoVoiceOverlap — cantus firmus leaps above where counterpoint just was', () => {
+      // cfNext G4 (55) > cpCurrent E4 (52)
+      const cf = [new Note("C", 4), new Note("G", 4), new Note("C", 4)];
+      const cp = [new Note("E", 4), new Note("A", 4), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoVoiceOverlap);
+      expect(brokenIds(cf, cp, [RuleIdEnum.NoVoiceOverlap])).not.toContain(RuleIdEnum.NoVoiceOverlap);
+    });
+
+    it('FinalCadence — final note approached by a leap', () => {
+      // E4 → C5 = 8 semitones
+      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
+      const cp = [new Note("C", 4), new Note("E", 4), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.FinalCadence);
+      expect(brokenIds(cf, cp, [RuleIdEnum.FinalCadence])).not.toContain(RuleIdEnum.FinalCadence);
+    });
+
+    it('LargeLeapsRecoverCorrectly — large leap followed by a step in the same direction', () => {
+      // E4→A4 = 9 (large leap up), A4→B4 = 2 (step up — same direction as leap)
+      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4), new Note("C", 4)];
+      const cp = [new Note("E", 4), new Note("A", 4), new Note("B", 4), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.LargeLeapsRecoverCorrectly);
+      expect(brokenIds(cf, cp, [RuleIdEnum.LargeLeapsRecoverCorrectly])).not.toContain(RuleIdEnum.LargeLeapsRecoverCorrectly);
+    });
+
+    it('CoincidingClimax — both voices peak at the same index', () => {
+      // CF max at G4 (idx 1), CP max at D5 (idx 1) — same position
+      const cf = [new Note("C", 4), new Note("G", 4), new Note("E", 4)];
+      const cp = [new Note("E", 4), new Note("D", 5), new Note("A", 4)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.CoincidingClimax);
+      expect(brokenIds(cf, cp, [RuleIdEnum.CoincidingClimax])).not.toContain(RuleIdEnum.CoincidingClimax);
+    });
+
+    it('NoExcessiveConsecutiveThirdsOrSixths — four consecutive thirds', () => {
+      // intervals: 4, 3, 3, 4, 12 — four thirds in a row then an octave
+      const cf = [new Note("C", 4), new Note("D", 4), new Note("E", 4), new Note("F", 4), new Note("C", 4)];
+      const cp = [new Note("E", 4), new Note("F", 4), new Note("G", 4), new Note("A", 4), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths);
+      expect(brokenIds(cf, cp, [RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths])).not.toContain(RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths);
+    });
+
+    it('NoExcessiveRepeatedNotes — same note on consecutive beats', () => {
+      // E4 appears twice in a row
+      const cf = [new Note("C", 4), new Note("C", 4), new Note("C", 4)];
+      const cp = [new Note("E", 4), new Note("E", 4), new Note("C", 5)];
+      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoExcessiveRepeatedNotes);
+      expect(brokenIds(cf, cp, [RuleIdEnum.NoExcessiveRepeatedNotes])).not.toContain(RuleIdEnum.NoExcessiveRepeatedNotes);
     });
   });
 
@@ -112,36 +230,22 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
       return rules.find(r => r.rule.id === id)!.rule;
     };
 
-    it('NoParallelFifths is an Error', () => {
-      expect(getRuleById(RuleIdEnum.NoParallelFifths).severity).toBe(Severity.Error);
-    });
-
-    it('NoParallelOctaves is an Error', () => {
-      expect(getRuleById(RuleIdEnum.NoParallelOctaves).severity).toBe(Severity.Error);
-    });
-
-    it('NoUnisonsInMiddle is an Error', () => {
-      expect(getRuleById(RuleIdEnum.NoUnisonsInMiddle).severity).toBe(Severity.Error);
-    });
-
-    it('FinalCadence is a Warning', () => {
-      expect(getRuleById(RuleIdEnum.FinalCadence).severity).toBe(Severity.Warning);
-    });
-
-    it('LargeLeapsRecoverCorrectly is a Warning', () => {
-      expect(getRuleById(RuleIdEnum.LargeLeapsRecoverCorrectly).severity).toBe(Severity.Warning);
-    });
-
-    it('CoincidingClimax is a Warning', () => {
-      expect(getRuleById(RuleIdEnum.CoincidingClimax).severity).toBe(Severity.Warning);
-    });
-
-    it('NoExcessiveConsecutiveThirdsOrSixths is a Warning', () => {
-      expect(getRuleById(RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths).severity).toBe(Severity.Warning);
-    });
-
-    it('NoExcessiveRepeatedNotes is a Warning', () => {
-      expect(getRuleById(RuleIdEnum.NoExcessiveRepeatedNotes).severity).toBe(Severity.Warning);
-    });
+    it('SameLength is an Error',                              () => expect(getRuleById(RuleIdEnum.SameLength).severity).toBe(Severity.Error));
+    it('OnlyConsonantIntervals is an Error',                  () => expect(getRuleById(RuleIdEnum.OnlyConsonantIntervals).severity).toBe(Severity.Error));
+    it('ValidBeginningInterval is an Error',                  () => expect(getRuleById(RuleIdEnum.ValidBeginningInterval).severity).toBe(Severity.Error));
+    it('ValidEndingInterval is an Error',                     () => expect(getRuleById(RuleIdEnum.ValidEndingInterval).severity).toBe(Severity.Error));
+    it('NoParallelFifths is an Error',                        () => expect(getRuleById(RuleIdEnum.NoParallelFifths).severity).toBe(Severity.Error));
+    it('NoParallelOctaves is an Error',                       () => expect(getRuleById(RuleIdEnum.NoParallelOctaves).severity).toBe(Severity.Error));
+    it('NoParallelUnisons is an Error',                       () => expect(getRuleById(RuleIdEnum.NoParallelUnisons).severity).toBe(Severity.Error));
+    it('NoHiddenPerfectIntervals is an Error',                () => expect(getRuleById(RuleIdEnum.NoHiddenPerfectIntervals).severity).toBe(Severity.Error));
+    it('NoAugmentedOrDiminishedMelodicIntervals is an Error', () => expect(getRuleById(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals).severity).toBe(Severity.Error));
+    it('NoUnisonsInMiddle is an Error',                       () => expect(getRuleById(RuleIdEnum.NoUnisonsInMiddle).severity).toBe(Severity.Error));
+    it('NoVoiceCrossing is an Error',                         () => expect(getRuleById(RuleIdEnum.NoVoiceCrossing).severity).toBe(Severity.Error));
+    it('NoVoiceOverlap is an Error',                          () => expect(getRuleById(RuleIdEnum.NoVoiceOverlap).severity).toBe(Severity.Error));
+    it('FinalCadence is a Warning',                           () => expect(getRuleById(RuleIdEnum.FinalCadence).severity).toBe(Severity.Warning));
+    it('LargeLeapsRecoverCorrectly is a Warning',             () => expect(getRuleById(RuleIdEnum.LargeLeapsRecoverCorrectly).severity).toBe(Severity.Warning));
+    it('CoincidingClimax is a Warning',                       () => expect(getRuleById(RuleIdEnum.CoincidingClimax).severity).toBe(Severity.Warning));
+    it('NoExcessiveConsecutiveThirdsOrSixths is a Warning',   () => expect(getRuleById(RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths).severity).toBe(Severity.Warning));
+    it('NoExcessiveRepeatedNotes is a Warning',               () => expect(getRuleById(RuleIdEnum.NoExcessiveRepeatedNotes).severity).toBe(Severity.Warning));
   });
 });

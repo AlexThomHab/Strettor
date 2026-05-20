@@ -33,7 +33,7 @@ export class FirstSpeciesExercise {
   }
 
   toggleRule(ruleId: number) {
-    this.disabledRules.includes(ruleId) ? this.disabledRules.filter(x => x !== ruleId) : this.disabledRules.push(ruleId)
+    this.disabledRules.includes(ruleId) ? this.disabledRules = this.disabledRules.filter(x => x !== ruleId) : this.disabledRules.push(ruleId)
     this.disabledRulesEvent.emit(this.disabledRules);
   }
 
