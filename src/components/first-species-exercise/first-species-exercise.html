@@ -8,7 +8,7 @@
 
     <div id="panel-body">
       <div id="staff-area">
-        <app-staff #staff (counterpointResult)="brokenRules = $event"></app-staff>
+        <app-staff #staff [disabledRules]="disabledRules" (counterpointResult)="brokenRules = $event"></app-staff>
       </div>
 
       @if (brokenRules !== null) {
@@ -48,7 +48,7 @@
         <div class="rule-row" [class.rule-on]="ruleIsEnabled(rule)">
           <span class="rule-description">{{ rule.description }}</span>
           <label class="toggle">
-            <input type="checkbox" [checked]="ruleIsEnabled(rule)" (change)="toggleRule(rule)">
+            <input type="checkbox" [checked]="ruleIsEnabled(rule)" (change)="toggleRule(rule.id)">
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -61,7 +61,7 @@
         <div class="rule-row" [class.rule-on]="ruleIsEnabled(rule)">
           <span class="rule-description">{{ rule.description }}</span>
           <label class="toggle">
-            <input type="checkbox" [checked]="ruleIsEnabled(rule)" (change)="toggleRule(rule)">
+            <input type="checkbox" [checked]="ruleIsEnabled(rule)" (change)="toggleRule(rule.id)">
             <span class="toggle-slider"></span>
           </label>
         </div>

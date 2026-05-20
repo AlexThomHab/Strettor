@@ -32,8 +32,9 @@ export class FirstSpeciesExercise {
       && this.brokenRules.every(r => r.severity === Severity.Warning);
   }
 
-  toggleRule(rule: Rule) {
-    this.disabledRules.includes(rule.id) ? this.disabledRules.push(rule.id) : this.disabledRules.filter(x => x !== rule.id);
+  toggleRule(ruleId: number) {
+    this.disabledRules.includes(ruleId) ? this.disabledRules.filter(x => x !== ruleId) : this.disabledRules.push(ruleId)
+    this.disabledRulesEvent.emit(this.disabledRules);
   }
 
   ruleIsEnabled(rule: Rule): boolean {

@@ -18,10 +18,11 @@ export class Staff {
   private stave!: Stave;
   private readonly scaleFactor = 1.5;
   private counterpointValidator : CounterpointValidator = new CounterpointValidator();
-  private disabledRules : number[] = [];
+  @Input() disabledRules : number[] = [];
   cantusFirmus: Note[] = [];
   @Input() counterpoint: (Note | null)[] = Array(6).fill(null);
   @Output() counterpointResult: EventEmitter<Rule[] | null> = new EventEmitter();
+
 
   ngAfterViewInit() {
     this.drawExercise(this.counterpoint)
