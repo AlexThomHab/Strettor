@@ -45,10 +45,10 @@
     <div class="rule-group">
       <div class="rule-group-label error-label">Errors</div>
       @for (rule of errorRules; track rule.id) {
-        <div class="rule-row" >
+        <div class="rule-row" [class.rule-on]="ruleIsEnabled(rule)">
           <span class="rule-description">{{ rule.description }}</span>
           <label class="toggle">
-            <input type="checkbox">
+            <input type="checkbox" [checked]="ruleIsEnabled(rule)" (change)="toggleRule(rule)">
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -58,10 +58,10 @@
     <div class="rule-group">
       <div class="rule-group-label warning-label">Warnings</div>
       @for (rule of warningRules; track rule.id) {
-        <div class="rule-row" >
+        <div class="rule-row" [class.rule-on]="ruleIsEnabled(rule)">
           <span class="rule-description">{{ rule.description }}</span>
           <label class="toggle">
-            <input type="checkbox">
+            <input type="checkbox" [checked]="ruleIsEnabled(rule)" (change)="toggleRule(rule)">
             <span class="toggle-slider"></span>
           </label>
         </div>

@@ -19,14 +19,14 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
   ];
 
   // CF and CP with identical pitches — violates:
-  //   NoParallelUnisons, MotionPreference, NoVoiceCrossing, NoVoiceOverlap
+  //   NoParallelUnisons, NoUnisonsInMiddle, NoVoiceOverlap, CoincidingClimax
   const unisonCF: Note[] = [new Note("C", 4), new Note("D", 4), new Note("E", 4)];
   const unisonCP: Note[] = [new Note("C", 4), new Note("D", 4), new Note("E", 4)];
   const unisonViolations = [
     RuleIdEnum.NoParallelUnisons,
-    RuleIdEnum.MotionPreference,
-    RuleIdEnum.NoVoiceCrossing,
+    RuleIdEnum.NoUnisonsInMiddle,
     RuleIdEnum.NoVoiceOverlap,
+    RuleIdEnum.CoincidingClimax,
   ];
 
   beforeEach(() => {
@@ -34,11 +34,6 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
   });
 
   describe('default rule state', () => {
-    it('every rule is enabled by default', () => {
-      const rules = (validator as any)._rules as Array<{ rule: Rule }>;
-      rules.forEach(r => expect(r.rule.isEnabled).toBe(true));
-    });
-
     it('every rule has a numeric id', () => {
       const rules = (validator as any)._rules as Array<{ rule: Rule }>;
       rules.forEach(r => expect(typeof r.rule.id).toBe('number'));
@@ -66,9 +61,9 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
     });
 
     it('still fails when only some violated rules are disabled', () => {
-      // Disable only MotionPreference — NoParallelUnisons still fires
+      // Disable only CoincidingClimax — the other three still fire
       expect(
-        validator.isValidSolution(unisonCF, unisonCP, [RuleIdEnum.MotionPreference])
+        validator.isValidSolution(unisonCF, unisonCP, [RuleIdEnum.CoincidingClimax])
       ).toBe(false);
     });
 
@@ -82,7 +77,7 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
     it('disabling a rule does not affect a passing solution', () => {
       // Disabling an arbitrary rule on a valid solution should still pass
       expect(
-        validator.isValidSolution(dorianCF, validCP, [RuleIdEnum.MotionPreference])
+        validator.isValidSolution(dorianCF, validCP, [RuleIdEnum.NoParallelFifths])
       ).toBe(true);
     });
   });
@@ -90,17 +85,17 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
   describe('disabling specific rules by RuleId', () => {
     it('NoParallelUnisons — violation ignored when disabled', () => {
       // unisonCP has consecutive unisons; disable just that rule (plus the other co-violations)
-      const withoutUnisons = [RuleIdEnum.MotionPreference, RuleIdEnum.NoVoiceCrossing, RuleIdEnum.NoVoiceOverlap];
+      const withoutUnisons = [RuleIdEnum.NoUnisonsInMiddle, RuleIdEnum.NoVoiceOverlap, RuleIdEnum.CoincidingClimax];
       // Still fails because NoParallelUnisons is enabled
       expect(validator.isValidSolution(unisonCF, unisonCP, withoutUnisons)).toBe(false);
       // Now disable it too — should pass
       expect(validator.isValidSolution(unisonCF, unisonCP, [...withoutUnisons, RuleIdEnum.NoParallelUnisons])).toBe(true);
     });
 
-    it('MotionPreference — violation ignored when disabled', () => {
-      const withoutMotion = [RuleIdEnum.NoParallelUnisons, RuleIdEnum.NoVoiceCrossing, RuleIdEnum.NoVoiceOverlap];
-      expect(validator.isValidSolution(unisonCF, unisonCP, withoutMotion)).toBe(false);
-      expect(validator.isValidSolution(unisonCF, unisonCP, [...withoutMotion, RuleIdEnum.MotionPreference])).toBe(true);
+    it('NoUnisonsInMiddle — violation ignored when disabled', () => {
+      const withoutMiddle = [RuleIdEnum.NoParallelUnisons, RuleIdEnum.NoVoiceOverlap, RuleIdEnum.CoincidingClimax];
+      expect(validator.isValidSolution(unisonCF, unisonCP, withoutMiddle)).toBe(false);
+      expect(validator.isValidSolution(unisonCF, unisonCP, [...withoutMiddle, RuleIdEnum.NoUnisonsInMiddle])).toBe(true);
     });
 
     it('SameLength — mismatched lengths always blocked (early-return fires regardless)', () => {
@@ -125,16 +120,24 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
       expect(getRuleById(RuleIdEnum.NoParallelOctaves).severity).toBe(Severity.Error);
     });
 
-    it('MotionPreference is a Warning', () => {
-      expect(getRuleById(RuleIdEnum.MotionPreference).severity).toBe(Severity.Warning);
+    it('NoUnisonsInMiddle is an Error', () => {
+      expect(getRuleById(RuleIdEnum.NoUnisonsInMiddle).severity).toBe(Severity.Error);
+    });
+
+    it('FinalCadence is a Warning', () => {
+      expect(getRuleById(RuleIdEnum.FinalCadence).severity).toBe(Severity.Warning);
+    });
+
+    it('LargeLeapsRecoverCorrectly is a Warning', () => {
+      expect(getRuleById(RuleIdEnum.LargeLeapsRecoverCorrectly).severity).toBe(Severity.Warning);
+    });
+
+    it('CoincidingClimax is a Warning', () => {
+      expect(getRuleById(RuleIdEnum.CoincidingClimax).severity).toBe(Severity.Warning);
     });
 
     it('NoExcessiveConsecutiveThirdsOrSixths is a Warning', () => {
       expect(getRuleById(RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths).severity).toBe(Severity.Warning);
-    });
-
-    it('SingableMelody is a Warning', () => {
-      expect(getRuleById(RuleIdEnum.SingableMelody).severity).toBe(Severity.Warning);
     });
 
     it('NoExcessiveRepeatedNotes is a Warning', () => {

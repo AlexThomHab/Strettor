@@ -1,7 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {Staff} from '../staff/staff';
 import {Rule, Severity, RuleIdEnum} from '../../models/rule';
-import {RuleService} from '../../service/Rule.service';
+import {RuleService} from '../../service/RuleService';
 
 @Component({
   selector: 'app-first-species-exercise',
@@ -17,6 +17,8 @@ export class FirstSpeciesExercise {
   ruleService: RuleService = new RuleService();
   warningRules: Rule[] = [];
   errorRules: Rule[] = [];
+  disabledRules : number[] = []
+  @Output() disabledRulesEvent: EventEmitter<number[]> = new EventEmitter();
 
   ngOnInit() {
     this.listOfRules = this.ruleService.getAllRules()
@@ -30,8 +32,12 @@ export class FirstSpeciesExercise {
       && this.brokenRules.every(r => r.severity === Severity.Warning);
   }
 
+  toggleRule(rule: Rule) {
+    this.disabledRules.includes(rule.id) ? this.disabledRules.push(rule.id) : this.disabledRules.filter(x => x !== rule.id);
+  }
 
-
-
+  ruleIsEnabled(rule: Rule): boolean {
+      return !this.disabledRules.includes(rule.id)
+  }
 }
 
