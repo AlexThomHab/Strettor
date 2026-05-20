@@ -118,8 +118,11 @@ export class Staff {
     const brokenRules = this.counterpointValidator.getBrokenRules(this.cantusFirmus, counterpoint, this.disabledRules);
     this.counterpointResult.emit(brokenRules);
   }
-  private getRandomCantusFirmus(){
+  private getRandomCantusFirmus() : Note[]{
     const randomIndex = Math.floor(Math.random() * CANTUS_FIRMUS_LIST.length);
+    if (CANTUS_FIRMUS_LIST[randomIndex] === this.cantusFirmus){
+     return this.getRandomCantusFirmus()
+    }
     return CANTUS_FIRMUS_LIST[randomIndex];
   }
   private notesToStaveNotes(notes: Note[]): StaveNote[] {

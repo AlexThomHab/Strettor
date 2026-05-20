@@ -15,10 +15,13 @@ export class FirstSpeciesExercise {
   protected readonly length = length;
   listOfRules: Rule[] = [];
   ruleService: RuleService = new RuleService();
-  warningRules: any;
+  warningRules: Rule[] = [];
+  errorRules: Rule[] = [];
 
   ngOnInit() {
     this.listOfRules = this.ruleService.getAllRules()
+    this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
+    this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
   }
 
   hasOnlyWarnings(): boolean {

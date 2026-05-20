@@ -44,7 +44,7 @@
 
     <div class="rule-group">
       <div class="rule-group-label error-label">Errors</div>
-      @for (rule of listOfRules; track rule.id) {
+      @for (rule of errorRules; track rule.id) {
         <div class="rule-row" >
           <span class="rule-description">{{ rule.description }}</span>
           <label class="toggle">
