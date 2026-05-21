@@ -1,9 +1,9 @@
 import {describe, it, expect, beforeEach} from 'vitest';
-import {CounterpointValidator} from './CounterpointValidator';
-import {Note} from '../models/note';
+import {FirstSpeciesCounterpointValidator} from './FirstSpeciesCounterpointValidator';
+import {Note} from '../../models/note';
 
 describe('CounterpointValidator', () => {
-  let validator: CounterpointValidator;
+  let validator: FirstSpeciesCounterpointValidator;
 
   // Fux Dorian cantus firmus
   const dorianCF: Note[] = [
@@ -20,7 +20,7 @@ describe('CounterpointValidator', () => {
   ];
 
   beforeEach(() => {
-    validator = new CounterpointValidator();
+    validator = new FirstSpeciesCounterpointValidator();
   });
 
   // Integration: Fux Dorian

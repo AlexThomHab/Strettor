@@ -1,7 +1,7 @@
 import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import Vex, {Stave, StaveNote, Voice} from 'vexflow'
 import {Note} from '../../models/note';
-import {CounterpointValidator} from '../../service/CounterpointValidator';
+import {FirstSpeciesCounterpointValidator} from '../../service/first-species-counterpoint-validator/FirstSpeciesCounterpointValidator';
 import {Rule} from '../../models/rule';
 import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
 
@@ -16,7 +16,7 @@ export class Staff {
   private staffContainer!: ElementRef;
   private stave!: Stave;
   private readonly scaleFactor = 1.5;
-  private counterpointValidator: CounterpointValidator = new CounterpointValidator();
+  private counterpointValidator: FirstSpeciesCounterpointValidator = new FirstSpeciesCounterpointValidator();
   @Input() disabledRules: number[] = [];
   cantusFirmus: Note[] = [];
   @Input() counterpoint: (Note | null)[] = Array(0).fill(null);

@@ -1,11 +1,11 @@
 import {describe, it, expect, beforeEach} from 'vitest';
-import {CounterpointValidator} from './CounterpointValidator';
-import {Note} from '../models/note';
-import {Rule, Severity} from '../models/rule';
-import {RuleIdEnum} from '../data/rules.data';
+import {FirstSpeciesCounterpointValidator} from './FirstSpeciesCounterpointValidator';
+import {Note} from '../../models/note';
+import {Rule, Severity} from '../../models/rule';
+import {RuleIdEnum} from '../../data/rules.data';
 
 describe('CounterpointValidator — rule enabling/disabling', () => {
-  let validator: CounterpointValidator;
+  let validator: FirstSpeciesCounterpointValidator;
 
   // A known-valid solution (D Dorian)
   const dorianCF: Note[] = [
@@ -30,7 +30,7 @@ describe('CounterpointValidator — rule enabling/disabling', () => {
   ];
 
   beforeEach(() => {
-    validator = new CounterpointValidator();
+    validator = new FirstSpeciesCounterpointValidator();
   });
 
   // Returns the ids of every broken rule for a given CF/CP pair

@@ -1,10 +1,10 @@
 import {describe, it, expect, beforeEach} from 'vitest';
-import {CounterpointValidator} from './CounterpointValidator';
-import {Note} from '../models/note';
-import {Severity} from '../models/rule';
+import {FirstSpeciesCounterpointValidator} from './FirstSpeciesCounterpointValidator';
+import {Note} from '../../models/note';
+import {Severity} from '../../models/rule';
 
 describe('CounterpointValidator - getBrokenRules', () => {
-  let validator: CounterpointValidator;
+  let validator: FirstSpeciesCounterpointValidator;
 
   const dorianCF: Note[] = [
     new Note("D", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
@@ -19,7 +19,7 @@ describe('CounterpointValidator - getBrokenRules', () => {
   ];
 
   beforeEach(() => {
-    validator = new CounterpointValidator();
+    validator = new FirstSpeciesCounterpointValidator();
   });
 
   it('returns empty array for a valid solution', () => {
