@@ -1,6 +1,7 @@
 import {Note} from '../models/note';
 import {IntervalCalculator} from './IntervalCalculator';
-import {Rule, RuleIdEnum, Severity} from '../models/rule';
+import {Rule, RuleIdEnum} from '../models/rule';
+import {RULES_DATA} from '../data/rules.data';
 
 export class CounterpointValidator {
 
@@ -8,23 +9,23 @@ export class CounterpointValidator {
   private _chromaticScale: string[] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
   private readonly _rules: Array<{ check: (cf: Note[], cp: Note[]) => boolean; rule: Rule }> = [
-    { check: this.checkSameLength.bind(this),                              rule: { id: RuleIdEnum.SameLength,                              description: 'Counterpoint must match cantus firmus length',                          severity: Severity.Error} },
-    { check: this.checkOnlyConsonantIntervals.bind(this),                  rule: { id: RuleIdEnum.OnlyConsonantIntervals,                  description: 'No harmonic dissonances (fourths are dissonant in this style)',         severity: Severity.Error} },
-    { check: this.checkValidBeginningInterval.bind(this),                  rule: { id: RuleIdEnum.ValidBeginningInterval,                  description: 'Begin on a unison, octave, fifth, or third above the cantus firmus',   severity: Severity.Error} },
-    { check: this.checkValidEndingInterval.bind(this),                     rule: { id: RuleIdEnum.ValidEndingInterval,                     description: 'Both voices must end on scale degree 1 (unison or octave)',             severity: Severity.Error} },
-    { check: this.checkNoParallelFifths.bind(this),                        rule: { id: RuleIdEnum.NoParallelFifths,                        description: 'No parallel perfect fifths',                                           severity: Severity.Error} },
-    { check: this.checkNoParallelOctaves.bind(this),                       rule: { id: RuleIdEnum.NoParallelOctaves,                       description: 'No parallel octaves',                                                  severity: Severity.Error} },
-    { check: this.checkNoParallelUnisons.bind(this),                       rule: { id: RuleIdEnum.NoParallelUnisons,                       description: 'No parallel unisons',                                                  severity: Severity.Error} },
-    { check: this.checkNoHiddenPerfectIntervals.bind(this),                rule: { id: RuleIdEnum.NoHiddenPerfectIntervals,                description: 'No approaching a perfect consonance by direct motion',                 severity: Severity.Error} },
-    { check: this.checkNoAugmentedOrDiminishedMelodicIntervals.bind(this), rule: { id: RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals, description: 'No dissonant melodic leaps (sevenths, tritone, or larger than octave)', severity: Severity.Error} },
-    { check: this.checkNoUnisonsInMiddle.bind(this),                       rule: { id: RuleIdEnum.NoUnisonsInMiddle,                       description: 'Unisons are only permitted at the first and last note',                severity: Severity.Error} },
-    { check: this.checkNoVoiceCrossing.bind(this),                         rule: { id: RuleIdEnum.NoVoiceCrossing,                         description: 'No voice crossing',                                                    severity: Severity.Error} },
-    { check: this.checkNoVoiceOverlap.bind(this),                          rule: { id: RuleIdEnum.NoVoiceOverlap,                          description: 'No voice overlap',                                                     severity: Severity.Error} },
-    { check: this.checkFinalCadence.bind(this),                            rule: { id: RuleIdEnum.FinalCadence,                            description: 'Approach the final note by step',                                      severity: Severity.Warning} },
-    { check: this.checkLargeLeapsRecoverCorrectly.bind(this),              rule: { id: RuleIdEnum.LargeLeapsRecoverCorrectly,              description: 'Large leaps should be recovered by a step in the opposite direction',  severity: Severity.Warning} },
-    { check: this.checkCoincidingClimax.bind(this),                        rule: { id: RuleIdEnum.CoincidingClimax,                        description: 'Avoid coinciding high points with the cantus firmus',                  severity: Severity.Warning} },
-    { check: this.checkNoExcessiveConsecutiveThirdsOrSixths.bind(this),    rule: { id: RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths,    description: 'Avoid more than 3 consecutive thirds or sixths',                      severity: Severity.Warning} },
-    { check: this.checkNoExcessiveRepeatedNotes.bind(this),                rule: { id: RuleIdEnum.NoExcessiveRepeatedNotes,                description: 'Avoid overusing tone repetition',                                      severity: Severity.Warning} },
+    { check: this.checkSameLength.bind(this),                              rule: RULES_DATA.find(r => r.id === RuleIdEnum.SameLength)! },
+    { check: this.checkOnlyConsonantIntervals.bind(this),                  rule: RULES_DATA.find(r => r.id === RuleIdEnum.OnlyConsonantIntervals)! },
+    { check: this.checkValidBeginningInterval.bind(this),                  rule: RULES_DATA.find(r => r.id === RuleIdEnum.ValidBeginningInterval)! },
+    { check: this.checkValidEndingInterval.bind(this),                     rule: RULES_DATA.find(r => r.id === RuleIdEnum.ValidEndingInterval)! },
+    { check: this.checkNoParallelFifths.bind(this),                        rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoParallelFifths)! },
+    { check: this.checkNoParallelOctaves.bind(this),                       rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoParallelOctaves)! },
+    { check: this.checkNoParallelUnisons.bind(this),                       rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoParallelUnisons)! },
+    { check: this.checkNoHiddenPerfectIntervals.bind(this),                rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoHiddenPerfectIntervals)! },
+    { check: this.checkNoAugmentedOrDiminishedMelodicIntervals.bind(this), rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals)! },
+    { check: this.checkNoUnisonsInMiddle.bind(this),                       rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoUnisonsInMiddle)! },
+    { check: this.checkNoVoiceCrossing.bind(this),                         rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoVoiceCrossing)! },
+    { check: this.checkNoVoiceOverlap.bind(this),                          rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoVoiceOverlap)! },
+    { check: this.checkFinalCadence.bind(this),                            rule: RULES_DATA.find(r => r.id === RuleIdEnum.FinalCadence)! },
+    { check: this.checkLargeLeapsRecoverCorrectly.bind(this),              rule: RULES_DATA.find(r => r.id === RuleIdEnum.LargeLeapsRecoverCorrectly)! },
+    { check: this.checkCoincidingClimax.bind(this),                        rule: RULES_DATA.find(r => r.id === RuleIdEnum.CoincidingClimax)! },
+    { check: this.checkNoExcessiveConsecutiveThirdsOrSixths.bind(this),    rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths)! },
+    { check: this.checkNoExcessiveRepeatedNotes.bind(this),                rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoExcessiveRepeatedNotes)! },
   ];
 
   isValidSolution(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[]): boolean {
