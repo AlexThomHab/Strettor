@@ -1,0 +1,72 @@
+<div id="page-layout">
+
+  <div id="exercise-panel">
+    <div id="panel-header">
+      <h3>Second Species Exercise</h3>
+      <h4>Enter counterpoint 2:1 against the given cantus firmus</h4>
+    </div>
+
+    <div id="panel-body">
+      <div id="staff-area">
+        <app-staff #staff [disabledRules]="disabledRules" (counterpointResult)="brokenRules = $event"></app-staff>
+      </div>
+
+      @if (brokenRules !== null) {
+        @if (brokenRules.length === 0) {
+          <p id="result-pass">Correct ✓</p>
+        } @else if (hasOnlyWarnings()) {
+          <p id="result-warning">Warnings only - close but check your counterpoint</p>
+          <ul class="broken-rules">
+            @for (rule of brokenRules; track rule.description) {
+              <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
+            }
+          </ul>
+        } @else {
+          <p id="result-fail">Failed - rules broken:</p>
+          <ul class="broken-rules">
+            @for (rule of brokenRules; track rule.description) {
+              <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
+            }
+          </ul>
+        }
+      }
+    </div>
+
+    <div id="controls">
+      <button class="btn btn-primary" (click)="staff.onCheck()">Check Counterpoint</button>
+      <button class="btn btn-ghost" (click)="staff.onReset()">Reset</button>
+      <button class="btn btn-ghost" (click)="staff.onNextExercise()">Next Exercise</button>
+    </div>
+  </div>
+
+  <aside id="rules-sidebar">
+    <h5>Rules</h5>
+
+    <div class="rule-group">
+      <div class="rule-group-label error-label">Errors</div>
+      @for (rule of errorRules; track rule.id) {
+        <div class="rule-row" [class.rule-on]="ruleIsEnabled(rule)">
+          <span class="rule-description">{{ rule.description }}</span>
+          <label class="toggle">
+            <input type="checkbox" [checked]="ruleIsEnabled(rule)" (change)="toggleRule(rule.id)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      }
+    </div>
+
+    <div class="rule-group">
+      <div class="rule-group-label warning-label">Warnings</div>
+      @for (rule of warningRules; track rule.id) {
+        <div class="rule-row" [class.rule-on]="ruleIsEnabled(rule)">
+          <span class="rule-description">{{ rule.description }}</span>
+          <label class="toggle">
+            <input type="checkbox" [checked]="ruleIsEnabled(rule)" (change)="toggleRule(rule.id)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      }
+    </div>
+  </aside>
+
+</div>
