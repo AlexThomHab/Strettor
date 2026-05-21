@@ -2,10 +2,11 @@ import {Component, EventEmitter, Output} from '@angular/core';
 import {Staff} from '../staff/staff';
 import {Rule, Severity, RuleIdEnum} from '../../models/rule';
 import {RuleService} from '../../service/RuleService';
+import {RouterModule} from '@angular/router';
 
 @Component({
   selector: 'app-second-species-exercise',
-  imports: [Staff],
+  imports: [Staff, RouterModule],
   templateUrl: './second-species-exercise.html',
   styleUrl: './second-species-exercise.css',
 })

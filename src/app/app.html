@@ -5,8 +5,8 @@
     <div class="nav-dropdown">
       <button class="nav-btn">Exercises ▾</button>
       <div class="dropdown-menu">
-        <a href="#" class="dropdown-item active">First Species</a>
-        <a href="#" class="dropdown-item disabled">Second Species</a>
+        <a routerLink="/first-species-exercise" class="dropdown-item">First Species</a>
+        <a routerLink="/second-species-exercise" class="dropdown-item">Second Species</a>
         <a href="#" class="dropdown-item disabled">Third Species</a>
       </div>
     </div>
@@ -14,5 +14,5 @@
 </nav>
 
 <main id="content">
-  <app-first-species-exercise></app-first-species-exercise>
+  <router-outlet></router-outlet>
 </main>
