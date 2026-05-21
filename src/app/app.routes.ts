@@ -3,6 +3,8 @@ import {FirstSpeciesExercise} from '../components/first-species-exercise/first-s
 import {SecondSpeciesExercise} from '../components/second-species-exercise/second-species-exercise';
 import {ThirdSpeciesExercise} from '../components/third-species-exercise/third-species-exercise';
 import {ThreeAgainstOneExercise} from '../components/three-against-one-exercise/three-against-one-exercise';
+import {SergeiTaneyevVerticalShifting} from '../components/sergei-taneyev-vertical-shifting/sergei-taneyev-vertical-shifting';
+import {StrettoGenerator} from '../components/stretto-generator/stretto-generator';
 
 export const routes: Routes = [
   {path: '', redirectTo: 'first-species-exercise', pathMatch: 'full'},
@@ -10,4 +12,6 @@ export const routes: Routes = [
   {path: 'second-species-exercise', component: SecondSpeciesExercise},
   {path: 'three-against-one-exercise', component: ThreeAgainstOneExercise},
   {path: 'third-species-exercise', component: ThirdSpeciesExercise},
+  {path: 'sergei-taneyev-vertical-shifting', component: SergeiTaneyevVerticalShifting},
+  {path: 'stretto-generator', component: StrettoGenerator},
 ];
