@@ -64,17 +64,28 @@ export class Staff {
     this.stave.setContext(context).draw();
 
     cantusFirmusVoice.addTickables(cantusFirmusStaveNotes)
-    new Formatter().joinVoices([cantusFirmusVoice]).format([cantusFirmusVoice], this.stave.getWidth() - 60)
-    cantusFirmusVoice.draw(context, this.stave);
 
     const counterpointVoice = new Voice({
       numBeats: this.cantusFirmus.length * this.rhythmicProportion,
       beatValue: this.rhythmicProportion
-    }) //add counterpoint
+    })
     counterpointVoice.setStrict(false)
     let counterpointStaveNotes = this.notesToStaveNotes(this.counterpoint, this.rhythmicProportion)
     counterpointVoice.addTickables(counterpointStaveNotes)
-    new Formatter().joinVoices([counterpointVoice]).format([counterpointVoice], this.stave.getWidth() - 60)
+
+    // Join voices only when CP ticks divide evenly into a whole note (4096 ticks).
+    // Odd proportions like 3 produce a tick mismatch and distort the CF if joined.
+    const ticksAlign = 4096 % this.rhythmicProportion === 0;
+    if (ticksAlign) {
+      new Formatter()
+        .joinVoices([cantusFirmusVoice, counterpointVoice])
+        .format([cantusFirmusVoice, counterpointVoice], this.stave.getWidth() - 60)
+    } else {
+      new Formatter().joinVoices([cantusFirmusVoice]).format([cantusFirmusVoice], this.stave.getWidth() - 60)
+      new Formatter().joinVoices([counterpointVoice]).format([counterpointVoice], this.stave.getWidth() - 60)
+    }
+
+    cantusFirmusVoice.draw(context, this.stave);
 
     if (this.previewNote != null && this.counterpoint.filter(x => x != null).length != this.cantusFirmus.length * this.rhythmicProportion) {
       const previewNoteVoice = new Voice({
@@ -90,9 +101,15 @@ export class Staff {
       previewStaveNotes[this.previewNoteXIndex].setStyle({fillStyle: 'rgba(0,0,0,0.4)', strokeStyle: 'rgba(0,0,0,0.4)'});
 
       previewNoteVoice.addTickables(previewStaveNotes)
-      new Formatter().joinVoices([previewNoteVoice]).format([previewNoteVoice], this.stave.getWidth() - 60)
+      const previewCFVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
+      previewCFVoice.setStrict(false)
+      previewCFVoice.addTickables(this.notesToStaveNotes(this.cantusFirmus, 1))
+      new Formatter()
+        .joinVoices([previewCFVoice, previewNoteVoice])
+        .format([previewCFVoice, previewNoteVoice], this.stave.getWidth() - 60)
       previewNoteVoice.draw(context, this.stave);
     }
+
     counterpointVoice.draw(context, this.stave);
   }
 
