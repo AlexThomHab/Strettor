@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Output} from '@angular/core';
 import {Staff} from '../staff/staff';
-import {Rule, Severity, RuleIdEnum} from '../../models/rule';
+import {Rule, Severity} from '../../models/rule';
 import {RuleService} from '../../service/RuleService';
 import {RouterModule} from '@angular/router';
 

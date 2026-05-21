@@ -1,7 +1,8 @@
 import {Note} from '../models/note';
 import {IntervalCalculator} from './IntervalCalculator';
-import {Rule, RuleIdEnum} from '../models/rule';
-import {RULES_DATA} from '../data/rules.data';
+import {Rule} from '../models/rule';
+import {RuleIdEnum} from '../data/rules.data';
+import {FIRST_SPECIES_RULES} from '../data/rules.data';
 
 export class CounterpointValidator {
 
@@ -9,23 +10,23 @@ export class CounterpointValidator {
   private _chromaticScale: string[] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
   private readonly _rules: Array<{ check: (cf: Note[], cp: Note[]) => boolean; rule: Rule }> = [
-    { check: this.checkSameLength.bind(this),                              rule: RULES_DATA.find(r => r.id === RuleIdEnum.SameLength)! },
-    { check: this.checkOnlyConsonantIntervals.bind(this),                  rule: RULES_DATA.find(r => r.id === RuleIdEnum.OnlyConsonantIntervals)! },
-    { check: this.checkValidBeginningInterval.bind(this),                  rule: RULES_DATA.find(r => r.id === RuleIdEnum.ValidBeginningInterval)! },
-    { check: this.checkValidEndingInterval.bind(this),                     rule: RULES_DATA.find(r => r.id === RuleIdEnum.ValidEndingInterval)! },
-    { check: this.checkNoParallelFifths.bind(this),                        rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoParallelFifths)! },
-    { check: this.checkNoParallelOctaves.bind(this),                       rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoParallelOctaves)! },
-    { check: this.checkNoParallelUnisons.bind(this),                       rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoParallelUnisons)! },
-    { check: this.checkNoHiddenPerfectIntervals.bind(this),                rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoHiddenPerfectIntervals)! },
-    { check: this.checkNoAugmentedOrDiminishedMelodicIntervals.bind(this), rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals)! },
-    { check: this.checkNoUnisonsInMiddle.bind(this),                       rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoUnisonsInMiddle)! },
-    { check: this.checkNoVoiceCrossing.bind(this),                         rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoVoiceCrossing)! },
-    { check: this.checkNoVoiceOverlap.bind(this),                          rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoVoiceOverlap)! },
-    { check: this.checkFinalCadence.bind(this),                            rule: RULES_DATA.find(r => r.id === RuleIdEnum.FinalCadence)! },
-    { check: this.checkLargeLeapsRecoverCorrectly.bind(this),              rule: RULES_DATA.find(r => r.id === RuleIdEnum.LargeLeapsRecoverCorrectly)! },
-    { check: this.checkCoincidingClimax.bind(this),                        rule: RULES_DATA.find(r => r.id === RuleIdEnum.CoincidingClimax)! },
-    { check: this.checkNoExcessiveConsecutiveThirdsOrSixths.bind(this),    rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths)! },
-    { check: this.checkNoExcessiveRepeatedNotes.bind(this),                rule: RULES_DATA.find(r => r.id === RuleIdEnum.NoExcessiveRepeatedNotes)! },
+    { check: this.checkSameLength.bind(this),                              rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.SameLength)! },
+    { check: this.checkOnlyConsonantIntervals.bind(this),                  rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.OnlyConsonantIntervals)! },
+    { check: this.checkValidBeginningInterval.bind(this),                  rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.ValidBeginningInterval)! },
+    { check: this.checkValidEndingInterval.bind(this),                     rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.ValidEndingInterval)! },
+    { check: this.checkNoParallelFifths.bind(this),                        rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoParallelFifths)! },
+    { check: this.checkNoParallelOctaves.bind(this),                       rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoParallelOctaves)! },
+    { check: this.checkNoParallelUnisons.bind(this),                       rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoParallelUnisons)! },
+    { check: this.checkNoHiddenPerfectIntervals.bind(this),                rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoHiddenPerfectIntervals)! },
+    { check: this.checkNoAugmentedOrDiminishedMelodicIntervals.bind(this), rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals)! },
+    { check: this.checkNoUnisonsInMiddle.bind(this),                       rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoUnisonsInMiddle)! },
+    { check: this.checkNoVoiceCrossing.bind(this),                         rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoVoiceCrossing)! },
+    { check: this.checkNoVoiceOverlap.bind(this),                          rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoVoiceOverlap)! },
+    { check: this.checkFinalCadence.bind(this),                            rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.FinalCadence)! },
+    { check: this.checkLargeLeapsRecoverCorrectly.bind(this),              rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.LargeLeapsRecoverCorrectly)! },
+    { check: this.checkCoincidingClimax.bind(this),                        rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.CoincidingClimax)! },
+    { check: this.checkNoExcessiveConsecutiveThirdsOrSixths.bind(this),    rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths)! },
+    { check: this.checkNoExcessiveRepeatedNotes.bind(this),                rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoExcessiveRepeatedNotes)! },
   ];
 
   isValidSolution(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[]): boolean {

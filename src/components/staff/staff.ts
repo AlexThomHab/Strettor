@@ -4,7 +4,6 @@ import {Note} from '../../models/note';
 import {CounterpointValidator} from '../../service/CounterpointValidator';
 import {Rule} from '../../models/rule';
 import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
-import {RuleIdEnum} from '../../models/rule'
 
 @Component({
   selector: 'app-staff',
