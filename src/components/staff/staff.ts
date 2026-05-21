@@ -32,6 +32,9 @@ export class Staff {
     this.staffContainer.nativeElement.addEventListener('mousemove', (e: MouseEvent) => {
       this.onMouseHover(e.clientY)
     })
+    this.staffContainer.nativeElement.addEventListener('mouseleave', (e: MouseEvent) => {
+      this.onMouseLeave()
+    })
   }
 
   private drawExercise(): void {
@@ -172,5 +175,10 @@ export class Staff {
     let noteIndexRounded = Math.round(noteLineValue * 2) / 2
     let noteIndexInList = (6 - noteIndexRounded) / 0.5
      return listOfPossibleInputNotes[noteIndexInList]
+  }
+
+  private onMouseLeave() {
+    this.previewNote = null
+    this.drawExercise()
   }
 }
