@@ -1,0 +1,45 @@
+import {Component, EventEmitter, Output} from '@angular/core';
+import {Staff} from '../staff/staff';
+import {Rule, Severity} from '../../models/rule';
+import {RuleService} from '../../service/RuleService';
+import {RouterModule} from '@angular/router';
+
+@Component({
+  selector: 'app-three-against-one-exercise',
+  imports: [Staff, RouterModule],
+  templateUrl: './three-against-one-exercise.html',
+  styleUrl: './three-against-one-exercise.css',
+})
+export class ThreeAgainstOneExercise {
+  brokenRules: Rule[] | null = null;
+  protected readonly Error = Error;
+  protected readonly length = length;
+  listOfRules: Rule[] = [];
+  ruleService: RuleService = new RuleService();
+  warningRules: Rule[] = [];
+  errorRules: Rule[] = [];
+  disabledRules : number[] = []
+  @Output() disabledRulesEvent: EventEmitter<number[]> = new EventEmitter();
+
+  ngOnInit() {
+    this.listOfRules = this.ruleService.getAllRules()
+    this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
+    this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
+  }
+
+  hasOnlyWarnings(): boolean {
+    return this.brokenRules !== null
+      && this.brokenRules.length > 0
+      && this.brokenRules.every(r => r.severity === Severity.Warning);
+  }
+
+  toggleRule(ruleId: number) {
+    this.disabledRules.includes(ruleId) ? this.disabledRules = this.disabledRules.filter(x => x !== ruleId) : this.disabledRules.push(ruleId)
+    this.disabledRulesEvent.emit(this.disabledRules);
+  }
+
+  ruleIsEnabled(rule: Rule): boolean {
+    return !this.disabledRules.includes(rule.id)
+  }
+}
+

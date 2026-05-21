@@ -41,7 +41,7 @@ export class Staff {
   private drawExercise(): void {
     this.staffContainer.nativeElement.innerHTML = "";
 
-    const {Renderer, Stave, StaveNote, Voice, Formatter, GhostNote} = Vex;
+    const {Renderer, Stave, StaveNote, Voice, Formatter} = Vex;
     const width = this.staffContainer.nativeElement.clientWidth;
     const renderer = new Renderer(this.staffContainer.nativeElement, Renderer.Backends.SVG);
     const context = renderer.getContext(); //context is the canvas that renderer renders to then draw on
@@ -76,7 +76,7 @@ export class Staff {
     counterpointVoice.addTickables(counterpointStaveNotes)
     new Formatter().joinVoices([counterpointVoice]).format([counterpointVoice], this.stave.getWidth() - 60)
 
-    if (this.previewNote != null) {
+    if (this.previewNote != null && this.counterpoint.filter(x => x != null).length != this.cantusFirmus.length * this.rhythmicProportion) {
       const previewNoteVoice = new Voice({
         numBeats: this.cantusFirmus.length * this.rhythmicProportion,
         beatValue: this.rhythmicProportion
@@ -87,8 +87,7 @@ export class Staff {
       previewNoteArray[this.previewNoteXIndex] = this.previewNote
 
       const previewStaveNotes = this.notesToStaveNotes(previewNoteArray, this.rhythmicProportion);
-      const previewIndex = this.counterpoint.filter(x => x != null).length;
-      previewStaveNotes[previewIndex].setStyle({fillStyle: 'rgba(0,0,0,0.4)', strokeStyle: 'rgba(0,0,0,0.4)'});
+      previewStaveNotes[this.previewNoteXIndex].setStyle({fillStyle: 'rgba(0,0,0,0.4)', strokeStyle: 'rgba(0,0,0,0.4)'});
 
       previewNoteVoice.addTickables(previewStaveNotes)
       new Formatter().joinVoices([previewNoteVoice]).format([previewNoteVoice], this.stave.getWidth() - 60)
@@ -137,13 +136,15 @@ export class Staff {
   }
 
   private notesToStaveNotes(notes: (Note | null)[], rhythmicProportion: number) {
-    const {GhostNote} = Vex;
     const duration = this.rhythmicProportionToNoteLength(rhythmicProportion);
-    return notes.map(note =>
-      note == null
-        ? new GhostNote({duration})
-        : new StaveNote({keys: [this.toVexKey(note)], duration})
-    );
+    return notes.map(note => {
+      if (note == null) {
+        const placeholder = new StaveNote({keys: ['b/4'], duration});
+        placeholder.setStyle({fillStyle: 'rgba(0,0,0,0)', strokeStyle: 'rgba(0,0,0,0)'});
+        return placeholder;
+      }
+      return new StaveNote({keys: [this.toVexKey(note)], duration});
+    });
   }
 
   /* private staveNotesToNotes(staveNotes: StaveNote[]): Note[] {
@@ -197,7 +198,7 @@ export class Staff {
   }
 
   private rhythmicProportionToNoteLength(proportion: number): string {
-    let rhythmToNoteList: string[] = ['w', 'h', 'q'];
+    let rhythmToNoteList: string[] = ['w', 'h', 'q', 'q'];
     return rhythmToNoteList[proportion - 1]
   }
 
