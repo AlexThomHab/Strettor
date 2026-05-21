@@ -8,7 +8,7 @@
 
     <div id="panel-body">
       <div id="staff-area">
-        <app-staff #staff [disabledRules]="disabledRules" (counterpointResult)="brokenRules = $event"></app-staff>
+        <app-staff #staff [disabledRules]="disabledRules" [rhythmicProportion]="2" (counterpointResult)="brokenRules = $event"></app-staff>
       </div>
 
       @if (brokenRules !== null) {

@@ -1,6 +1,6 @@
-import {Note} from './note';
 
-export class CounterpointExercise {
-  private cantusFirmus : Note[] = [];
-  private counterpoint : Note[] = [];
+export enum ExerciseRhythmicProportion {
+  firstSpecies = 1,
+  secondSpecies = 2,
+  thirdSpecies = 3,
 }
