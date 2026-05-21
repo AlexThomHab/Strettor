@@ -20,12 +20,12 @@ export class Staff {
   private counterpointValidator : CounterpointValidator = new CounterpointValidator();
   @Input() disabledRules : number[] = [];
   cantusFirmus: Note[] = [];
-  @Input() counterpoint: (Note | null)[] = Array(6).fill(null);
+  @Input() counterpoint: (Note | null)[] = Array(0).fill(null);
   @Output() counterpointResult: EventEmitter<Rule[] | null> = new EventEmitter();
-  private onMousePreview: (Note | null) = null;
+  private previewNote: (Note | null) = null;
 
   ngAfterViewInit() {
-    this.drawExercise(this.counterpoint, null)
+    this.drawExercise()
     this.staffContainer.nativeElement.addEventListener('click', (e: MouseEvent) => {
       this.addNote(e.clientY)
     })
@@ -34,7 +34,7 @@ export class Staff {
     })
   }
 
-  private drawExercise(counterPointInput: (Note | null)[], previewNote : (Note | null)): void {
+  private drawExercise(): void {
     this.staffContainer.nativeElement.innerHTML = "";
 
     const {Renderer, Stave, StaveNote, Voice, Formatter, GhostNote} = Vex;
@@ -66,7 +66,7 @@ export class Staff {
     const counterpointVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1}) //add counterpoint
     counterpointVoice.setStrict(false)
     counterpointVoice.addTickables(
-      counterPointInput.map(note =>
+      this.counterpoint.map(note =>
         note == null
           ? new GhostNote({duration: 'w'})
           : new StaveNote({keys: [this.toVexKey(note)], duration: 'w'})
@@ -74,17 +74,17 @@ export class Staff {
     )
     new Formatter().joinVoices([counterpointVoice]).format([counterpointVoice], this.stave.getWidth() - 60)
 
-    if (previewNote != null) {
+    if (this.previewNote != null) {
       const previewNoteVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1}) //add previewNote
       previewNoteVoice.setStrict(false)
 
       let previewNoteArray = Array(this.cantusFirmus.length).fill(null)
-      previewNoteArray[counterPointInput.filter(x => x != null).length] = previewNote
+      previewNoteArray[this.counterpoint.filter(x => x != null).length] = this.previewNote
       previewNoteVoice.addTickables(
         previewNoteArray.map(note =>
           note == null
             ? new GhostNote({duration: 'w'})
-            : new StaveNote({keys: [this.toVexKey(note)], duration: 'w'})
+            : new StaveNote({keys: [this.toVexKey(note)], duration: 'w'}).setStyle({ fillStyle: 'rgba(0,0,0,0.4)', strokeStyle: 'rgba(0,0,0,0.4)' })
         )
       )
       new Formatter().joinVoices([previewNoteVoice]).format([previewNoteVoice], this.stave.getWidth() - 60)
@@ -94,29 +94,10 @@ export class Staff {
   }
 
   private addNote(clickYAxis: number) {
-    const svg = this.staffContainer.nativeElement.querySelector('svg');
-    let listOfPossibleInputNotes: Note[] = [
-      new Note("E", 4),
-      new Note("F", 4),
-      new Note("G", 4),
-      new Note("A", 4),
-      new Note("B", 4),
-      new Note("C", 5),
-      new Note("D", 5),
-      new Note("E", 5),
-      new Note("F", 5),
-      new Note("G", 5),
-      new Note("A", 5)
-    ];
-    const rect = svg.getBoundingClientRect();
-    clickYAxis = (clickYAxis - rect.top) / this.scaleFactor;
-    let noteLineValue = this.stave.getLineForY(clickYAxis)
-    let noteIndexRounded = Math.round(noteLineValue * 2) / 2
-    let noteIndexInList = (4 - noteIndexRounded) / 0.5
-    let inputNote = listOfPossibleInputNotes[noteIndexInList]
+    let inputNote = this.getNoteGivenMouseY(clickYAxis);
     if (!inputNote) return;
     this.counterpoint[this.counterpoint.indexOf(null)] = inputNote;
-    this.drawExercise(this.counterpoint, null)
+    this.drawExercise()
   }
 
   private toVexKey(note: Note): string {
@@ -125,13 +106,13 @@ export class Staff {
   public onReset(){
     this.counterpoint = Array(this.cantusFirmus.length).fill(null)
     this.counterpointResult.emit(null);
-    this.drawExercise(this.counterpoint, null)
+    this.drawExercise()
   }
   public onNextExercise(){
     this.cantusFirmus = this.getRandomCantusFirmus()
     this.counterpoint = Array(this.cantusFirmus.length).fill(null)
     this.counterpointResult.emit(null);
-    this.drawExercise(this.counterpoint, null)
+    this.drawExercise()
   }
 
   public onCheck(){
@@ -159,8 +140,19 @@ export class Staff {
   }
 
   private onMouseHover(clickYAxis: number) {
+    let previewNote = this.getNoteGivenMouseY(clickYAxis);
+    if (!previewNote) return;
+    this.previewNote = previewNote;
+    this.drawExercise()
+  }
+  getNoteGivenMouseY(mouseY : number) : Note {
     const svg = this.staffContainer.nativeElement.querySelector('svg');
     let listOfPossibleInputNotes: Note[] = [
+      new Note("G", 3),
+      new Note("A", 3),
+      new Note("B", 3),
+      new Note("C", 4),
+      new Note("D", 4),
       new Note("E", 4),
       new Note("F", 4),
       new Note("G", 4),
@@ -171,16 +163,14 @@ export class Staff {
       new Note("E", 5),
       new Note("F", 5),
       new Note("G", 5),
-      new Note("A", 5)
+      new Note("A", 5),
+      new Note("B", 5)
     ];
     const rect = svg.getBoundingClientRect();
-    clickYAxis = (clickYAxis - rect.top) / this.scaleFactor;
-    let noteLineValue = this.stave.getLineForY(clickYAxis)
+    mouseY = (mouseY - rect.top) / this.scaleFactor;
+    let noteLineValue = this.stave.getLineForY(mouseY)
     let noteIndexRounded = Math.round(noteLineValue * 2) / 2
-    let noteIndexInList = (4 - noteIndexRounded) / 0.5
-    let previewNote = listOfPossibleInputNotes[noteIndexInList]
-    if (!previewNote) return;
-    this.onMousePreview = previewNote;
-    this.drawExercise(this.counterpoint, previewNote)
+    let noteIndexInList = (6 - noteIndexRounded) / 0.5
+     return listOfPossibleInputNotes[noteIndexInList]
   }
 }
