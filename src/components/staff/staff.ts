@@ -23,14 +23,15 @@ export class Staff {
   @Output() counterpointResult: EventEmitter<Rule[] | null> = new EventEmitter();
   @Input() rhythmicProportion: number = 1;
   private previewNote: (Note | null) = null;
+  private previewNoteXIndex: number = 0;
 
   ngAfterViewInit() {
     this.drawExercise()
     this.staffContainer.nativeElement.addEventListener('click', (e: MouseEvent) => {
-      this.addNote(e.clientY)
+      this.addNote(e.clientY, e.clientX)
     })
     this.staffContainer.nativeElement.addEventListener('mousemove', (e: MouseEvent) => {
-      this.onMouseHover(e.clientY)
+      this.onMouseHover(e.clientY, e.clientX)
     })
     this.staffContainer.nativeElement.addEventListener('mouseleave', (e: MouseEvent) => {
       this.onMouseLeave()
@@ -83,7 +84,7 @@ export class Staff {
       previewNoteVoice.setStrict(false)
 
       const previewNoteArray = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
-      previewNoteArray[this.counterpoint.filter(x => x != null).length] = this.previewNote
+      previewNoteArray[this.previewNoteXIndex] = this.previewNote
 
       const previewStaveNotes = this.notesToStaveNotes(previewNoteArray, this.rhythmicProportion);
       const previewIndex = this.counterpoint.filter(x => x != null).length;
@@ -96,10 +97,11 @@ export class Staff {
     counterpointVoice.draw(context, this.stave);
   }
 
-  private addNote(clickYAxis: number) {
+  private addNote(clickYAxis: number, clickXAxis: number): void {
     let inputNote = this.getNoteGivenMouseY(clickYAxis);
+    let beatIndex = this.getBeatPositionGivenMouseX(clickXAxis)
     if (!inputNote) return;
-    this.counterpoint[this.counterpoint.indexOf(null)] = inputNote;
+    this.counterpoint[beatIndex] = inputNote;
     this.drawExercise()
   }
 
@@ -144,16 +146,17 @@ export class Staff {
     );
   }
 
-  private staveNotesToNotes(staveNotes: StaveNote[]): Note[] {
-    return staveNotes.map(sn => {
-      const [notePart, octavePart] = sn.getKeys()[0].split('/');
-      const noteName = notePart.charAt(0).toUpperCase() + notePart.slice(1);
-      return new Note(noteName, parseInt(octavePart));
-    });
-  }
-
-  private onMouseHover(clickYAxis: number) {
-    let previewNote = this.getNoteGivenMouseY(clickYAxis);
+  /* private staveNotesToNotes(staveNotes: StaveNote[]): Note[] {
+     return staveNotes.map(sn => {
+       const [notePart, octavePart] = sn.getKeys()[0].split('/');
+       const noteName = notePart.charAt(0).toUpperCase() + notePart.slice(1);
+       return new Note(noteName, parseInt(octavePart));
+     });
+   }
+ */
+  private onMouseHover(hoverYAxis: number, hoverXAxis: number) {
+    let previewNote = this.getNoteGivenMouseY(hoverYAxis);
+    this.previewNoteXIndex = this.getBeatPositionGivenMouseX(hoverXAxis);
     if (!previewNote) return;
     this.previewNote = previewNote;
     this.drawExercise()
@@ -196,5 +199,20 @@ export class Staff {
   private rhythmicProportionToNoteLength(proportion: number): string {
     let rhythmToNoteList: string[] = ['w', 'h', 'q'];
     return rhythmToNoteList[proportion - 1]
+  }
+
+  private getBeatPositionGivenMouseX(hoverXAxis: number): number {
+    const svg = this.staffContainer.nativeElement.querySelector('svg');
+    const rect = svg.getBoundingClientRect();
+    const x = (hoverXAxis - rect.left) / this.scaleFactor;
+    const noteStartX = this.stave.getNoteStartX();
+    const noteWidth = this.stave.getWidth() - 60;
+    const totalSlots = this.cantusFirmus.length * this.rhythmicProportion;
+    const division = noteWidth / totalSlots;
+    let rawIndex = ((x - noteStartX) / division) ;
+    if (this.rhythmicProportion > 1) {
+      rawIndex = rawIndex - (1/this.rhythmicProportion);
+    }
+    return Math.max(0, Math.min(totalSlots - 1, Math.floor(rawIndex)));
   }
 }
