@@ -3,6 +3,10 @@ import {Staff} from '../staff/staff';
 import {Rule, Severity} from '../../models/rule';
 import {RuleService} from '../../service/RuleService';
 import {RouterModule} from '@angular/router';
+import {
+  SecondSpeciesCounterpointValidator
+} from '../../service/second-species-counterpoint-validator/SecondSpeciesCounterpointValidator';
+import {ICounterpointValidator} from '../../service/ICounterpointValidator';
 
 @Component({
   selector: 'app-second-species-exercise',
@@ -20,9 +24,10 @@ export class SecondSpeciesExercise {
   errorRules: Rule[] = [];
   disabledRules : number[] = []
   @Output() disabledRulesEvent: EventEmitter<number[]> = new EventEmitter();
+  speciesValidator : ICounterpointValidator = new SecondSpeciesCounterpointValidator()
 
   ngOnInit() {
-    this.listOfRules = this.ruleService.getAllRules()
+    this.listOfRules = this.ruleService.getSecondSpeciesRules()
     this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
     this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
   }

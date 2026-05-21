@@ -10,7 +10,11 @@ export class RuleService {
     return rule;
   }
 
-  public getAllRules(): Rule[] {
+  public getFirstSpeciesRules(): Rule[] {
     return FIRST_SPECIES_RULES;
+  }
+
+  public getSecondSpeciesRules(): Rule[] {
+    return SECOND_SPECIES_RULES;
   }
 }

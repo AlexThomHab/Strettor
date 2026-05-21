@@ -3,8 +3,9 @@ import {IntervalCalculator} from '../IntervalCalculator';
 import {Rule} from '../../models/rule';
 import {RuleIdEnum} from '../../data/rules.data';
 import {FIRST_SPECIES_RULES} from '../../data/rules.data';
+import {ICounterpointValidator} from '../ICounterpointValidator';
 
-export class FirstSpeciesCounterpointValidator {
+export class FirstSpeciesCounterpointValidator implements ICounterpointValidator {
 
   private _intervalCalculator: IntervalCalculator = new IntervalCalculator();
   private _chromaticScale: string[] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];

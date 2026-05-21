@@ -22,7 +22,7 @@ export class ThreeAgainstOneExercise {
   @Output() disabledRulesEvent: EventEmitter<number[]> = new EventEmitter();
 
   ngOnInit() {
-    this.listOfRules = this.ruleService.getAllRules()
+    this.listOfRules = this.ruleService.getFirstSpeciesRules()
     this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
     this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
   }
