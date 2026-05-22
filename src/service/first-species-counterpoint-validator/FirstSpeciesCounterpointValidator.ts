@@ -35,13 +35,15 @@ export class FirstSpeciesCounterpointValidator implements ICounterpointValidator
   }
 
   getBrokenRules(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[] = []): Rule[] {
-    const enabledRules = this._rules.filter(x => !disabledRuleIDs.includes(x.rule.id));
     if (cantusFirmus.length !== counterpoint.length) {
       return [this._rules[0].rule];
     }
-    return enabledRules
-      .filter(r => !r.check(cantusFirmus, counterpoint))
-      .map(r => r.rule);
+    const brokenRules: Rule[] = [];
+    for (const { check, rule } of this._rules) {
+      if (disabledRuleIDs.includes(rule.id)) continue;
+      if (!check(cantusFirmus, counterpoint)) brokenRules.push(rule);
+    }
+    return brokenRules;
   }
 
   private getAbsolutePitch(note: Note): number {
