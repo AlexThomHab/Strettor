@@ -54,7 +54,7 @@ export class Staff {
       this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
     }
 
-    const cantusFirmusVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
+    const cantusFirmusVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: this.rhythmicProportion == 3 ? 2.5 : 1})
     cantusFirmusVoice.setStrict(false)
 
     const cantusFirmusStaveNotes = this.cantusfirmusNotesToStaveNotes(this.cantusFirmus, this.getCantusFirmusNoteLength());
@@ -68,7 +68,7 @@ export class Staff {
 
     const counterpointVoice = new Voice({
       numBeats: this.cantusFirmus.length * this.rhythmicProportion,
-      beatValue: this.rhythmicProportion
+      beatValue: this.rhythmicProportion == 3 ? 4 : this.rhythmicProportion
     })
     counterpointVoice.setStrict(false)
     let counterpointStaveNotes = this.counterpointNotesToStaveNotes(this.counterpoint, this.rhythmicProportion)
@@ -165,7 +165,7 @@ export class Staff {
     const duration = this.counterpointRhythmicProportionToNoteLength(rhythmicProportion);
     return notes.map(note => {
       if (note == null) {
-        const placeholder = new StaveNote({keys: ['b/4'], duration});
+        const placeholder = new StaveNote({keys: ['f/5'], duration});
         placeholder.setStyle({fillStyle: 'rgba(0,0,0,0)', strokeStyle: 'rgba(0,0,0,0)'});
         return placeholder;
       }
@@ -216,7 +216,9 @@ export class Staff {
       new Note("F", 5),
       new Note("G", 5),
       new Note("A", 5),
-      new Note("B", 5)
+      new Note("B", 5),
+      new Note("C", 6),
+
     ];
     const rect = svg.getBoundingClientRect();
     mouseY = (mouseY - rect.top) / this.scaleFactor;
