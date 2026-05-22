@@ -1,5 +1,5 @@
 import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
-import Vex, {Stave, StaveNote, Voice} from 'vexflow'
+import Vex, {Stave, StaveNote, Dot, Voice} from 'vexflow'
 import {Note} from '../../models/note';
 import {ICounterpointValidator} from '../../service/ICounterpointValidator';
 import {FirstSpeciesCounterpointValidator} from '../../service/first-species-counterpoint-validator/FirstSpeciesCounterpointValidator';
@@ -57,7 +57,7 @@ export class Staff {
     const cantusFirmusVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
     cantusFirmusVoice.setStrict(false)
 
-    const cantusFirmusStaveNotes = this.notesToStaveNotes(this.cantusFirmus, 1);
+    const cantusFirmusStaveNotes = this.cantusfirmusNotesToStaveNotes(this.cantusFirmus, this.getCantusFirmusNoteLength());
 
     // @ts-ignore
     this.stave = new Stave(10, 65, (width - 30) / this.scaleFactor, {spacing_between_lines_px: 20});
@@ -71,7 +71,7 @@ export class Staff {
       beatValue: this.rhythmicProportion
     })
     counterpointVoice.setStrict(false)
-    let counterpointStaveNotes = this.notesToStaveNotes(this.counterpoint, this.rhythmicProportion)
+    let counterpointStaveNotes = this.counterpointNotesToStaveNotes(this.counterpoint, this.rhythmicProportion)
     counterpointVoice.addTickables(counterpointStaveNotes)
 
     // Join voices only when CP ticks divide evenly into a whole note (4096 ticks).
@@ -98,13 +98,13 @@ export class Staff {
       const previewNoteArray = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
       previewNoteArray[this.previewNoteXIndex] = this.previewNote
 
-      const previewStaveNotes = this.notesToStaveNotes(previewNoteArray, this.rhythmicProportion);
+      const previewStaveNotes = this.counterpointNotesToStaveNotes(previewNoteArray, this.rhythmicProportion);
       previewStaveNotes[this.previewNoteXIndex].setStyle({fillStyle: 'rgba(0,0,0,0.4)', strokeStyle: 'rgba(0,0,0,0.4)'});
 
       previewNoteVoice.addTickables(previewStaveNotes)
       const previewCFVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
       previewCFVoice.setStrict(false)
-      previewCFVoice.addTickables(this.notesToStaveNotes(this.cantusFirmus, 1))
+      previewCFVoice.addTickables(this.counterpointNotesToStaveNotes(this.cantusFirmus, 1))
       new Formatter()
         .joinVoices([previewCFVoice, previewNoteVoice])
         .format([previewCFVoice, previewNoteVoice], this.stave.getWidth() - 60)
@@ -112,6 +112,14 @@ export class Staff {
     }
 
     counterpointVoice.draw(context, this.stave);
+  }
+
+  private getCantusFirmusNoteLength() {
+    if (this.rhythmicProportion == 3){
+      return 2.5 //if we're doing 3:1 counterpoint return a dotted half note
+    }
+    return 1;
+
   }
 
   private addNote(clickYAxis: number, clickXAxis: number): void {
@@ -153,8 +161,8 @@ export class Staff {
     return CANTUS_FIRMUS_LIST[randomIndex];
   }
 
-  private notesToStaveNotes(notes: (Note | null)[], rhythmicProportion: number) {
-    const duration = this.rhythmicProportionToNoteLength(rhythmicProportion);
+  private counterpointNotesToStaveNotes(notes: (Note | null)[], rhythmicProportion: number) {
+    const duration = this.counterpointRhythmicProportionToNoteLength(rhythmicProportion);
     return notes.map(note => {
       if (note == null) {
         const placeholder = new StaveNote({keys: ['b/4'], duration});
@@ -163,6 +171,14 @@ export class Staff {
       }
       return new StaveNote({keys: [this.toVexKey(note)], duration});
     });
+  }
+  private cantusfirmusNotesToStaveNotes(notes: Note[], rhythmicProportion: number) : StaveNote[] {
+    if (rhythmicProportion == 2.5) {
+      const noteList = notes.map(note => new StaveNote({keys: [this.toVexKey(note)], duration: 'h'}));
+      Dot.buildAndAttach(noteList, { all: true });
+      return noteList;
+    }
+    return notes.map(note => new StaveNote({keys: [this.toVexKey(note)], duration: 'w'}));
   }
 
   /* private staveNotesToNotes(staveNotes: StaveNote[]): Note[] {
@@ -215,7 +231,7 @@ export class Staff {
     this.drawExercise()
   }
 
-  private rhythmicProportionToNoteLength(proportion: number): string {
+  private counterpointRhythmicProportionToNoteLength(proportion: number): string {
     let rhythmToNoteList: string[] = ['w', 'h', 'q', 'q'];
     return rhythmToNoteList[proportion - 1]
   }

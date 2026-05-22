@@ -4,7 +4,7 @@ import {Note} from '../../models/note';
 import {Rule, Severity} from '../../models/rule';
 import {RuleIdEnum} from '../../data/rules.data';
 
-describe('CounterpointValidator — rule enabling/disabling', () => {
+describe('CounterpointValidator - rule enabling/disabling', () => {
   let validator: FirstSpeciesCounterpointValidator;
 
   // A known-valid solution (D Dorian)
