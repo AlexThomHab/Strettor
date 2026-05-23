@@ -141,6 +141,9 @@ export class Staff {
     else if (this.species === "fourth" && (beatIndex == 0 || beatIndex == this.counterpoint.length - 1)) {
 
     }
+    else if (this.species === "second" && beatIndex == this.counterpoint.length - 1) {
+
+    }
 
     else {
       this.counterpoint[beatIndex] = inputNote;
@@ -161,7 +164,7 @@ export class Staff {
         placeholder.setStyle({fillStyle: 'rgba(0,0,0,0)', strokeStyle: 'rgba(0,0,0,0)'});
         return placeholder;
       }
-      if (this.species === "fourth" && index === notes.length - 2) {
+      if ((this.species === "fourth" || this.species == "second") && index === notes.length - 2) {
         return new StaveNote({keys: [this.toVexKey(note)], duration: 'w'});
       }
       if (this.species === "fourth" && index === notes.length - 3) {
@@ -180,7 +183,19 @@ export class Staff {
     let previewNote = this.getNoteGivenMouseY(hoverYAxis);
     this.previewNoteXIndex = this.getBeatPositionGivenMouseX(hoverXAxis);
     if (!previewNote) return;
-    this.previewNote = previewNote;
+
+    if ((this.previewNoteXIndex == 0 || this.previewNoteXIndex == this.counterpoint.length - 1) && this.species == "fourth") {
+      this.previewNote = null;
+    }
+    else if ((this.previewNoteXIndex == (this.counterpoint.length - 1)) && this.species === "second") {
+      this.previewNote = null;
+    }
+    else if (this.previewNoteXIndex > this.counterpoint.length - 3 && this.species === "third") {
+      this.previewNote = null;
+    }
+    else{
+      this.previewNote = previewNote;
+    }
     this.drawExercise()
   }
 
