@@ -61,7 +61,7 @@ export class Staff {
     const cantusFirmusVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
     cantusFirmusVoice.setStrict(false)
 
-    const cantusFirmusStaveNotes = this.cantusfirmusNotesToStaveNotes(this.cantusFirmus, 1);
+    const cantusFirmusStaveNotes = this.cantusfirmusNotesToStaveNotes(this.cantusFirmus);
 
     cantusFirmusVoice.addTickables(cantusFirmusStaveNotes)
 
@@ -99,7 +99,7 @@ export class Staff {
 
       const previewCFVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
       previewCFVoice.setStrict(false)
-      previewCFVoice.addTickables(this.cantusfirmusNotesToStaveNotes(this.cantusFirmus, 1))
+      previewCFVoice.addTickables(this.cantusfirmusNotesToStaveNotes(this.cantusFirmus))
 
       new Formatter()
         .joinVoices([previewCFVoice, previewNoteVoice])
@@ -111,8 +111,9 @@ export class Staff {
     counterpointVoice.draw(context, this.stave);
 
     if (this.species === "fourth") {
-      for (let i = 1; i < counterpointStaveNotes.length; i += 2) {
-        if (this.counterpoint[i] == null) continue;
+      for (let i = 1; i < counterpointStaveNotes.length - 1; i += 2) {
+        if (this.counterpoint[i] == null && i < this.counterpoint.length) continue;
+        if (i + 1 === counterpointStaveNotes.length - 2) continue;
         const tie = new StaveTie({
           firstNote: counterpointStaveNotes[i],
           lastNote: counterpointStaveNotes[i + 1],
@@ -129,14 +130,18 @@ export class Staff {
     let beatIndex = this.getBeatPositionGivenMouseX(clickXAxis)
     if (!inputNote) return;
 
-    if (this.species === "fourth" && beatIndex != 0) {
+    if (this.species === "fourth" && beatIndex != 0 && beatIndex < this.counterpoint.length - 2) {
       const pairStart = beatIndex % 2 == 1 ? beatIndex : beatIndex - 1;
       this.counterpoint[pairStart] = inputNote;
-      this.counterpoint[pairStart + 1] = inputNote;
+      if (pairStart + 1 !== this.counterpoint.length - 2) {
+        this.counterpoint[pairStart + 1] = inputNote;
+      }
     }
-    else if (this.species === "fourth" && beatIndex == 0){
+
+    else if (this.species === "fourth" && (beatIndex == 0 || beatIndex == this.counterpoint.length - 1)) {
 
     }
+
     else {
       this.counterpoint[beatIndex] = inputNote;
     }
@@ -150,35 +155,27 @@ export class Staff {
 
   private counterpointNotesToStaveNotes(notes: (Note | null)[]) {
     const duration = this.counterpointRhythmicProportionToNoteLength(this.rhythmicProportion);
-    return notes.map(note => {
+    return notes.map((note, index) => {
       if (note == null) {
         const placeholder = new StaveNote({keys: ['f/5'], duration});
         placeholder.setStyle({fillStyle: 'rgba(0,0,0,0)', strokeStyle: 'rgba(0,0,0,0)'});
         return placeholder;
       }
-
+      if (this.species === "fourth" && index === notes.length - 2) {
+        return new StaveNote({keys: [this.toVexKey(note)], duration: 'w'});
+      }
+      if (this.species === "fourth" && index === notes.length - 3) {
+        return new StaveNote({keys: [this.toVexKey(note)], duration: 'h'});
+      }
       return new StaveNote({keys: [this.toVexKey(note)], duration});
     });
 
   }
 
-  private cantusfirmusNotesToStaveNotes(notes: Note[], rhythmicProportion: number): StaveNote[] {
-    if (rhythmicProportion == 2.5) {
-      const noteList = notes.map(note => new StaveNote({keys: [this.toVexKey(note)], duration: 'h'}));
-      Dot.buildAndAttach(noteList, {all: true});
-      return noteList;
-    }
+  private cantusfirmusNotesToStaveNotes(notes: Note[]): StaveNote[] {
     return notes.map(note => new StaveNote({keys: [this.toVexKey(note)], duration: 'w'}));
   }
 
-  /* private staveNotesToNotes(staveNotes: StaveNote[]): Note[] {
-     return staveNotes.map(sn => {
-       const [notePart, octavePart] = sn.getKeys()[0].split('/');
-       const noteName = notePart.charAt(0).toUpperCase() + notePart.slice(1);
-       return new Note(noteName, parseInt(octavePart));
-     });
-   }
- */
   private onMouseHover(hoverYAxis: number, hoverXAxis: number) {
     let previewNote = this.getNoteGivenMouseY(hoverYAxis);
     this.previewNoteXIndex = this.getBeatPositionGivenMouseX(hoverXAxis);
