@@ -111,7 +111,7 @@ export class Staff {
     counterpointVoice.draw(context, this.stave);
 
     if (this.species === "fourth") {
-      for (let i = 0; i < counterpointStaveNotes.length; i += 2) {
+      for (let i = 1; i < counterpointStaveNotes.length; i += 2) {
         if (this.counterpoint[i] == null) continue;
         const tie = new StaveTie({
           firstNote: counterpointStaveNotes[i],
@@ -129,11 +129,15 @@ export class Staff {
     let beatIndex = this.getBeatPositionGivenMouseX(clickXAxis)
     if (!inputNote) return;
 
-    if (this.species === "fourth") {
-      const pairStart = beatIndex - (beatIndex % 2);
+    if (this.species === "fourth" && beatIndex != 0) {
+      const pairStart = beatIndex % 2 == 1 ? beatIndex : beatIndex - 1;
       this.counterpoint[pairStart] = inputNote;
       this.counterpoint[pairStart + 1] = inputNote;
-    } else {
+    }
+    else if (this.species === "fourth" && beatIndex == 0){
+
+    }
+    else {
       this.counterpoint[beatIndex] = inputNote;
     }
     this.drawExercise()
