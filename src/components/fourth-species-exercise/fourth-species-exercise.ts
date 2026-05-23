@@ -1,16 +1,18 @@
 import {Component, EventEmitter, Output} from '@angular/core';
-import {Staff} from '../staff/staff';
 import {Rule, Severity} from '../../models/rule';
 import {RuleService} from '../../service/RuleService';
-import {RouterModule} from '@angular/router';
+import {FourthSpeciesCounterpointValidator} from '../../service/fourth-species-counterpoint-validator/FourthSpeciesCounterpointValidator';
+import {Staff} from '../staff/staff';
 
 @Component({
-  selector: 'app-three-against-one-exercise',
-  imports: [Staff, RouterModule],
-  templateUrl: './three-against-one-exercise.html',
-  styleUrl: './three-against-one-exercise.css',
+  selector: 'app-fourth-species-exercise',
+  imports: [
+    Staff
+  ],
+  templateUrl: './fourth-species-exercise.html',
+  styleUrl: './fourth-species-exercise.css',
 })
-export class ThreeAgainstOneExercise {
+export class FourthSpeciesExercise {
   brokenRules: Rule[] | null = null;
   protected readonly Error = Error;
   protected readonly length = length;
@@ -18,11 +20,13 @@ export class ThreeAgainstOneExercise {
   ruleService: RuleService = new RuleService();
   warningRules: Rule[] = [];
   errorRules: Rule[] = [];
-  disabledRules : number[] = []
+  disabledRules: number[] = [];
+  speciesValidator = new FourthSpeciesCounterpointValidator();
   @Output() disabledRulesEvent: EventEmitter<number[]> = new EventEmitter();
+  species: string = "fourth";
 
   ngOnInit() {
-    this.listOfRules = this.ruleService.getFirstSpeciesRules()
+    this.listOfRules = this.ruleService.getThirdSpeciesRules();
     this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
     this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
   }
@@ -42,4 +46,3 @@ export class ThreeAgainstOneExercise {
     return !this.disabledRules.includes(rule.id)
   }
 }
-

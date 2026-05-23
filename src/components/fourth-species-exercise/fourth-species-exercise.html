@@ -2,14 +2,13 @@
 
   <div id="exercise-panel">
     <div id="panel-header">
-      <h3>Three Against One Exercise</h3>
-      <h4>Enter counterpoint 3:1 against the given cantus firmus.</h4>
-      <h4>Fux does not give a 3:1 exercise in Gradus Ad Parnassum hence why this exercise does not have 'species' in the name.</h4>
+      <h3>Second Species Exercise</h3>
+      <h4>Enter counterpoint suspensions against the given cantus firmus</h4>
     </div>
 
     <div id="panel-body">
       <div id="staff-area">
-        <app-staff #staff [disabledRules]="disabledRules" [rhythmicProportion]="3" (counterpointResult)="brokenRules = $event"></app-staff>
+        <app-staff #staff [disabledRules]="disabledRules" [species]="species" [counterpointValidator]="speciesValidator" (counterpointResult)="brokenRules = $event"></app-staff>
       </div>
 
       @if (brokenRules !== null) {

@@ -18,6 +18,7 @@ export class FirstSpeciesExercise {
   warningRules: Rule[] = [];
   errorRules: Rule[] = [];
   disabledRules : number[] = []
+  species: string = "first";
   @Output() disabledRulesEvent: EventEmitter<number[]> = new EventEmitter();
 
   ngOnInit() {

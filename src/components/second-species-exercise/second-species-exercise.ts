@@ -25,6 +25,7 @@ export class SecondSpeciesExercise {
   disabledRules : number[] = []
   @Output() disabledRulesEvent: EventEmitter<number[]> = new EventEmitter();
   speciesValidator : ICounterpointValidator = new SecondSpeciesCounterpointValidator()
+  species: string = "second";
 
   ngOnInit() {
     this.listOfRules = this.ruleService.getSecondSpeciesRules()

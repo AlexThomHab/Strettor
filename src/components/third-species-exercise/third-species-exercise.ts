@@ -3,6 +3,7 @@ import {Staff} from '../staff/staff';
 import {Rule, Severity} from '../../models/rule';
 import {RuleService} from '../../service/RuleService';
 import {RouterModule} from '@angular/router';
+import {ThirdSpeciesCounterpointValidator} from '../../service/third-species-counterpoint-validator/ThirdSpeciesCounterpointValidator';
 
 @Component({
   selector: 'app-third-species-exercise',
@@ -18,11 +19,13 @@ export class ThirdSpeciesExercise {
   ruleService: RuleService = new RuleService();
   warningRules: Rule[] = [];
   errorRules: Rule[] = [];
-  disabledRules : number[] = []
+  disabledRules: number[] = [];
+  speciesValidator = new ThirdSpeciesCounterpointValidator();
   @Output() disabledRulesEvent: EventEmitter<number[]> = new EventEmitter();
+  species: string = "third";
 
   ngOnInit() {
-    this.listOfRules = this.ruleService.getFirstSpeciesRules()
+    this.listOfRules = this.ruleService.getThirdSpeciesRules();
     this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
     this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
   }

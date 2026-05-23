@@ -42,6 +42,28 @@ export enum RuleIdEnum {
   S2_CoincidingClimax                        = 118,
   S2_NoExcessiveConsecutiveThirdsOrSixths    = 119,
   S2_NoExcessivePitchRepetition              = 120,
+
+  // Third Species (200–219)
+  S3_CorrectLength                           = 200,
+  S3_DownbeatConsonance                      = 201,
+  S3_ValidBeginningInterval                  = 202,
+  S3_ValidEndingInterval                     = 203,
+  S3_NoParallelFifthsBetweenDownbeats        = 204,
+  S3_NoParallelOctavesBetweenDownbeats       = 205,
+  S3_NoParallelFifthsBeat4ToDownbeat         = 206,
+  S3_NoParallelOctavesBeat4ToDownbeat        = 207,
+  S3_DissonancesMustBeNonHarmonic            = 208,
+  S3_NoToneRepetition                        = 209,
+  S3_NoAugmentedOrDiminishedMelodicIntervals = 210,
+  S3_NoVoiceCrossing                         = 211,
+  S3_NoVoiceOverlap                          = 212,
+  S3_NoUnisonsOnInnerDownbeats               = 213,
+  S3_NoDirectMotionToPerfectOnDownbeats      = 214,
+  S3_FinalCadence                            = 215,
+  S3_LargeLeapsRecoverCorrectly              = 216,
+  S3_CoincidingClimax                        = 217,
+  S3_NoExcessiveConsecutiveThirdsOrSixths    = 218,
+  S3_NoExcessivePitchRepetition              = 219,
 }
 
 export const FIRST_SPECIES_RULES: Rule[] = [
@@ -86,4 +108,27 @@ export const SECOND_SPECIES_RULES: Rule[] = [
   new Rule(RuleIdEnum.S2_CoincidingClimax,                        'Avoid coinciding high points with the cantus firmus',                                  Severity.Warning),
   new Rule(RuleIdEnum.S2_NoExcessiveConsecutiveThirdsOrSixths,    'Avoid more than 3 consecutive thirds or sixths on downbeats',                          Severity.Warning),
   new Rule(RuleIdEnum.S2_NoExcessivePitchRepetition,              'Avoid overusing the same pitch throughout the exercise',                               Severity.Warning),
+];
+
+export const THIRD_SPECIES_RULES: Rule[] = [
+  new Rule(RuleIdEnum.S3_CorrectLength,                           'Counterpoint must have exactly 4N−3 notes (4 notes per CF note, last measure beat 1 only)', Severity.Error),
+  new Rule(RuleIdEnum.S3_DownbeatConsonance,                      'All downbeats (beat 1) must form a consonant interval with the cantus firmus',              Severity.Error),
+  new Rule(RuleIdEnum.S3_ValidBeginningInterval,                  'Begin on a unison, octave, or fifth above the cantus firmus',                              Severity.Error),
+  new Rule(RuleIdEnum.S3_ValidEndingInterval,                     'Both voices must end on scale degree 1 (unison or octave)',                                Severity.Error),
+  new Rule(RuleIdEnum.S3_NoParallelFifthsBetweenDownbeats,        'No parallel perfect fifths between consecutive downbeats',                                 Severity.Error),
+  new Rule(RuleIdEnum.S3_NoParallelOctavesBetweenDownbeats,       'No parallel octaves between consecutive downbeats',                                        Severity.Error),
+  new Rule(RuleIdEnum.S3_NoParallelFifthsBeat4ToDownbeat,         'No parallel perfect fifths from beat 4 to the following downbeat',                        Severity.Error),
+  new Rule(RuleIdEnum.S3_NoParallelOctavesBeat4ToDownbeat,        'No parallel octaves from beat 4 to the following downbeat',                               Severity.Error),
+  new Rule(RuleIdEnum.S3_DissonancesMustBeNonHarmonic,            'Off-beat dissonances must function as passing tones, neighbour tones, or double-neighbour figures', Severity.Error),
+  new Rule(RuleIdEnum.S3_NoToneRepetition,                        'No immediately repeated notes',                                                            Severity.Error),
+  new Rule(RuleIdEnum.S3_NoAugmentedOrDiminishedMelodicIntervals, 'No dissonant melodic leaps (tritone, seventh, or larger than an octave)',                 Severity.Error),
+  new Rule(RuleIdEnum.S3_NoVoiceCrossing,                         'No voice crossing',                                                                        Severity.Error),
+  new Rule(RuleIdEnum.S3_NoVoiceOverlap,                          'No voice overlap',                                                                         Severity.Error),
+  new Rule(RuleIdEnum.S3_NoUnisonsOnInnerDownbeats,               'Unisons are only permitted on the first and last note',                                    Severity.Error),
+  new Rule(RuleIdEnum.S3_NoDirectMotionToPerfectOnDownbeats,      'No approaching a perfect consonance on a downbeat by direct motion',                      Severity.Error),
+  new Rule(RuleIdEnum.S3_FinalCadence,                            'Approach the final note by step',                                                          Severity.Warning),
+  new Rule(RuleIdEnum.S3_LargeLeapsRecoverCorrectly,              'Large leaps should be recovered by a step in the opposite direction',                     Severity.Warning),
+  new Rule(RuleIdEnum.S3_CoincidingClimax,                        'Avoid coinciding high points with the cantus firmus',                                      Severity.Warning),
+  new Rule(RuleIdEnum.S3_NoExcessiveConsecutiveThirdsOrSixths,    'Avoid more than 3 consecutive thirds or sixths on downbeats',                             Severity.Warning),
+  new Rule(RuleIdEnum.S3_NoExcessivePitchRepetition,              'Avoid overusing the same pitch throughout the exercise',                                   Severity.Warning),
 ];

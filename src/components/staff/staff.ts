@@ -1,8 +1,10 @@
 import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
-import Vex, {Stave, StaveNote, Dot, Voice} from 'vexflow'
+import Vex, {Stave, StaveNote, Dot, Voice, TieNotes} from 'vexflow'
 import {Note} from '../../models/note';
 import {ICounterpointValidator} from '../../service/ICounterpointValidator';
-import {FirstSpeciesCounterpointValidator} from '../../service/first-species-counterpoint-validator/FirstSpeciesCounterpointValidator';
+import {
+  FirstSpeciesCounterpointValidator
+} from '../../service/first-species-counterpoint-validator/FirstSpeciesCounterpointValidator';
 import {Rule} from '../../models/rule';
 import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
 
@@ -23,13 +25,15 @@ export class Staff {
   @Input() counterpoint: (Note | null)[] = Array(0).fill(null);
   @Output() counterpointResult: EventEmitter<Rule[] | null> = new EventEmitter();
   @Input() rhythmicProportion: number = 1;
+  @Input() species!: string;
   private previewNote: (Note | null) = null;
   private previewNoteXIndex: number = 0;
 
   ngAfterViewInit() {
+    this.setRhythmicProportionGivenSpecies()
     this.drawExercise()
     this.staffContainer.nativeElement.addEventListener('click', (e: MouseEvent) => {
-      this.addNote(e.clientY, e.clientX)
+      this.addNoteGivenClick(e.clientY, e.clientX)
     })
     this.staffContainer.nativeElement.addEventListener('mousemove', (e: MouseEvent) => {
       this.onMouseHover(e.clientY, e.clientX)
@@ -54,10 +58,10 @@ export class Staff {
       this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
     }
 
-    const cantusFirmusVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: this.rhythmicProportion == 3 ? 2.5 : 1})
+    const cantusFirmusVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
     cantusFirmusVoice.setStrict(false)
 
-    const cantusFirmusStaveNotes = this.cantusfirmusNotesToStaveNotes(this.cantusFirmus, this.getCantusFirmusNoteLength());
+    const cantusFirmusStaveNotes = this.cantusfirmusNotesToStaveNotes(this.cantusFirmus, 1);
 
     // @ts-ignore
     this.stave = new Stave(10, 65, (width - 30) / this.scaleFactor, {spacing_between_lines_px: 20});
@@ -68,7 +72,7 @@ export class Staff {
 
     const counterpointVoice = new Voice({
       numBeats: this.cantusFirmus.length * this.rhythmicProportion,
-      beatValue: this.rhythmicProportion == 3 ? 4 : this.rhythmicProportion
+      beatValue: this.rhythmicProportion
     })
     counterpointVoice.setStrict(false)
     let counterpointStaveNotes = this.counterpointNotesToStaveNotes(this.counterpoint, this.rhythmicProportion)
@@ -76,15 +80,9 @@ export class Staff {
 
     // Join voices only when CP ticks divide evenly into a whole note (4096 ticks).
     // Odd proportions like 3 produce a tick mismatch and distort the CF if joined.
-    const ticksAlign = 4096 % this.rhythmicProportion === 0;
-    if (ticksAlign) {
-      new Formatter()
-        .joinVoices([cantusFirmusVoice, counterpointVoice])
-        .format([cantusFirmusVoice, counterpointVoice], this.stave.getWidth() - 60)
-    } else {
-      new Formatter().joinVoices([cantusFirmusVoice]).format([cantusFirmusVoice], this.stave.getWidth() - 60)
-      new Formatter().joinVoices([counterpointVoice]).format([counterpointVoice], this.stave.getWidth() - 60)
-    }
+    new Formatter()
+      .joinVoices([cantusFirmusVoice, counterpointVoice])
+      .format([cantusFirmusVoice, counterpointVoice], this.stave.getWidth() - 60)
 
     cantusFirmusVoice.draw(context, this.stave);
 
@@ -99,7 +97,10 @@ export class Staff {
       previewNoteArray[this.previewNoteXIndex] = this.previewNote
 
       const previewStaveNotes = this.counterpointNotesToStaveNotes(previewNoteArray, this.rhythmicProportion);
-      previewStaveNotes[this.previewNoteXIndex].setStyle({fillStyle: 'rgba(0,0,0,0.4)', strokeStyle: 'rgba(0,0,0,0.4)'});
+      previewStaveNotes[this.previewNoteXIndex].setStyle({
+        fillStyle: 'rgba(0,0,0,0.4)',
+        strokeStyle: 'rgba(0,0,0,0.4)'
+      });
 
       previewNoteVoice.addTickables(previewStaveNotes)
       const previewCFVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
@@ -110,19 +111,10 @@ export class Staff {
         .format([previewCFVoice, previewNoteVoice], this.stave.getWidth() - 60)
       previewNoteVoice.draw(context, this.stave);
     }
-
     counterpointVoice.draw(context, this.stave);
   }
 
-  private getCantusFirmusNoteLength() {
-    if (this.rhythmicProportion == 3){
-      return 2.5 //if we're doing 3:1 counterpoint return a dotted half note
-    }
-    return 1;
-
-  }
-
-  private addNote(clickYAxis: number, clickXAxis: number): void {
+  private addNoteGivenClick(clickYAxis: number, clickXAxis: number): void {
     let inputNote = this.getNoteGivenMouseY(clickYAxis);
     let beatIndex = this.getBeatPositionGivenMouseX(clickXAxis)
     if (!inputNote) return;
@@ -172,10 +164,11 @@ export class Staff {
       return new StaveNote({keys: [this.toVexKey(note)], duration});
     });
   }
-  private cantusfirmusNotesToStaveNotes(notes: Note[], rhythmicProportion: number) : StaveNote[] {
+
+  private cantusfirmusNotesToStaveNotes(notes: Note[], rhythmicProportion: number): StaveNote[] {
     if (rhythmicProportion == 2.5) {
       const noteList = notes.map(note => new StaveNote({keys: [this.toVexKey(note)], duration: 'h'}));
-      Dot.buildAndAttach(noteList, { all: true });
+      Dot.buildAndAttach(noteList, {all: true});
       return noteList;
     }
     return notes.map(note => new StaveNote({keys: [this.toVexKey(note)], duration: 'w'}));
@@ -246,10 +239,20 @@ export class Staff {
     const noteWidth = this.stave.getWidth() - 60;
     const totalSlots = this.cantusFirmus.length * this.rhythmicProportion;
     const division = noteWidth / totalSlots;
-    let rawIndex = ((x - noteStartX) / division) ;
+    let rawIndex = ((x - noteStartX) / division);
     if (this.rhythmicProportion > 1) {
-      rawIndex = rawIndex - (1/this.rhythmicProportion);
+      rawIndex = rawIndex - (1 / this.rhythmicProportion);
     }
     return Math.max(0, Math.min(totalSlots - 1, Math.floor(rawIndex)));
+  }
+
+  setRhythmicProportionGivenSpecies() {
+    var speciesToRhythmicProportion: Record<string, number> = {
+      "first": 1,
+      "second": 2,
+      "third": 4,
+      "fourth": 2,
+    }
+    this.rhythmicProportion = speciesToRhythmicProportion[this.species];
   }
 }
