@@ -1,5 +1,5 @@
 import {Component, ElementRef, EventEmitter, Input, Output, SimpleChanges, ViewChild} from '@angular/core';
-import Vex, {Stave, StaveNote, Dot} from 'vexflow'
+import Vex, {Stave, StaveNote, Dot, StaveTie} from 'vexflow'
 import {Note} from '../../models/note';
 
 @Component({
@@ -25,7 +25,7 @@ export class Staff {
   ngOnChanges(changes: SimpleChanges) {
     if (!this.staffContainer) return;
 
-    if(changes['cantusFirmus'] || changes['counterpoint']) {
+    if (changes['cantusFirmus'] || changes['counterpoint']) {
       this.drawExercise()
     }
   }
@@ -71,6 +71,7 @@ export class Staff {
     })
     counterpointVoice.setStrict(false)
     const counterpointStaveNotes = this.counterpointNotesToStaveNotes(this.counterpoint)
+
     counterpointVoice.addTickables(counterpointStaveNotes)
 
     new Formatter()
@@ -114,7 +115,14 @@ export class Staff {
     let inputNote = this.getNoteGivenMouseY(clickYAxis);
     let beatIndex = this.getBeatPositionGivenMouseX(clickXAxis)
     if (!inputNote) return;
-    this.counterpoint[beatIndex] = inputNote;
+
+    if (this.species === "fourth") {
+      const pairStart = beatIndex - (beatIndex % 2);
+      this.counterpoint[pairStart] = inputNote;
+      this.counterpoint[pairStart + 1] = inputNote;
+    } else {
+      this.counterpoint[beatIndex] = inputNote;
+    }
     this.drawExercise()
   }
 
@@ -131,8 +139,10 @@ export class Staff {
         placeholder.setStyle({fillStyle: 'rgba(0,0,0,0)', strokeStyle: 'rgba(0,0,0,0)'});
         return placeholder;
       }
+
       return new StaveNote({keys: [this.toVexKey(note)], duration});
     });
+
   }
 
   private cantusfirmusNotesToStaveNotes(notes: Note[], rhythmicProportion: number): StaveNote[] {
