@@ -1,10 +1,6 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
-import Vex, {Stave, StaveNote, Dot, Voice, TieNotes} from 'vexflow'
+import {Component, ElementRef, Input, Output, ViewChild} from '@angular/core';
+import Vex, {Stave, StaveNote, Dot} from 'vexflow'
 import {Note} from '../../models/note';
-import {ICounterpointValidator} from '../../service/ICounterpointValidator';
-import {
-  FirstSpeciesCounterpointValidator
-} from '../../service/first-species-counterpoint-validator/FirstSpeciesCounterpointValidator';
 import {Rule} from '../../models/rule';
 import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
 
@@ -19,11 +15,9 @@ export class Staff {
   private staffContainer!: ElementRef;
   private stave!: Stave;
   private readonly scaleFactor = 1.5;
-  @Input() counterpointValidator: ICounterpointValidator = new FirstSpeciesCounterpointValidator();
   @Input() disabledRules: number[] = [];
-  cantusFirmus: Note[] = [];
-  @Input() counterpoint: (Note | null)[] = Array(0).fill(null);
-  @Output() counterpointResult: EventEmitter<Rule[] | null> = new EventEmitter();
+  @Input() cantusFirmus: Note[] = [];
+  @Output() counterpoint: (Note | null)[] = Array(0).fill(null);
   @Input() rhythmicProportion: number = 1;
   @Input() species!: string;
   private previewNote: (Note | null) = null;
@@ -126,6 +120,7 @@ export class Staff {
     return note.noteValue.toLowerCase() + '/' + note.pitchClass;
   }
 
+/*
   public onReset() {
     this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
     this.counterpointResult.emit(null);
@@ -144,6 +139,7 @@ export class Staff {
     const brokenRules = this.counterpointValidator.getBrokenRules(this.cantusFirmus, counterpoint, this.disabledRules);
     this.counterpointResult.emit(brokenRules);
   }
+*/
 
   private getRandomCantusFirmus(): Note[] {
     const randomIndex = Math.floor(Math.random() * CANTUS_FIRMUS_LIST.length);

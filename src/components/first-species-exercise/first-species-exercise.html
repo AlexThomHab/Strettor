@@ -8,7 +8,7 @@
 
     <div id="panel-body">
       <div id="staff-area">
-        <app-staff #staff [disabledRules]="disabledRules" [species]="species" (counterpointResult)="brokenRules = $event"></app-staff>
+        <app-staff #staff [disabledRules]="disabledRules" [species]="species" [cantusFirmus]="cantusFirmusEmitting" (counterpoint)="counterpoint = $event"></app-staff>
       </div>
 
       @if (brokenRules !== null) {
@@ -33,9 +33,9 @@
     </div>
 
     <div id="controls">
-      <button class="btn btn-primary" (click)="staff.onCheck()">Check Counterpoint</button>
-      <button class="btn btn-ghost" (click)="staff.onReset()">Reset</button>
-      <button class="btn btn-ghost" (click)="staff.onNextExercise()">Next Exercise</button>
+      <button class="btn btn-primary" (click)="onCheck()">Check Counterpoint</button>
+      <button class="btn btn-ghost" (click)="onReset()">Reset</button>
+      <button class="btn btn-ghost" (click)="onNextExercise()">Next Exercise</button>
     </div>
   </div>
 
