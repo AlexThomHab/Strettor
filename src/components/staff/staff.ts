@@ -80,7 +80,7 @@ export class Staff {
 
     cantusFirmusVoice.draw(context, this.stave);
 
-    if (this.previewNote != null && this.counterpoint.filter(x => x != null).length !== this.cantusFirmus.length * this.rhythmicProportion) {
+    if (this.previewNote != null) {
       const previewNoteArray = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
       previewNoteArray[this.previewNoteXIndex] = this.previewNote
 
@@ -109,6 +109,19 @@ export class Staff {
     }
 
     counterpointVoice.draw(context, this.stave);
+
+    if (this.species === "fourth") {
+      for (let i = 0; i < counterpointStaveNotes.length; i += 2) {
+        if (this.counterpoint[i] == null) continue;
+        const tie = new StaveTie({
+          firstNote: counterpointStaveNotes[i],
+          lastNote: counterpointStaveNotes[i + 1],
+          firstIndexes: [0],
+          lastIndexes: [0]
+        });
+        tie.setContext(context).draw();
+      }
+    }
   }
 
   private addNoteGivenClick(clickYAxis: number, clickXAxis: number): void {
