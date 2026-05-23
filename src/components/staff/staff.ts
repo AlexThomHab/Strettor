@@ -144,7 +144,9 @@ export class Staff {
     else if (this.species === "second" && beatIndex == this.counterpoint.length - 1) {
 
     }
+    else if (this.species === "third" && beatIndex > this.counterpoint.length - 4) {
 
+    }
     else {
       this.counterpoint[beatIndex] = inputNote;
     }
@@ -165,6 +167,9 @@ export class Staff {
         return placeholder;
       }
       if ((this.species === "fourth" || this.species == "second") && index === notes.length - 2) {
+        return new StaveNote({keys: [this.toVexKey(note)], duration: 'w'});
+      }
+      if (this.species === "third" && index === notes.length - 4) {
         return new StaveNote({keys: [this.toVexKey(note)], duration: 'w'});
       }
       if (this.species === "fourth" && index === notes.length - 3) {
@@ -190,7 +195,7 @@ export class Staff {
     else if ((this.previewNoteXIndex == (this.counterpoint.length - 1)) && this.species === "second") {
       this.previewNote = null;
     }
-    else if (this.previewNoteXIndex > this.counterpoint.length - 3 && this.species === "third") {
+    else if (this.previewNoteXIndex > this.counterpoint.length - 4 && this.species === "third") {
       this.previewNote = null;
     }
     else{
