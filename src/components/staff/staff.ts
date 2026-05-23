@@ -1,8 +1,6 @@
-import {Component, ElementRef, Input, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, SimpleChanges, ViewChild} from '@angular/core';
 import Vex, {Stave, StaveNote, Dot} from 'vexflow'
 import {Note} from '../../models/note';
-import {Rule} from '../../models/rule';
-import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
 
 @Component({
   selector: 'app-staff',
@@ -17,11 +15,20 @@ export class Staff {
   private readonly scaleFactor = 1.5;
   @Input() disabledRules: number[] = [];
   @Input() cantusFirmus: Note[] = [];
-  @Output() counterpoint: (Note | null)[] = Array(0).fill(null);
+  @Input() counterpoint: (Note | null)[] = [];
+  @Output() counterpointChange = new EventEmitter<(Note | null)[]>();
   @Input() rhythmicProportion: number = 1;
   @Input() species!: string;
   private previewNote: (Note | null) = null;
   private previewNoteXIndex: number = 0;
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (!this.staffContainer) return;
+
+    if(changes['cantusFirmus'] || changes['counterpoint']) {
+      this.drawExercise()
+    }
+  }
 
   ngAfterViewInit() {
     this.setRhythmicProportionGivenSpecies()
@@ -46,21 +53,15 @@ export class Staff {
     const context = renderer.getContext(); //context is the canvas that renderer renders to then draw on
     renderer.resize(width, 350);
     context.scale(this.scaleFactor, this.scaleFactor);
-
-    if (this.cantusFirmus.length === 0) {
-      this.cantusFirmus = this.getRandomCantusFirmus()
-      this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
-    }
+    // @ts-ignore
+    this.stave = new Stave(10, 65, (width - 30) / this.scaleFactor, {spacing_between_lines_px: 20});
+    this.stave.addClef('treble');
+    this.stave.setContext(context).draw();
 
     const cantusFirmusVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
     cantusFirmusVoice.setStrict(false)
 
     const cantusFirmusStaveNotes = this.cantusfirmusNotesToStaveNotes(this.cantusFirmus, 1);
-
-    // @ts-ignore
-    this.stave = new Stave(10, 65, (width - 30) / this.scaleFactor, {spacing_between_lines_px: 20});
-    this.stave.addClef('treble');
-    this.stave.setContext(context).draw();
 
     cantusFirmusVoice.addTickables(cantusFirmusStaveNotes)
 
@@ -69,42 +70,43 @@ export class Staff {
       beatValue: this.rhythmicProportion
     })
     counterpointVoice.setStrict(false)
-    let counterpointStaveNotes = this.counterpointNotesToStaveNotes(this.counterpoint, this.rhythmicProportion)
+    const counterpointStaveNotes = this.counterpointNotesToStaveNotes(this.counterpoint)
     counterpointVoice.addTickables(counterpointStaveNotes)
 
-    // Join voices only when CP ticks divide evenly into a whole note (4096 ticks).
-    // Odd proportions like 3 produce a tick mismatch and distort the CF if joined.
     new Formatter()
       .joinVoices([cantusFirmusVoice, counterpointVoice])
       .format([cantusFirmusVoice, counterpointVoice], this.stave.getWidth() - 60)
 
     cantusFirmusVoice.draw(context, this.stave);
 
-    if (this.previewNote != null && this.counterpoint.filter(x => x != null).length != this.cantusFirmus.length * this.rhythmicProportion) {
+    if (this.previewNote != null && this.counterpoint.filter(x => x != null).length !== this.cantusFirmus.length * this.rhythmicProportion) {
+      const previewNoteArray = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
+      previewNoteArray[this.previewNoteXIndex] = this.previewNote
+
+      const previewStaveNotes = this.counterpointNotesToStaveNotes(previewNoteArray)
+      previewStaveNotes[this.previewNoteXIndex].setStyle({
+        fillStyle: 'rgba(0,0,0,0.4)',
+        strokeStyle: 'rgba(0,0,0,0.4)'
+      })
+
       const previewNoteVoice = new Voice({
         numBeats: this.cantusFirmus.length * this.rhythmicProportion,
         beatValue: this.rhythmicProportion
       })
       previewNoteVoice.setStrict(false)
-
-      const previewNoteArray = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
-      previewNoteArray[this.previewNoteXIndex] = this.previewNote
-
-      const previewStaveNotes = this.counterpointNotesToStaveNotes(previewNoteArray, this.rhythmicProportion);
-      previewStaveNotes[this.previewNoteXIndex].setStyle({
-        fillStyle: 'rgba(0,0,0,0.4)',
-        strokeStyle: 'rgba(0,0,0,0.4)'
-      });
-
       previewNoteVoice.addTickables(previewStaveNotes)
+
       const previewCFVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
       previewCFVoice.setStrict(false)
-      previewCFVoice.addTickables(this.counterpointNotesToStaveNotes(this.cantusFirmus, 1))
+      previewCFVoice.addTickables(this.cantusfirmusNotesToStaveNotes(this.cantusFirmus, 1))
+
       new Formatter()
         .joinVoices([previewCFVoice, previewNoteVoice])
         .format([previewCFVoice, previewNoteVoice], this.stave.getWidth() - 60)
+
       previewNoteVoice.draw(context, this.stave);
     }
+
     counterpointVoice.draw(context, this.stave);
   }
 
@@ -120,37 +122,9 @@ export class Staff {
     return note.noteValue.toLowerCase() + '/' + note.pitchClass;
   }
 
-/*
-  public onReset() {
-    this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
-    this.counterpointResult.emit(null);
-    this.drawExercise()
-  }
 
-  public onNextExercise() {
-    this.cantusFirmus = this.getRandomCantusFirmus()
-    this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
-    this.counterpointResult.emit(null);
-    this.drawExercise()
-  }
-
-  public onCheck() {
-    let counterpoint = this.counterpoint.filter(note => note !== null) as Note[];
-    const brokenRules = this.counterpointValidator.getBrokenRules(this.cantusFirmus, counterpoint, this.disabledRules);
-    this.counterpointResult.emit(brokenRules);
-  }
-*/
-
-  private getRandomCantusFirmus(): Note[] {
-    const randomIndex = Math.floor(Math.random() * CANTUS_FIRMUS_LIST.length);
-    if (CANTUS_FIRMUS_LIST[randomIndex] === this.cantusFirmus) {
-      return this.getRandomCantusFirmus()
-    }
-    return CANTUS_FIRMUS_LIST[randomIndex];
-  }
-
-  private counterpointNotesToStaveNotes(notes: (Note | null)[], rhythmicProportion: number) {
-    const duration = this.counterpointRhythmicProportionToNoteLength(rhythmicProportion);
+  private counterpointNotesToStaveNotes(notes: (Note | null)[]) {
+    const duration = this.counterpointRhythmicProportionToNoteLength(this.rhythmicProportion);
     return notes.map(note => {
       if (note == null) {
         const placeholder = new StaveNote({keys: ['f/5'], duration});

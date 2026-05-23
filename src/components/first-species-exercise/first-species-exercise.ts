@@ -4,6 +4,10 @@ import {Rule, Severity} from '../../models/rule';
 import {RuleService} from '../../service/RuleService';
 import {Note} from '../../models/note';
 import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
+import {ICounterpointValidator} from '../../service/ICounterpointValidator';
+import {
+  FirstSpeciesCounterpointValidator
+} from '../../service/first-species-counterpoint-validator/FirstSpeciesCounterpointValidator';
 
 @Component({
   selector: 'app-first-species-exercise',
@@ -22,13 +26,15 @@ export class FirstSpeciesExercise {
   disabledRules: number[] = []
   species: string = "first";
   counterpoint: (Note | null)[] = Array(0).fill(null);
-  disabledRulesEvent: number[] = [];
-  @Output() cantusFirmusEmitting: EventEmitter<Note[]> = new EventEmitter();
-  private cantusFirmus: Note[] = [];
+  @Output() counterpointEvent : EventEmitter<(Note | null)[]> = new EventEmitter();
+  cantusFirmus: Note[] = [];
+  private counterpointValidator: ICounterpointValidator = new FirstSpeciesCounterpointValidator();
+  private rhythmicProportion: number = 0;
 
   ngOnInit() {
     this.cantusFirmus = this.getRandomCantusFirmus()
-    this.cantusFirmusEmitting.emit(this.cantusFirmus)
+    this.setRhythmicProportionGivenSpecies();
+    this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
     this.listOfRules = this.ruleService.getFirstSpeciesRules()
     this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
     this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
@@ -49,15 +55,19 @@ export class FirstSpeciesExercise {
   }
 
   onCheck() {
-
+    let counterpoint = this.counterpoint.filter(note => note !== null) as Note[];
+    this.brokenRules = this.counterpointValidator.getBrokenRules(this.cantusFirmus, counterpoint, this.disabledRules);
   }
 
   onReset() {
-
+    this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
+    this.counterpointEvent.emit(this.counterpoint)
   }
 
-  onNextExercise() {
-
+  public onNextExercise() {
+    this.cantusFirmus = this.getRandomCantusFirmus()
+    this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
+    this.counterpointEvent.emit(this.counterpoint)
   }
 
   getRandomCantusFirmus(): Note[] {
@@ -66,6 +76,15 @@ export class FirstSpeciesExercise {
       return this.getRandomCantusFirmus()
     }
     return CANTUS_FIRMUS_LIST[randomIndex];
+  }
+  setRhythmicProportionGivenSpecies() {
+    var speciesToRhythmicProportion: Record<string, number> = {
+      "first": 1,
+      "second": 2,
+      "third": 4,
+      "fourth": 2,
+    }
+    this.rhythmicProportion = speciesToRhythmicProportion[this.species];
   }
 }
 

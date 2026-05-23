@@ -7,6 +7,11 @@ import {
   SecondSpeciesCounterpointValidator
 } from '../../service/second-species-counterpoint-validator/SecondSpeciesCounterpointValidator';
 import {ICounterpointValidator} from '../../service/ICounterpointValidator';
+import {Note} from '../../models/note';
+import {
+  FirstSpeciesCounterpointValidator
+} from '../../service/first-species-counterpoint-validator/FirstSpeciesCounterpointValidator';
+import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
 
 @Component({
   selector: 'app-second-species-exercise',
@@ -22,13 +27,21 @@ export class SecondSpeciesExercise {
   ruleService: RuleService = new RuleService();
   warningRules: Rule[] = [];
   errorRules: Rule[] = [];
-  disabledRules : number[] = []
-  @Output() disabledRulesEvent: EventEmitter<number[]> = new EventEmitter();
-  speciesValidator : ICounterpointValidator = new SecondSpeciesCounterpointValidator()
+  disabledRules: number[] = []
   species: string = "second";
+  counterpoint: (Note | null)[] = Array(0).fill(null);
+  @Output() cantusFirmusEvent: EventEmitter<Note[]> = new EventEmitter();
+  @Output() counterpointEvent : EventEmitter<(Note | null)[]> = new EventEmitter();
+  cantusFirmus: Note[] = [];
+  private counterpointValidator: ICounterpointValidator = new SecondSpeciesCounterpointValidator();
+  private rhythmicProportion: number = 0;
 
   ngOnInit() {
-    this.listOfRules = this.ruleService.getSecondSpeciesRules()
+    this.cantusFirmus = this.getRandomCantusFirmus()
+    this.setRhythmicProportionGivenSpecies();
+    this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
+    this.cantusFirmusEvent.emit(this.cantusFirmus)
+    this.listOfRules = this.ruleService.getFirstSpeciesRules()
     this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
     this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
   }
@@ -41,11 +54,44 @@ export class SecondSpeciesExercise {
 
   toggleRule(ruleId: number) {
     this.disabledRules.includes(ruleId) ? this.disabledRules = this.disabledRules.filter(x => x !== ruleId) : this.disabledRules.push(ruleId)
-    this.disabledRulesEvent.emit(this.disabledRules);
   }
 
   ruleIsEnabled(rule: Rule): boolean {
     return !this.disabledRules.includes(rule.id)
+  }
+
+  onCheck() {
+    let counterpoint = this.counterpoint.filter(note => note !== null) as Note[];
+    this.brokenRules = this.counterpointValidator.getBrokenRules(this.cantusFirmus, counterpoint, this.disabledRules);
+  }
+
+  onReset() {
+    this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
+    this.counterpointEvent.emit(this.counterpoint)
+  }
+
+  public onNextExercise() {
+    this.cantusFirmus = this.getRandomCantusFirmus()
+    this.cantusFirmusEvent.emit(this.cantusFirmus)
+    this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
+    this.counterpointEvent.emit(this.counterpoint)
+  }
+
+  getRandomCantusFirmus(): Note[] {
+    const randomIndex = Math.floor(Math.random() * CANTUS_FIRMUS_LIST.length);
+    if (CANTUS_FIRMUS_LIST[randomIndex] === this.cantusFirmus) {
+      return this.getRandomCantusFirmus()
+    }
+    return CANTUS_FIRMUS_LIST[randomIndex];
+  }
+  setRhythmicProportionGivenSpecies() {
+    var speciesToRhythmicProportion: Record<string, number> = {
+      "first": 1,
+      "second": 2,
+      "third": 4,
+      "fourth": 2,
+    }
+    this.rhythmicProportion = speciesToRhythmicProportion[this.species];
   }
 }
 
