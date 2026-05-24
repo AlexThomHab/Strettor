@@ -87,13 +87,25 @@ export class Staff {
 
     if (this.previewNote != null) {
       const previewNoteArray = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
-      previewNoteArray[this.previewNoteXIndex] = this.previewNote
+      let pairStart = this.previewNoteXIndex;
+      if (this.species === "fourth" && this.previewNoteXIndex != 0 && this.previewNoteXIndex < this.counterpoint.length - 2) {
+        pairStart = this.previewNoteXIndex % 2 == 1 ? this.previewNoteXIndex : this.previewNoteXIndex - 1;
 
-      const previewStaveNotes = this.counterpointNotesToStaveNotes(previewNoteArray)
-      previewStaveNotes[this.previewNoteXIndex].setStyle({
-        fillStyle: 'rgba(0,0,0,0.4)',
-        strokeStyle: 'rgba(0,0,0,0.4)'
-      })
+        previewNoteArray[pairStart] = this.previewNote;
+        if (pairStart + 1 !== this.counterpoint.length - 2) {
+          previewNoteArray[pairStart + 1] = this.previewNote;
+        }
+      }else{
+        previewNoteArray[this.previewNoteXIndex] = this.previewNote
+
+      }
+
+      const previewStaveNotes = this.previewNotesToStaveNotes(previewNoteArray)
+      const ghostStyle = { fillStyle: 'rgba(0,0,0,0.4)', strokeStyle: 'rgba(0,0,0,0.4)' }
+      previewStaveNotes[pairStart].setStyle(ghostStyle)
+      if (this.species === 'fourth' && this.previewNoteXIndex < this.counterpoint.length - 2 && pairStart + 1 !== this.counterpoint.length - 2) {
+        previewStaveNotes[pairStart + 1].setStyle(ghostStyle)
+      }
 
       const previewNoteVoice = new Voice({
         numBeats: this.cantusFirmus.length * this.rhythmicProportion,
@@ -102,15 +114,18 @@ export class Staff {
       previewNoteVoice.setStrict(false)
       previewNoteVoice.addTickables(previewStaveNotes)
 
-      const previewCFVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
-      previewCFVoice.setStrict(false)
-      previewCFVoice.addTickables(this.cantusfirmusNotesToStaveNotes(this.cantusFirmus))
-
       new Formatter()
-        .joinVoices([previewCFVoice, previewNoteVoice])
-        .format([previewCFVoice, previewNoteVoice], this.stave.getWidth() - 60)
+        .joinVoices([previewNoteVoice])
+        .format([previewNoteVoice], this.stave.getWidth() - 60)
 
       previewNoteVoice.draw(context, this.stave);
+
+      if (this.species === 'fourth' && pairStart + 1 < previewStaveNotes.length - 2) {
+        new StaveTie({
+          firstNote: previewStaveNotes[pairStart],
+          lastNote: previewStaveNotes[pairStart + 1],
+        }).setContext(context).draw();
+      }
     }
 
     counterpointVoice.draw(context, this.stave);
@@ -171,6 +186,27 @@ export class Staff {
       }
       if ((this.species === "fourth" || this.species == "second") && index === notes.length - 2) {
         return new StaveNote({keys: [this.toVexKey(note)], duration: 'w'});
+      }
+      if (this.species === "third" && index === notes.length - 4) {
+        return new StaveNote({keys: [this.toVexKey(note)], duration: 'w'});
+      }
+      if (this.species === "fourth" && index === notes.length - 3) {
+        return new StaveNote({keys: [this.toVexKey(note)], duration: 'h'});
+      }
+      return new StaveNote({keys: [this.toVexKey(note)], duration});
+    });
+
+  }
+  private previewNotesToStaveNotes(notes: (Note | null)[]) {
+    const duration = this.counterpointRhythmicProportionToNoteLength(this.rhythmicProportion);
+    return notes.map((note, index) => {
+      if (note == null) {
+        const placeholder = new StaveNote({keys: ['f/5'], duration});
+        placeholder.setStyle({fillStyle: 'rgba(0,0,0,0)', strokeStyle: 'rgba(0,0,0,0)'});
+        return placeholder;
+      }
+      if ((this.species === "fourth" || this.species == "second") && index === notes.length - 2) {
+        return new StaveNote({keys: [this.toVexKey(note)], duration: 'w'}).setStyle({fillStyle: 'rgba(0,0,0,0.4)', strokeStyle: 'rgba(0,0,0,0.4)'});
       }
       if (this.species === "third" && index === notes.length - 4) {
         return new StaveNote({keys: [this.toVexKey(note)], duration: 'w'});
