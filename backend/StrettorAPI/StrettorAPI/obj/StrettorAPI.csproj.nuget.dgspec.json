@@ -50,17 +50,21 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "Microsoft.DotNet.ILCompiler": {
-              "suppressParent": "All",
+            "BCrypt.Net-Next": {
               "target": "Package",
-              "version": "[8.0.22, )",
-              "autoReferenced": true
+              "version": "[4.0.3, )"
             },
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
+            "Microsoft.AspNetCore.Authentication.Google": {
               "target": "Package",
-              "version": "[8.0.22, )",
-              "autoReferenced": true
+              "version": "[8.0.15, )"
+            },
+            "Stripe.net": {
+              "target": "Package",
+              "version": "[51.1.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.9.0, )"
             }
           },
           "imports": [
@@ -74,12 +78,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "runtime.win-x64.Microsoft.DotNet.ILCompiler",
-              "version": "[8.0.22, 8.0.22]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"

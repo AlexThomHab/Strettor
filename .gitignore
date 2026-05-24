@@ -37,3 +37,37 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# .NET build output
+bin/
+obj/
+out/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.userprefs
+*.rsuser
+
+# NuGet
+*.nupkg
+*.snupkg
+project.lock.json
+project.nuget.cache
+packages/
+!**/[Pp]ackages/build/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Rider
+.idea/
+
+# Publish output
+publish/
+**/Properties/PublishProfiles/

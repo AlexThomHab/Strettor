@@ -1,35 +1,63 @@
-using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Stripe;
+using StrettorAPI.Configuration;
+using StrettorAPI.Repositories;
+using StrettorAPI.Services;
 
-var builder = WebApplication.CreateSlimBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.ConfigureHttpJsonOptions(options =>
+// ── Stripe ────────────────────────────────────────────────────────────────────
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
+// ── Authentication ────────────────────────────────────────────────────────────
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme          = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
+    .AddCookie()
+    .AddGoogle(options =>
+    {
+        options.ClientId     = builder.Configuration["Authentication:Google:ClientId"]!;
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        // CallbackPath defaults to /signin-google.  The Google middleware intercepts
+        // that path, exchanges the auth code for tokens, signs the principal into
+        // the cookie scheme, then redirects to the RedirectUri from the challenge.
+    });
+
+// ── Application services ──────────────────────────────────────────────────────
+builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
 {
-  options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
+// ── Middleware pipeline ───────────────────────────────────────────────────────
 var app = builder.Build();
 
-var sampleTodos = new Todo[] {
-    new(1, "Walk the dog"),
-    new(2, "Do the dishes", DateOnly.FromDateTime(DateTime.Now)),
-    new(3, "Do the laundry", DateOnly.FromDateTime(DateTime.Now.AddDays(1))),
-    new(4, "Clean the bathroom"),
-    new(5, "Clean the car", DateOnly.FromDateTime(DateTime.Now.AddDays(2)))
-};
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-var todosApi = app.MapGroup("/todos");
-todosApi.MapGet("/", () => sampleTodos);
-todosApi.MapGet("/{id}", (int id) =>
-    sampleTodos.FirstOrDefault(a => a.Id == id) is { } todo
-        ? Results.Ok(todo)
-        : Results.NotFound());
+app.UseCors();
+app.UseAuthentication();   // must come before UseAuthorization
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();
-
-public record Todo(int Id, string? Title, DateOnly? DueBy = null, bool IsComplete = false);
-
-[JsonSerializable(typeof(Todo[]))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext
-{
-
-}
