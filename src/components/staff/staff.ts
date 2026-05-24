@@ -48,21 +48,13 @@ export class Staff {
     this.staffContainer.nativeElement.innerHTML = "";
 
     const {Renderer, Stave, StaveNote, Voice, Formatter} = Vex;
-    const width = this.staffContainer.nativeElement.clientWidth;
+    const containerWidth = this.staffContainer.nativeElement.clientWidth;
     const renderer = new Renderer(this.staffContainer.nativeElement, Renderer.Backends.SVG);
-    const context = renderer.getContext(); //context is the canvas that renderer renders to then draw on
-    renderer.resize(width, 350);
-    context.scale(this.scaleFactor, this.scaleFactor);
-    // @ts-ignore
-    this.stave = new Stave(10, 65, (width - 30) / this.scaleFactor, {spacing_between_lines_px: 20});
-    this.stave.addClef('treble');
-    this.stave.setContext(context).draw();
 
+    // Build voices first to measure minimum width needed
     const cantusFirmusVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
     cantusFirmusVoice.setStrict(false)
-
     const cantusFirmusStaveNotes = this.cantusfirmusNotesToStaveNotes(this.cantusFirmus);
-
     cantusFirmusVoice.addTickables(cantusFirmusStaveNotes)
 
     const counterpointVoice = new Voice({
@@ -71,8 +63,21 @@ export class Staff {
     })
     counterpointVoice.setStrict(false)
     const counterpointStaveNotes = this.counterpointNotesToStaveNotes(this.counterpoint)
-
     counterpointVoice.addTickables(counterpointStaveNotes)
+
+    // Expand SVG width if notes need more space than the container provides
+    const minContentWidth = new Formatter().preCalculateMinTotalWidth([cantusFirmusVoice, counterpointVoice]);
+    const neededWidth = Math.ceil((minContentWidth + 90) * this.scaleFactor);
+    const svgWidth = Math.max(containerWidth, neededWidth);
+    const staveWidth = (svgWidth - 30) / this.scaleFactor;
+
+    renderer.resize(svgWidth, 350);
+    const context = renderer.getContext();
+    context.scale(this.scaleFactor, this.scaleFactor);
+    // @ts-ignore
+    this.stave = new Stave(10, 65, staveWidth, {spacing_between_lines_px: 20});
+    this.stave.addClef('treble');
+    this.stave.setContext(context).draw();
 
     new Formatter()
       .joinVoices([cantusFirmusVoice, counterpointVoice])
@@ -117,8 +122,6 @@ export class Staff {
         const tie = new StaveTie({
           firstNote: counterpointStaveNotes[i],
           lastNote: counterpointStaveNotes[i + 1],
-          firstIndexes: [0],
-          lastIndexes: [0]
         });
         tie.setContext(context).draw();
       }
