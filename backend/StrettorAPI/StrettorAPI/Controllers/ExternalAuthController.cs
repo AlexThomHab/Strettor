@@ -8,7 +8,6 @@ using System.Security.Claims;
 
 namespace StrettorAPI.Controllers;
 
-// ── How to wire this up in Program.cs ────────────────────────────────────────
 //
 // builder.Services
 //     .AddAuthentication(options =>
@@ -28,7 +27,6 @@ namespace StrettorAPI.Controllers;
 // app.UseAuthentication();   // must come before app.UseAuthorization()
 // app.UseAuthorization();
 //
-// ─────────────────────────────────────────────────────────────────────────────
 
 [ApiController]
 [Route("api/auth")]

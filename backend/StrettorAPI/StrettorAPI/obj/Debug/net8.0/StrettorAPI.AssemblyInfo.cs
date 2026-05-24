@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StrettorAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9f83dfbf510f86f35d7326c8140ec8217e41ac58")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ce107b004c45a26ed817e6c1e619f61cd90888a8")]
 [assembly: System.Reflection.AssemblyProductAttribute("StrettorAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StrettorAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

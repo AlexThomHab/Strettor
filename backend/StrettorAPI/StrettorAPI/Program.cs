@@ -7,11 +7,9 @@ using StrettorAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Stripe ────────────────────────────────────────────────────────────────────
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
-// ── Authentication ────────────────────────────────────────────────────────────
 builder.Services
     .AddAuthentication(options =>
     {
@@ -28,7 +26,6 @@ builder.Services
         // the cookie scheme, then redirects to the RedirectUri from the challenge.
     });
 
-// ── Application services ──────────────────────────────────────────────────────
 builder.Services.AddSingleton<IUserRepository, InMemoryUserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
@@ -46,7 +43,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ── Middleware pipeline ───────────────────────────────────────────────────────
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
