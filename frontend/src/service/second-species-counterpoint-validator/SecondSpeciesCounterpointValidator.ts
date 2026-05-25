@@ -155,10 +155,10 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
   // Direct (hidden) motion into a perfect interval on a downbeat, measured downbeat-to-downbeat
   private checkNoDirectMotionToPerfectOnDownbeats(cantusFirmus: Note[], counterpoint: Note[]): boolean {
     for (let i = 1; i < cantusFirmus.length; i++) {
-      const interval = this._intervalCalculator.calculateSemitoneInterval(cantusFirmus[i], counterpoint[2 * i]);
-      if (!this.isPerfectInterval(interval) || interval === 0) continue;
-      const cfDir = this.getMotionDirection(cantusFirmus[i - 1],     cantusFirmus[i]);
-      const cpDir = this.getMotionDirection(counterpoint[2 * i - 2], counterpoint[2 * i]);
+      const intervalBetweenCFandCP = this._intervalCalculator.calculateSemitoneInterval(cantusFirmus[i], counterpoint[2 * i]);
+      if (!this.isPerfectInterval(intervalBetweenCFandCP) || intervalBetweenCFandCP === 0) continue;
+      const cfDir = this.getMotionDirection(cantusFirmus[i - 1], cantusFirmus[i]);
+      const cpDir = this.getMotionDirection(counterpoint[2 * i - 1], counterpoint[2 * i]);
       if (cfDir === cpDir && cfDir !== 0) return false;
     }
     return true;

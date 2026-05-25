@@ -39,8 +39,8 @@ describe('CounterpointValidator - getBrokenRules', () => {
     const cf = [new Note("C", 4), new Note("E", 4), new Note("F", 4), new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4), new Note("C", 4)];
     const cp = [new Note("C", 5), new Note("C", 5), new Note("B", 4), new Note("G", 4), new Note("E", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
     const broken = validator.getBrokenRules(cf, cp);
-    expect(broken.map(r => r.description)).toContain('No harmonic dissonances (fourths are dissonant in this style)');
-    expect(broken.find(r => r.description === 'No harmonic dissonances (fourths are dissonant in this style)')?.severity).toBe(Severity.Error);
+    expect(broken.map(r => r.description)).toContain('No harmonic dissonances (fourths are dissonant in two-voice exercises but constant in three-voice exercise between upper voices)');
+    expect(broken.find(r => r.description === 'No harmonic dissonances (fourths are dissonant in two-voice exercises but constant in three-voice exercise between upper voices)')?.severity).toBe(Severity.Error);
   });
 
   it('flags invalid beginning interval as Error', () => {
@@ -159,8 +159,8 @@ describe('CounterpointValidator - getBrokenRules', () => {
       new Note("E", 4), new Note("D", 4)
     ];
     const broken = validator.getBrokenRules(dorianCF, cp);
-    expect(broken.map(r => r.description)).toContain('Large leaps should be recovered by a step in the opposite direction');
-    expect(broken.find(r => r.description === 'Large leaps should be recovered by a step in the opposite direction')?.severity).toBe(Severity.Warning);
+    expect(broken.map(r => r.description)).toContain('Leaps larger than a third should be recovered by a step in the opposite direction');
+    expect(broken.find(r => r.description === 'Leaps larger than a third should be recovered by a step in the opposite direction')?.severity).toBe(Severity.Warning);
   });
 
   it('flags coinciding climax as Warning', () => {

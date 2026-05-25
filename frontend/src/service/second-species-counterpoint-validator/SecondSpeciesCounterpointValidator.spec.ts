@@ -1,9 +1,9 @@
 import {describe, it, expect, beforeEach} from 'vitest';
-import {FirstSpeciesCounterpointValidator} from './FirstSpeciesCounterpointValidator';
 import {Note} from '../../models/note';
+import {SecondSpeciesCounterpointValidator} from './SecondSpeciesCounterpointValidator';
 
 describe('CounterpointValidator', () => {
-  let validator: FirstSpeciesCounterpointValidator;
+  let validator: SecondSpeciesCounterpointValidator;
 
   // Fux Dorian cantus firmus
   const dorianCF: Note[] = [
@@ -20,7 +20,7 @@ describe('CounterpointValidator', () => {
   ];
 
   beforeEach(() => {
-    validator = new FirstSpeciesCounterpointValidator();
+    validator = new SecondSpeciesCounterpointValidator();
   });
 
   // Integration: Fux Dorian
@@ -222,7 +222,6 @@ describe('CounterpointValidator', () => {
       expect(validator.isValidSolution(cf, cp, [])).toBe(false);
     });
   });
-
   // No Excessive Repeated Notes
 
   describe('checkNoExcessiveRepeatedNotes', () => {
