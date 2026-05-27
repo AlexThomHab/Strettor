@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using Moq;
 using StrettorAPI.Data;
 using StrettorAPI.Models;
@@ -9,7 +9,7 @@ namespace StrettorTests.Repositories;
 
 // Tests DbUserRepository in complete isolation from any real database.
 // IUserDbContext is mocked so every test exercises only the repository's
-// delegation and field-mapping logic — no I/O, no EF, no network.
+// delegation and field-mapping logic - no I/O, no EF, no network.
 public class UserRepositoryTests
 {
     private readonly Mock<IUserDbContext> _mockContext;

@@ -1,6 +1,6 @@
 import {Note} from '../../models/note';
 import {IntervalCalculator} from '../IntervalCalculator';
-import {Rule} from '../../models/rule';
+import {Rule, Severity} from '../../models/rule';
 import {RuleIdEnum, SECOND_SPECIES_RULES} from '../../data/rules.data';
 import {ICounterpointValidator} from '../ICounterpointValidator';
 
@@ -34,7 +34,8 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
   ];
 
   isValidSolution(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[]): boolean {
-    return this.getBrokenRules(cantusFirmus, counterpoint, disabledRuleIDs).length === 0;
+    let result = this.getBrokenRules(cantusFirmus, counterpoint, disabledRuleIDs);
+     return result.filter(x => x.severity === Severity.Warning || x.severity === Severity.Error).length == 0 //can have suggestions and still be valid
   }
 
   getBrokenRules(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[] = []): Rule[] {
@@ -42,9 +43,15 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
       return [this._rules[0].rule];
     }
     const enabledRules = this._rules.filter(x => !disabledRuleIDs.includes(x.rule.id));
-    return enabledRules
-      .filter(r => !r.check(cantusFirmus, counterpoint))
-      .map(r => r.rule);
+    let brokenRules = [];
+
+    for (const rule of enabledRules) {
+      if (!rule.check(cantusFirmus, counterpoint)) {
+        brokenRules.push(rule.rule);
+      }
+    }
+
+    return brokenRules;
   }
 
   // Helpers
@@ -82,7 +89,7 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
   // Error rules
 
   private checkCorrectLength(cantusFirmus: Note[], counterpoint: Note[]): boolean {
-    return counterpoint.length === (2 * cantusFirmus.length) - 1;
+    return counterpoint.length === (2 * cantusFirmus.length - 1);
   }
 
   private checkDownbeatConsonance(cantusFirmus: Note[], counterpoint: Note[]): boolean {
@@ -201,9 +208,11 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
     for (let i = 0; i < counterpoint.length - 1; i++) {
       const interval = this.getMelodicInterval(counterpoint[i], counterpoint[i + 1]);
       if (interval === 6)  return false; // tritone
-      if (interval === 10) return false; // minor seventh
-      if (interval === 11) return false; // major seventh
-      if (interval > 12)   return false; // larger than octave
+      if (interval === 10) return false; // minor 7
+      if (interval === 11) return false; // major 7
+      if (interval === 14) return false; // major 9
+      if (interval === 13) return false; // min 9
+      if (interval > 16)   return false; // larger than a 10th
     }
     return true;
   }
@@ -221,12 +230,11 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
 
   private checkNoVoiceOverlap(cantusFirmus: Note[], counterpoint: Note[]): boolean {
     for (let i = 0; i < cantusFirmus.length - 1; i++) {
-      const cpNextDownbeat = this.getAbsolutePitch(counterpoint[2 * i + 2]);
       const cfCurrent      = this.getAbsolutePitch(cantusFirmus[i]);
-      const cfNext         = this.getAbsolutePitch(cantusFirmus[i + 1]);
       const cpCurrentDown  = this.getAbsolutePitch(counterpoint[2 * i]);
-      if (cpNextDownbeat < cfCurrent) return false;
-      if (cfNext > cpCurrentDown)     return false;
+      const cpCurrentUp  = this.getAbsolutePitch(counterpoint[(2 * i) + 1]);
+      if (cpCurrentDown < cfCurrent) return false;
+      if (cpCurrentUp < cfCurrent) return false;
     }
     return true;
   }

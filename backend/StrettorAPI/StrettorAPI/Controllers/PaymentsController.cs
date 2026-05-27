@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -62,11 +62,11 @@ public class PaymentsController : ControllerBase
     // POST api/payments/webhook
     // Receives asynchronous lifecycle events from Stripe.
     //
-    // [AllowAnonymous]  — Stripe calls this without any auth token.
-    // [IgnoreAntiforgeryToken] — Not needed for ApiController, but explicit for
+    // [AllowAnonymous]  - Stripe calls this without any auth token.
+    // [IgnoreAntiforgeryToken] - Not needed for ApiController, but explicit for
     //                            clarity if antiforgery middleware is ever added.
     //
-    // IMPORTANT: Do NOT add [FromBody] — we must read the raw bytes ourselves
+    // IMPORTANT: Do NOT add [FromBody] - we must read the raw bytes ourselves
     //            so we can pass them to ConstructEvent for signature validation.
     //            ASP.NET Core does not pre-consume the body for endpoints that
     //            don't declare a body parameter.
@@ -93,7 +93,7 @@ public class PaymentsController : ControllerBase
         }
         catch (StripeException ex)
         {
-            // Invalid signature — reject immediately so Stripe knows to retry.
+            // Invalid signature - reject immediately so Stripe knows to retry.
             return BadRequest(new { message = ex.Message });
         }
 
@@ -111,7 +111,7 @@ public class PaymentsController : ControllerBase
                 await HandleSubscriptionDeleted(stripeEvent);
                 break;
 
-            // Return 200 for all other event types — Stripe expects a 2xx to
+            // Return 200 for all other event types - Stripe expects a 2xx to
             // acknowledge receipt even for events we choose not to act on.
         }
 

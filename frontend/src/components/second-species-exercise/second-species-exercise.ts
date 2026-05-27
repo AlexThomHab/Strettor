@@ -8,9 +8,6 @@ import {
 } from '../../service/second-species-counterpoint-validator/SecondSpeciesCounterpointValidator';
 import {ICounterpointValidator} from '../../service/ICounterpointValidator';
 import {Note} from '../../models/note';
-import {
-  FirstSpeciesCounterpointValidator
-} from '../../service/first-species-counterpoint-validator/FirstSpeciesCounterpointValidator';
 import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
 
 @Component({
@@ -27,6 +24,7 @@ export class SecondSpeciesExercise {
   ruleService: RuleService = new RuleService();
   warningRules: Rule[] = [];
   errorRules: Rule[] = [];
+  suggestionRules: Rule[] = [];
   disabledRules: number[] = []
   species: string = "second";
   counterpoint: (Note | null)[] = Array(0).fill(null);
@@ -41,15 +39,22 @@ export class SecondSpeciesExercise {
     this.setRhythmicProportionGivenSpecies();
     this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
     this.cantusFirmusEvent.emit(this.cantusFirmus)
-    this.listOfRules = this.ruleService.getFirstSpeciesRules()
+    this.listOfRules = this.ruleService.getSecondSpeciesRules()
     this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
     this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
+    this.suggestionRules = this.listOfRules.filter(x => x.severity === Severity.Suggestion);
   }
 
-  hasOnlyWarnings(): boolean {
+  hasOnlySuggestions(): boolean {
     return this.brokenRules !== null
       && this.brokenRules.length > 0
-      && this.brokenRules.every(r => r.severity === Severity.Warning);
+      && this.brokenRules.every(r => r.severity === Severity.Suggestion);
+  }
+
+  hasNoErrors(): boolean {
+    return this.brokenRules !== null
+      && this.brokenRules.length > 0
+      && this.brokenRules.every(r => r.severity !== Severity.Error);
   }
 
   toggleRule(ruleId: number) {

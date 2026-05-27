@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from 'vitest';
+﻿import {describe, it, expect, beforeEach} from 'vitest';
 import {FirstSpeciesCounterpointValidator} from './FirstSpeciesCounterpointValidator';
 import {Note} from '../../models/note';
 import {Severity} from '../../models/rule';
@@ -53,7 +53,7 @@ describe('CounterpointValidator - getBrokenRules', () => {
   });
 
   it('allows beginning on a third above (minor or major)', () => {
-    // D3 to F3 = 3 semitones (minor third) — valid per Gran for CP above
+    // D3 to F3 = 3 semitones (minor third) - valid per Gran for CP above
     const cp = [...validCP];
     cp[0] = new Note("F", 3);
     const broken = validator.getBrokenRules(dorianCF, cp);
@@ -70,7 +70,7 @@ describe('CounterpointValidator - getBrokenRules', () => {
   });
 
   it('flags ending on a fifth as Error (both voices must end on scale degree 1)', () => {
-    // D3 to A3 = 7 semitones (fifth) — no longer valid, per Gran must end on scale degree 1
+    // D3 to A3 = 7 semitones (fifth) - no longer valid, per Gran must end on scale degree 1
     const cp = [...validCP];
     cp[cp.length - 1] = new Note("A", 3);
     const broken = validator.getBrokenRules(dorianCF, cp);
@@ -111,7 +111,7 @@ describe('CounterpointValidator - getBrokenRules', () => {
   });
 
   it('flags unison in a middle position as Error', () => {
-    // CF: C4 E4 G4 E4 C4, CP: C5 E4 G5 B4 C5 — E4/E4 unison at position 1 (middle)
+    // CF: C4 E4 G4 E4 C4, CP: C5 E4 G5 B4 C5 - E4/E4 unison at position 1 (middle)
     const cf = [new Note("C", 4), new Note("E", 4), new Note("G", 4), new Note("E", 4), new Note("C", 4)];
     const cp = [new Note("C", 5), new Note("E", 4), new Note("G", 5), new Note("B", 4), new Note("C", 5)];
     const broken = validator.getBrokenRules(cf, cp);
@@ -120,7 +120,7 @@ describe('CounterpointValidator - getBrokenRules', () => {
   });
 
   it('flags hidden perfect interval as Error', () => {
-    // CF: C4→G4 (up 7), CP: A4→D5 (leap up) — similar motion into a perfect fifth
+    // CF: C4→G4 (up 7), CP: A4→D5 (leap up) - similar motion into a perfect fifth
     const cf = [new Note("C", 4), new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4), new Note("E", 4), new Note("D", 4), new Note("C", 4)];
     const cp = [new Note("A", 4), new Note("D", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5), new Note("B", 4), new Note("A", 4), new Note("B", 4), new Note("B", 4), new Note("C", 5)];
     const broken = validator.getBrokenRules(cf, cp);
@@ -152,7 +152,7 @@ describe('CounterpointValidator - getBrokenRules', () => {
   });
 
   it('flags large leap not recovered as Warning', () => {
-    // C4→A4 leap up, then A4→B4 still going up — no recovery
+    // C4→A4 leap up, then A4→B4 still going up - no recovery
     const cp = [
       new Note("D", 4), new Note("C", 4), new Note("A", 3), new Note("B", 3),
       new Note("C", 4), new Note("A", 4), new Note("B", 4), new Note("F", 4),
@@ -198,7 +198,7 @@ describe('CounterpointValidator - getBrokenRules', () => {
   });
 
   it('flags overused tone repetition as Warning', () => {
-    // cp[4] and cp[5] are both E4 — immediate repeat
+    // cp[4] and cp[5] are both E4 - immediate repeat
     const cp = [
       new Note("D", 4), new Note("C", 4), new Note("A", 3), new Note("B", 3),
       new Note("E", 4), new Note("E", 4), new Note("D", 4), new Note("F", 4),

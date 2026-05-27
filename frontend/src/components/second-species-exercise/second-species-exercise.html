@@ -1,4 +1,4 @@
-<div id="page-layout">
+﻿<div id="page-layout">
 
   <div id="exercise-panel">
     <div id="panel-header">
@@ -13,21 +13,36 @@
 
       @if (brokenRules !== null) {
         @if (brokenRules.length === 0) {
-          <p id="result-pass">Correct ✓</p>
-        } @else if (hasOnlyWarnings()) {
-          <p id="result-warning">Warnings only - close but check your counterpoint</p>
-          <ul class="broken-rules">
-            @for (rule of brokenRules; track rule.description) {
-              <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
-            }
-          </ul>
+          <div class="result-box pass">
+            <p class="result-heading result-pass">Correct ✓</p>
+          </div>
+        } @else if (hasOnlySuggestions()) {
+          <div class="result-box suggestion">
+            <p class="result-heading result-suggestion">Suggestions - consider refining your counterpoint</p>
+            <ul class="broken-rules">
+              @for (rule of brokenRules; track rule.description) {
+                <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
+              }
+            </ul>
+          </div>
+        } @else if (hasNoErrors()) {
+          <div class="result-box warning">
+            <p class="result-heading result-warning">Warnings - close but review your counterpoint</p>
+            <ul class="broken-rules">
+              @for (rule of brokenRules; track rule.description) {
+                <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
+              }
+            </ul>
+          </div>
         } @else {
-          <p id="result-fail">Failed - rules broken:</p>
-          <ul class="broken-rules">
-            @for (rule of brokenRules; track rule.description) {
-              <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
-            }
-          </ul>
+          <div class="result-box fail">
+            <p class="result-heading result-fail">Rules broken:</p>
+            <ul class="broken-rules">
+              @for (rule of brokenRules; track rule.description) {
+                <li [class]="rule.severity.toLowerCase()">{{ rule.description }}</li>
+              }
+            </ul>
+          </div>
         }
       }
     </div>
@@ -67,6 +82,21 @@
         </div>
       }
     </div>
+
+    @if (suggestionRules.length > 0) {
+      <div class="rule-group">
+        <div class="rule-group-label suggestion-label">Suggestions</div>
+        @for (rule of suggestionRules; track rule.id) {
+          <div class="rule-row" [class.rule-on]="ruleIsEnabled(rule)">
+            <span class="rule-description">{{ rule.description }}</span>
+            <label class="toggle">
+              <input type="checkbox" [checked]="ruleIsEnabled(rule)" (change)="toggleRule(rule.id)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        }
+      </div>
+    }
   </aside>
 
 </div>

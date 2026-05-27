@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from 'vitest';
+﻿import {describe, it, expect, beforeEach} from 'vitest';
 import {FirstSpeciesCounterpointValidator} from './FirstSpeciesCounterpointValidator';
 import {Note} from '../../models/note';
 import {Rule, Severity} from '../../models/rule';
@@ -19,7 +19,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
     new Note("E", 4), new Note("D", 4)
   ];
 
-  // Identical CF and CP — violates: NoParallelUnisons, NoUnisonsInMiddle, NoVoiceOverlap, CoincidingClimax
+  // Identical CF and CP - violates: NoParallelUnisons, NoUnisonsInMiddle, NoVoiceOverlap, CoincidingClimax
   const unisonCF: Note[] = [new Note("C", 4), new Note("D", 4), new Note("E", 4)];
   const unisonCP: Note[] = [new Note("C", 4), new Note("D", 4), new Note("E", 4)];
   const unisonViolations = [
@@ -76,19 +76,19 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
   });
 
   describe('disabling specific rules by RuleId', () => {
-    it('NoParallelUnisons — violation ignored when disabled', () => {
+    it('NoParallelUnisons - violation ignored when disabled', () => {
       const others = [RuleIdEnum.NoUnisonsInMiddle, RuleIdEnum.NoVoiceOverlap, RuleIdEnum.CoincidingClimax];
       expect(validator.isValidSolution(unisonCF, unisonCP, others)).toBe(false);
       expect(validator.isValidSolution(unisonCF, unisonCP, [...others, RuleIdEnum.NoParallelUnisons])).toBe(true);
     });
 
-    it('NoUnisonsInMiddle — violation ignored when disabled', () => {
+    it('NoUnisonsInMiddle - violation ignored when disabled', () => {
       const others = [RuleIdEnum.NoParallelUnisons, RuleIdEnum.NoVoiceOverlap, RuleIdEnum.CoincidingClimax];
       expect(validator.isValidSolution(unisonCF, unisonCP, others)).toBe(false);
       expect(validator.isValidSolution(unisonCF, unisonCP, [...others, RuleIdEnum.NoUnisonsInMiddle])).toBe(true);
     });
 
-    it('SameLength — mismatched lengths always blocked regardless of disabled rules', () => {
+    it('SameLength - mismatched lengths always blocked regardless of disabled rules', () => {
       const cf = [new Note("C", 4), new Note("D", 4)];
       const cp = [new Note("E", 5)];
       expect(validator.isValidSolution(cf, cp, [RuleIdEnum.SameLength])).toBe(false);
@@ -96,15 +96,15 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
   });
 
   describe('each rule fires and can be silenced individually', () => {
-    it('OnlyConsonantIntervals — fourth at a middle position', () => {
-      // D4 to G4 = 5 semitones (perfect fourth — dissonant in first species)
+    it('OnlyConsonantIntervals - fourth at a middle position', () => {
+      // D4 to G4 = 5 semitones (perfect fourth - dissonant in first species)
       const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
       const cp = [new Note("C", 4), new Note("G", 4), new Note("C", 5)];
       expect(brokenIds(cf, cp)).toContain(RuleIdEnum.OnlyConsonantIntervals);
       expect(brokenIds(cf, cp, [RuleIdEnum.OnlyConsonantIntervals])).not.toContain(RuleIdEnum.OnlyConsonantIntervals);
     });
 
-    it('ValidBeginningInterval — major second above is not a valid opening', () => {
+    it('ValidBeginningInterval - major second above is not a valid opening', () => {
       // D4 over C4 = 2 semitones
       const cf = [new Note("C", 4), new Note("D", 4)];
       const cp = [new Note("D", 4), new Note("D", 5)];
@@ -112,7 +112,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.ValidBeginningInterval])).not.toContain(RuleIdEnum.ValidBeginningInterval);
     });
 
-    it('ValidEndingInterval — ending on a perfect fifth is not allowed', () => {
+    it('ValidEndingInterval - ending on a perfect fifth is not allowed', () => {
       // G4 over C4 = 7 semitones
       const cf = [new Note("C", 4), new Note("C", 4)];
       const cp = [new Note("C", 4), new Note("G", 4)];
@@ -120,7 +120,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.ValidEndingInterval])).not.toContain(RuleIdEnum.ValidEndingInterval);
     });
 
-    it('NoParallelFifths — two consecutive fifths moving in the same direction', () => {
+    it('NoParallelFifths - two consecutive fifths moving in the same direction', () => {
       // C4/G4 = 7, D4/A4 = 7, both up
       const cf = [new Note("C", 4), new Note("D", 4), new Note("D", 4)];
       const cp = [new Note("G", 4), new Note("A", 4), new Note("D", 5)];
@@ -128,7 +128,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.NoParallelFifths])).not.toContain(RuleIdEnum.NoParallelFifths);
     });
 
-    it('NoParallelOctaves — two consecutive octaves moving in the same direction', () => {
+    it('NoParallelOctaves - two consecutive octaves moving in the same direction', () => {
       // C4/C5 = 12, D4/D5 = 12, both up
       const cf = [new Note("C", 4), new Note("D", 4), new Note("D", 4)];
       const cp = [new Note("C", 5), new Note("D", 5), new Note("D", 5)];
@@ -136,7 +136,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.NoParallelOctaves])).not.toContain(RuleIdEnum.NoParallelOctaves);
     });
 
-    it('NoHiddenPerfectIntervals — leaping to a perfect fifth by direct motion', () => {
+    it('NoHiddenPerfectIntervals - leaping to a perfect fifth by direct motion', () => {
       // G4→C5 is a leap (5 semitones); F4/C5 = 7 (perfect fifth); both voices move up
       const cf = [new Note("C", 4), new Note("F", 4), new Note("C", 4)];
       const cp = [new Note("G", 4), new Note("C", 5), new Note("C", 5)];
@@ -144,7 +144,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.NoHiddenPerfectIntervals])).not.toContain(RuleIdEnum.NoHiddenPerfectIntervals);
     });
 
-    it('NoAugmentedOrDiminishedMelodicIntervals — tritone leap (6 semitones)', () => {
+    it('NoAugmentedOrDiminishedMelodicIntervals - tritone leap (6 semitones)', () => {
       // C4 to F#4 = 6 semitones
       const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
       const cp = [new Note("C", 4), new Note("F#", 4), new Note("C", 5)];
@@ -152,7 +152,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals])).not.toContain(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals);
     });
 
-    it('NoAugmentedOrDiminishedMelodicIntervals — minor seventh leap (10 semitones)', () => {
+    it('NoAugmentedOrDiminishedMelodicIntervals - minor seventh leap (10 semitones)', () => {
       // C4 to A#4 = 10 semitones
       const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
       const cp = [new Note("C", 4), new Note("A#", 4), new Note("C", 5)];
@@ -160,7 +160,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals])).not.toContain(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals);
     });
 
-    it('NoUnisonsInMiddle — unison at an inner position', () => {
+    it('NoUnisonsInMiddle - unison at an inner position', () => {
       // E4/E4 = 0 at index 1
       const cf = [new Note("C", 4), new Note("E", 4), new Note("C", 4)];
       const cp = [new Note("C", 4), new Note("E", 4), new Note("C", 5)];
@@ -168,7 +168,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.NoUnisonsInMiddle])).not.toContain(RuleIdEnum.NoUnisonsInMiddle);
     });
 
-    it('NoVoiceCrossing — counterpoint dips below cantus firmus', () => {
+    it('NoVoiceCrossing - counterpoint dips below cantus firmus', () => {
       // F4 (53) < G4 (55) at index 1
       const cf = [new Note("C", 4), new Note("G", 4), new Note("C", 4)];
       const cp = [new Note("E", 4), new Note("F", 4), new Note("C", 5)];
@@ -176,7 +176,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.NoVoiceCrossing])).not.toContain(RuleIdEnum.NoVoiceCrossing);
     });
 
-    it('NoVoiceOverlap — cantus firmus leaps above where counterpoint just was', () => {
+    it('NoVoiceOverlap - cantus firmus leaps above where counterpoint just was', () => {
       // cfNext G4 (55) > cpCurrent E4 (52)
       const cf = [new Note("C", 4), new Note("G", 4), new Note("C", 4)];
       const cp = [new Note("E", 4), new Note("A", 4), new Note("C", 5)];
@@ -184,7 +184,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.NoVoiceOverlap])).not.toContain(RuleIdEnum.NoVoiceOverlap);
     });
 
-    it('FinalCadence — final note approached by a leap', () => {
+    it('FinalCadence - final note approached by a leap', () => {
       // E4 → C5 = 8 semitones
       const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
       const cp = [new Note("C", 4), new Note("E", 4), new Note("C", 5)];
@@ -192,31 +192,31 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.FinalCadence])).not.toContain(RuleIdEnum.FinalCadence);
     });
 
-    it('LargeLeapsRecoverCorrectly — large leap followed by a step in the same direction', () => {
-      // E4→A4 = 9 (large leap up), A4→B4 = 2 (step up — same direction as leap)
+    it('LargeLeapsRecoverCorrectly - large leap followed by a step in the same direction', () => {
+      // E4→A4 = 9 (large leap up), A4→B4 = 2 (step up - same direction as leap)
       const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4), new Note("C", 4)];
       const cp = [new Note("E", 4), new Note("A", 4), new Note("B", 4), new Note("C", 5)];
       expect(brokenIds(cf, cp)).toContain(RuleIdEnum.LargeLeapsRecoverCorrectly);
       expect(brokenIds(cf, cp, [RuleIdEnum.LargeLeapsRecoverCorrectly])).not.toContain(RuleIdEnum.LargeLeapsRecoverCorrectly);
     });
 
-    it('CoincidingClimax — both voices peak at the same index', () => {
-      // CF max at G4 (idx 1), CP max at D5 (idx 1) — same position
+    it('CoincidingClimax - both voices peak at the same index', () => {
+      // CF max at G4 (idx 1), CP max at D5 (idx 1) - same position
       const cf = [new Note("C", 4), new Note("G", 4), new Note("E", 4)];
       const cp = [new Note("E", 4), new Note("D", 5), new Note("A", 4)];
       expect(brokenIds(cf, cp)).toContain(RuleIdEnum.CoincidingClimax);
       expect(brokenIds(cf, cp, [RuleIdEnum.CoincidingClimax])).not.toContain(RuleIdEnum.CoincidingClimax);
     });
 
-    it('NoExcessiveConsecutiveThirdsOrSixths — four consecutive thirds', () => {
-      // intervals: 4, 3, 3, 4, 12 — four thirds in a row then an octave
+    it('NoExcessiveConsecutiveThirdsOrSixths - four consecutive thirds', () => {
+      // intervals: 4, 3, 3, 4, 12 - four thirds in a row then an octave
       const cf = [new Note("C", 4), new Note("D", 4), new Note("E", 4), new Note("F", 4), new Note("C", 4)];
       const cp = [new Note("E", 4), new Note("F", 4), new Note("G", 4), new Note("A", 4), new Note("C", 5)];
       expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths);
       expect(brokenIds(cf, cp, [RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths])).not.toContain(RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths);
     });
 
-    it('NoExcessiveRepeatedNotes — same note on consecutive beats', () => {
+    it('NoExcessiveRepeatedNotes - same note on consecutive beats', () => {
       // E4 appears twice in a row
       const cf = [new Note("C", 4), new Note("C", 4), new Note("C", 4)];
       const cp = [new Note("E", 4), new Note("E", 4), new Note("C", 5)];

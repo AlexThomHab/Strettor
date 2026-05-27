@@ -23,6 +23,7 @@ export class FirstSpeciesExercise {
   ruleService: RuleService = new RuleService();
   warningRules: Rule[] = [];
   errorRules: Rule[] = [];
+  suggestionRules: Rule[] = [];
   disabledRules: number[] = []
   species: string = "first";
   counterpoint: (Note | null)[] = Array(0).fill(null);
@@ -38,12 +39,19 @@ export class FirstSpeciesExercise {
     this.listOfRules = this.ruleService.getFirstSpeciesRules()
     this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
     this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
+    this.suggestionRules = this.listOfRules.filter(x => x.severity === Severity.Suggestion);
   }
 
-  hasOnlyWarnings(): boolean {
+  hasOnlySuggestions(): boolean {
     return this.brokenRules !== null
       && this.brokenRules.length > 0
-      && this.brokenRules.every(r => r.severity === Severity.Warning);
+      && this.brokenRules.every(r => r.severity === Severity.Suggestion);
+  }
+
+  hasNoErrors(): boolean {
+    return this.brokenRules !== null
+      && this.brokenRules.length > 0
+      && this.brokenRules.every(r => r.severity !== Severity.Error);
   }
 
   toggleRule(ruleId: number) {

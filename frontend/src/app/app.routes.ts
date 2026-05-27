@@ -5,6 +5,7 @@ import {ThirdSpeciesExercise} from '../components/third-species-exercise/third-s
 import {SergeiTaneyevVerticalShifting} from '../components/sergei-taneyev-vertical-shifting/sergei-taneyev-vertical-shifting';
 import {StrettoGenerator} from '../components/stretto-generator/stretto-generator';
 import {FourthSpeciesExercise} from '../components/fourth-species-exercise/fourth-species-exercise';
+import {CounterpointChecker} from '../components/counterpoint-checker/counterpoint-checker';
 
 export const routes: Routes = [
   {path: '', redirectTo: 'first-species-exercise', pathMatch: 'full'},
@@ -14,4 +15,5 @@ export const routes: Routes = [
   {path: 'fourth-species-exercise', component: FourthSpeciesExercise},
   {path: 'sergei-taneyev-vertical-shifting', component: SergeiTaneyevVerticalShifting},
   {path: 'stretto-generator', component: StrettoGenerator},
+  {path: 'counterpoint-checker', component: CounterpointChecker}
 ];

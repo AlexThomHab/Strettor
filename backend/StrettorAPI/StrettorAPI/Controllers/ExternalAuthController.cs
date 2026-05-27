@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using StrettorAPI.DTOs;
@@ -20,7 +20,7 @@ namespace StrettorAPI.Controllers;
 //     {
 //         options.ClientId     = builder.Configuration["Authentication:Google:ClientId"]!;
 //         options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
-//         // CallbackPath defaults to /signin-google — the middleware handles the
+//         // CallbackPath defaults to /signin-google - the middleware handles the
 //         // code exchange there, then redirects to RedirectUri set in ExternalLogin.
 //     });
 //
@@ -40,7 +40,7 @@ public class ExternalAuthController : ControllerBase
     }
 
     // GET api/auth/external-login/{provider}
-    // Kicks off the OAuth2 redirect — provider must match a registered scheme
+    // Kicks off the OAuth2 redirect - provider must match a registered scheme
     // name, e.g. "Google" or "GitHub".
     [HttpGet("external-login/{provider}")]
     public IActionResult ExternalLogin(string provider)
@@ -96,7 +96,7 @@ public class ExternalAuthController : ControllerBase
             await _users.AddAsync(user);
         }
 
-        // Clean up the transient external cookie — we no longer need it.
+        // Clean up the transient external cookie - we no longer need it.
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
         // TODO: once JWT is in place, mint a token here instead of returning

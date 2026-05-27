@@ -1,5 +1,5 @@
 import {Component, ElementRef, EventEmitter, Input, Output, SimpleChanges, ViewChild} from '@angular/core';
-import Vex, {Stave, StaveNote, Dot, StaveTie} from 'vexflow'
+import Vex, {Stave, StaveNote, Dot, StaveTie, Stem} from 'vexflow'
 import {Note} from '../../models/note';
 
 @Component({
@@ -191,9 +191,9 @@ export class Staff {
         return new StaveNote({keys: [this.toVexKey(note)], duration: 'w'});
       }
       if (this.species === "fourth" && index === notes.length - 3) {
-        return new StaveNote({keys: [this.toVexKey(note)], duration: 'h'});
+        return new StaveNote({keys: [this.toVexKey(note)], duration: 'h', stemDirection: Stem.UP});
       }
-      return new StaveNote({keys: [this.toVexKey(note)], duration});
+      return new StaveNote({keys: [this.toVexKey(note)], duration, stemDirection: Stem.UP});
     });
 
   }

@@ -1,4 +1,4 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using StrettorAPI.Models;
 using Xunit;
 
@@ -40,7 +40,7 @@ public class UserTests
         var user = new User
         {
             IsPaid = false,
-            SubscriptionExpiresAt = DateTime.UtcNow.AddYears(1) // future date — doesn't matter
+            SubscriptionExpiresAt = DateTime.UtcNow.AddYears(1) // future date - doesn't matter
         };
 
         var result = user.IsSubscriptionActive;

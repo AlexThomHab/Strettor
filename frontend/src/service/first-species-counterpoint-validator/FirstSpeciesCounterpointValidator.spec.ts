@@ -1,4 +1,4 @@
-import {describe, it, expect, beforeEach} from 'vitest';
+﻿import {describe, it, expect, beforeEach} from 'vitest';
 import {FirstSpeciesCounterpointValidator} from './FirstSpeciesCounterpointValidator';
 import {Note} from '../../models/note';
 
@@ -68,7 +68,7 @@ describe('CounterpointValidator', () => {
     it('returns true when both lines have the same length', () => {
       const cf = [new Note("C", 4), new Note("D", 4)];
       const cp = [new Note("C", 5), new Note("D", 5)];
-      // Only testing length — other rules may still fail
+      // Only testing length - other rules may still fail
       expect(validator.isValidSolution(cf, cp, [])).not.toBeUndefined();
     });
   });

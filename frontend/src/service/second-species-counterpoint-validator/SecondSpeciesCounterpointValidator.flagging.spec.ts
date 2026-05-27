@@ -1,15 +1,16 @@
-import {describe, it, expect, beforeEach} from 'vitest';
+﻿import {beforeEach, describe, expect, it} from 'vitest';
 import {Note} from '../../models/note';
-import {Severity} from '../../models/rule';
+import {Rule, Severity} from '../../models/rule';
 import {SecondSpeciesCounterpointValidator} from './SecondSpeciesCounterpointValidator';
 import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
+import {RuleIdEnum, SECOND_SPECIES_RULES} from '../../data/rules.data';
 
-describe('CounterpointValidator - getBrokenRules', () => {
+describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
   let validator: SecondSpeciesCounterpointValidator;
 
   const dorianCF = CANTUS_FIRMUS_LIST[0];
 
-  const mozartsCounterpoint: Note[] =  [new Note("A", 4), new Note("D", 5), new Note("A", 4),
+  const mozartsCounterpoint: Note[] = [new Note("A", 4), new Note("D", 5), new Note("A", 4),
     new Note("B", 4), new Note("C", 5), new Note("G", 4), new Note("F", 4), new Note("A", 4), new Note("B", 4),
     new Note("G", 4), new Note("A", 4), new Note("C", 5), new Note("F", 5), new Note("C", 5), new Note("B", 4),
     new Note("E", 5), new Note("D", 5), new Note("A", 4), new Note("B", 4), new Note("C", 5), new Note("D", 5),
@@ -23,7 +24,7 @@ describe('CounterpointValidator - getBrokenRules', () => {
     new Note("C", 5), new Note("D", 5), new Note("E", 5), new Note("B", 4),
     new Note("D", 5), new Note("A", 4), new Note("B", 4), new Note("C", 5),
     new Note("D", 5),
-  ]; //fux's solution in Paranassium. This however lacks a clear high point, too much motivic repetition etc.
+  ]; //fux's solution in Paranassium. This however lacks a clear high point, too much motivic repetition etc. NO ERRORS ARE MADE ONLY WARNINGS AND SUGGESTIONS
 
   //we must address that these two solutions above each have their own issues. Each of them should return no errors tho and only be warning more concerend with style. E.g Mozart can have a tritone cause of the galant style and Fux, despite having a boring melody, succeeds in voice leading independence
 
@@ -31,39 +32,57 @@ describe('CounterpointValidator - getBrokenRules', () => {
     validator = new SecondSpeciesCounterpointValidator();
   });
 
-  it('returns empty array for a valid solution', () => {
-    let brokenRules = validator.getBrokenRules(dorianCF, mozartsCounterpoint);
-    expect(brokenRules).toHaveLength(0);
+  it('Fux CP returns 0 errors', () => {
+    let errors = validator.getBrokenRules(dorianCF, fuxsCounterpoint).filter(x => x.severity == Severity.Error);
+    expect(errors).toHaveLength(0);
+  });
+  it('Mozarts Counterpoint', () => {
+    let result = validator.getBrokenRules(dorianCF, mozartsCounterpoint);
+    let errors = result.filter(x => x.severity == Severity.Error)
+    let suggestions = result.filter(x => x.severity == Severity.Suggestion)
+    let warnings = result.filter(x => x.severity == Severity.Warning)
+    expect(errors).toHaveLength(0);
+    expect(warnings).toHaveLength(0);
+    expect(suggestions).toHaveLength(3);
+    expect(suggestions.map(r => r.id)).toContain(RuleIdEnum.S2_NoDissonantOutlineBetweenDownbeats);
+    expect(suggestions.map(r => r.id)).toContain(RuleIdEnum.S2_LargeLeapsRecoverCorrectly);
+    expect(suggestions.map(r => r.id)).toContain(RuleIdEnum.S2_CoincidingClimax);
   });
 
   it('flags mismatched length as Error', () => {
     const cf = [new Note("D", 4), new Note("E", 4), new Note("F", 4)];
     const cp = [new Note("F", 4), new Note("G", 4)];
     const broken = validator.getBrokenRules(cf, cp);
-    expect(broken.map(r => r.description)).toContain('Counterpoint must match cantus firmus length');
-    expect(broken.find(r => r.description === 'Counterpoint must match cantus firmus length')?.severity).toBe(Severity.Error);
+    expect(broken.map(r => r.description)).toContain('Counterpoint must be the correct length for the exercise');
+    expect(broken.find(r => r.description === 'Counterpoint must be the correct length for the exercise')?.severity).toBe(Severity.Error);
   });
 
   it('flags dissonant interval as Error', () => {
-    // F4 against B4 = tritone (6 semitones) at position 2
-    const cf = [new Note("C", 4), new Note("E", 4), new Note("F", 4), new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("C", 5), new Note("C", 5), new Note("B", 4), new Note("G", 4), new Note("E", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
-    const broken = validator.getBrokenRules(cf, cp);
-    expect(broken.map(r => r.description)).toContain('No harmonic dissonances (fourths are dissonant in two-voice exercises but constant in three-voice exercise between upper voices)');
-    expect(broken.find(r => r.description === 'No harmonic dissonances (fourths are dissonant in two-voice exercises but constant in three-voice exercise between upper voices)')?.severity).toBe(Severity.Error);
+    const cf = CANTUS_FIRMUS_LIST[0]
+    let fuxsCounterpointWithError = fuxsCounterpoint;
+    fuxsCounterpointWithError[2] = new Note("G", 4)
+    fuxsCounterpointWithError;
+    const brokenRules = validator.getBrokenRules(cf, fuxsCounterpointWithError);
+    const errorIds = brokenRules.filter(r => r.severity === Severity.Error).map(r => r.id);
+    expect(errorIds).toHaveLength(2);
+    expect(errorIds).toContain(RuleIdEnum.S2_DissonantUpbeatMustBePassingTone);
+    expect(errorIds).toContain(RuleIdEnum.S2_DownbeatConsonance);
   });
 
   it('flags invalid beginning interval as Error', () => {
     // D3 to E4 = 14 semitones, not in [0, 3, 4, 7, 12]
     const cp = [...mozartsCounterpoint];
     cp[0] = new Note("E", 4);
-    const broken = validator.getBrokenRules(dorianCF, cp);
-    expect(broken.map(r => r.description)).toContain('Begin on a unison, octave, fifth, or third above the cantus firmus');
-    expect(broken.find(r => r.description === 'Begin on a unison, octave, fifth, or third above the cantus firmus')?.severity).toBe(Severity.Error);
+    const brokenRules = validator.getBrokenRules(dorianCF, cp);
+    expect(brokenRules.map(r => r.description)).toContain('Begin on a unison, octave, fifth, or third above the cantus firmus');
+    expect(brokenRules.find(r => r.description === 'Begin on a unison, octave, fifth, or third above the cantus firmus')?.severity).toBe(Severity.Error);
+    const errorIds = brokenRules.filter(r => r.severity === Severity.Error).map(r => r.id);
+    expect(errorIds).toHaveLength(2);
+    expect(errorIds).toContain(RuleIdEnum.S2_DownbeatConsonance);
   });
 
   it('allows beginning on a third above (minor or major)', () => {
-    // D3 to F3 = 3 semitones (minor third) — valid per Gran for CP above
+    // D3 to F3 = 3 semitones (minor third) - valid per Gran for CP above
     const cp = [...mozartsCounterpoint];
     cp[0] = new Note("F", 3);
     const broken = validator.getBrokenRules(dorianCF, cp);
@@ -80,148 +99,223 @@ describe('CounterpointValidator - getBrokenRules', () => {
   });
 
   it('flags ending on a fifth as Error (both voices must end on scale degree 1)', () => {
-    // D3 to A3 = 7 semitones (fifth) — no longer valid, per Gran must end on scale degree 1
+    // D3 to A3 = 7 semitones (fifth) - no longer valid, per Gran must end on scale degree 1
     const cp = [...mozartsCounterpoint];
     cp[cp.length - 1] = new Note("A", 3);
     const broken = validator.getBrokenRules(dorianCF, cp);
     expect(broken.map(r => r.description)).toContain('Both voices must end on scale degree 1 (unison or octave)');
   });
 
-  it('flags final cadence not approached by step as Warning', () => {
-    // A4 to D4 = 5 semitones leap to final note
+  it('flags final cadence not approached by step as Error', () => {
+    const cf = CANTUS_FIRMUS_LIST[0];
     const cp = [...mozartsCounterpoint];
+
+    // Force a leap into the final note.
     cp[cp.length - 2] = new Note("A", 4);
-    const broken = validator.getBrokenRules(dorianCF, cp);
+
+    const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('Approach the final note by step');
-    expect(broken.find(r => r.description === 'Approach the final note by step')?.severity).toBe(Severity.Warning);
+    expect(broken.find(r => r.description === 'Approach the final note by step')?.severity).toBe(Severity.Error);
   });
 
   it('flags parallel perfect fifths as Error', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("E", 4), new Note("F", 4), new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("F", 4), new Note("E", 4), new Note("C", 4)];
-    const cp = [new Note("G", 4), new Note("A", 4), new Note("B", 4), new Note("C", 5), new Note("D", 5), new Note("F", 5), new Note("E", 5), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // Create consecutive fifths against the Dorian CF:
+    // D3-A3 followed by E3-B3.
+    cp[0] = new Note("A", 3);
+    cp[1] = new Note("B", 3);
+
     const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('No parallel perfect fifths');
     expect(broken.find(r => r.description === 'No parallel perfect fifths')?.severity).toBe(Severity.Error);
   });
 
   it('flags parallel octaves as Error', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("E", 4), new Note("F", 4), new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("F", 4), new Note("E", 4), new Note("C", 4)];
-    const cp = [new Note("C", 5), new Note("D", 5), new Note("E", 5), new Note("D", 5), new Note("G", 5), new Note("F", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5), new Note("C", 5)];
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // Create consecutive octaves:
+    // D3-D4 followed by E3-E4.
+    cp[0] = new Note("D", 4);
+    cp[1] = new Note("E", 4);
+
     const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('No parallel octaves');
     expect(broken.find(r => r.description === 'No parallel octaves')?.severity).toBe(Severity.Error);
   });
 
   it('flags parallel unisons as Error', () => {
-    const cf = [new Note("C", 4), new Note("E", 4), new Note("E", 4), new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("C", 5), new Note("E", 4), new Note("E", 4), new Note("D", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5), new Note("B", 4), new Note("B", 4), new Note("C", 5)];
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // Create consecutive unisons:
+    // D3-D3 followed by E3-E3.
+    cp[0] = new Note("D", 3);
+    cp[1] = new Note("E", 3);
+
     const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('No parallel unisons');
     expect(broken.find(r => r.description === 'No parallel unisons')?.severity).toBe(Severity.Error);
   });
 
   it('flags unison in a middle position as Error', () => {
-    // CF: C4 E4 G4 E4 C4, CP: C5 E4 G5 B4 C5 — E4/E4 unison at position 1 (middle)
-    const cf = [new Note("C", 4), new Note("E", 4), new Note("G", 4), new Note("E", 4), new Note("C", 4)];
-    const cp = [new Note("C", 5), new Note("E", 4), new Note("G", 5), new Note("B", 4), new Note("C", 5)];
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // Middle-position unison against F3.
+    cp[2] = new Note("F", 3);
+
     const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('Unisons are only permitted at the first and last note');
     expect(broken.find(r => r.description === 'Unisons are only permitted at the first and last note')?.severity).toBe(Severity.Error);
   });
 
   it('flags hidden perfect interval as Error', () => {
-    // CF: C4→G4 (up 7), CP: A4→D5 (leap up) — similar motion into a perfect fifth
-    const cf = [new Note("C", 4), new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4), new Note("E", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("A", 4), new Note("D", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5), new Note("B", 4), new Note("A", 4), new Note("B", 4), new Note("B", 4), new Note("C", 5)];
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // Similar motion into a perfect fifth against E3-B3.
+    cp[0] = new Note("A", 3);
+    cp[1] = new Note("B", 3);
+
     const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('No approaching a perfect consonance by direct motion');
     expect(broken.find(r => r.description === 'No approaching a perfect consonance by direct motion')?.severity).toBe(Severity.Error);
   });
 
-  it('flags dissonant melodic leap (tritone) as Error', () => {
-    // F4→B4 = 6 semitones = tritone in CP melody
-    const cp = [
-      new Note("D", 4), new Note("C", 4), new Note("A", 3), new Note("F", 4),
-      new Note("B", 4), new Note("E", 4), new Note("D", 4), new Note("F", 4),
-      new Note("E", 4), new Note("D", 4)
-    ];
-    const broken = validator.getBrokenRules(dorianCF, cp);
+  it('flags dissonant melodic leap tritone as Error', () => {
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // F4 to B4 = tritone.
+    cp[3] = new Note("F", 4);
+    cp[4] = new Note("B", 4);
+
+    const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('No dissonant melodic leaps (sevenths, tritone, or larger than octave)');
     expect(broken.find(r => r.description === 'No dissonant melodic leaps (sevenths, tritone, or larger than octave)')?.severity).toBe(Severity.Error);
   });
 
-  it('flags dissonant melodic leap (seventh) as Error', () => {
-    // C4→B4 = 11 semitones = major seventh in CP melody
-    const cp = [
-      new Note("D", 4), new Note("C", 4), new Note("B", 4), new Note("B", 3),
-      new Note("C", 4), new Note("E", 4), new Note("D", 4), new Note("F", 4),
-      new Note("E", 4), new Note("D", 4)
-    ];
-    const broken = validator.getBrokenRules(dorianCF, cp);
+  it('flags dissonant melodic leap seventh as Error', () => {
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // C4 to B4 = major seventh.
+    cp[1] = new Note("C", 4);
+    cp[2] = new Note("B", 4);
+
+    const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('No dissonant melodic leaps (sevenths, tritone, or larger than octave)');
+    expect(broken.find(r => r.description === 'No dissonant melodic leaps (sevenths, tritone, or larger than octave)')?.severity).toBe(Severity.Error);
   });
 
   it('flags large leap not recovered as Warning', () => {
-    // C4→A4 leap up, then A4→B4 still going up — no recovery
-    const cp = [
-      new Note("D", 4), new Note("C", 4), new Note("A", 3), new Note("B", 3),
-      new Note("C", 4), new Note("A", 4), new Note("B", 4), new Note("F", 4),
-      new Note("E", 4), new Note("D", 4)
-    ];
-    const broken = validator.getBrokenRules(dorianCF, cp);
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // C4 to A4 is a large leap up, then A4 to B4 continues upward instead of recovering.
+    cp[4] = new Note("C", 4);
+    cp[5] = new Note("A", 4);
+    cp[6] = new Note("B", 4);
+
+    const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('Leaps larger than a third should be recovered by a step in the opposite direction');
     expect(broken.find(r => r.description === 'Leaps larger than a third should be recovered by a step in the opposite direction')?.severity).toBe(Severity.Warning);
   });
 
   it('flags coinciding climax as Warning', () => {
-    // CF peaks at index 2 (F3), CP also peaks at index 2 (D5)
-    const cf = [new Note("C", 3), new Note("E", 3), new Note("F", 3), new Note("E", 3), new Note("D", 3), new Note("C", 3)];
-    const cp = [new Note("C", 5), new Note("B", 4), new Note("D", 5), new Note("B", 4), new Note("B", 4), new Note("C", 5)];
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // Dorian CF highest note is A3 at index 4.
+    // Force CP high point to occur at the same index.
+    cp[4] = new Note("D", 5);
+
     const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('Avoid coinciding high points with the cantus firmus');
     expect(broken.find(r => r.description === 'Avoid coinciding high points with the cantus firmus')?.severity).toBe(Severity.Warning);
   });
 
   it('flags more than 3 consecutive thirds as Warning', () => {
-    const cf = [new Note("C", 4), new Note("E", 4), new Note("F", 4), new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("C", 5), new Note("G", 4), new Note("A", 4), new Note("B", 4), new Note("C", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // Make several consecutive thirds above the Dorian CF.
+    cp[0] = new Note("F", 3);  // third above D3
+    cp[1] = new Note("G", 3);  // third above E3
+    cp[2] = new Note("A", 3);  // third above F3
+    cp[3] = new Note("F", 3);  // third above D3
+
     const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('Avoid more than 3 consecutive thirds or sixths');
     expect(broken.find(r => r.description === 'Avoid more than 3 consecutive thirds or sixths')?.severity).toBe(Severity.Warning);
   });
 
   it('flags voice crossing as Error', () => {
-    // CP[1]=C4 goes below CF[1]=E4
-    const cf = [new Note("C", 4), new Note("E", 4), new Note("F", 4), new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("D", 5), new Note("C", 4), new Note("G", 4), new Note("A", 4), new Note("E", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // CP goes below the CF at index 4.
+    // CF[4] is A3, so F3 crosses below it.
+    cp[4] = new Note("F", 3);
+
     const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('No voice crossing');
     expect(broken.find(r => r.description === 'No voice crossing')?.severity).toBe(Severity.Error);
   });
 
   it('flags voice overlap as Error', () => {
-    const cf = [new Note("G", 4), new Note("A", 4), new Note("B", 4), new Note("A", 4), new Note("G", 4), new Note("A", 4), new Note("B", 4), new Note("A", 4), new Note("G", 4), new Note("G", 4)];
-    const cp = [new Note("D", 5), new Note("F", 4), new Note("D", 5), new Note("F", 5), new Note("D", 5), new Note("E", 5), new Note("D", 5), new Note("E", 5), new Note("D", 5), new Note("D", 5)];
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // Force CP to move below the previous CF note range.
+    cp[1] = new Note("C", 3);
+
     const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('No voice overlap');
     expect(broken.find(r => r.description === 'No voice overlap')?.severity).toBe(Severity.Error);
   });
 
   it('flags overused tone repetition as Warning', () => {
-    // cp[4] and cp[5] are both E4 — immediate repeat
-    const cp = [
-      new Note("D", 4), new Note("C", 4), new Note("A", 3), new Note("B", 3),
-      new Note("E", 4), new Note("E", 4), new Note("D", 4), new Note("F", 4),
-      new Note("E", 4), new Note("D", 4)
-    ];
-    const broken = validator.getBrokenRules(dorianCF, cp);
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...mozartsCounterpoint];
+
+    // Immediate repeated tone.
+    cp[4] = new Note("E", 4);
+    cp[5] = new Note("E", 4);
+
+    const broken = validator.getBrokenRules(cf, cp);
+
     expect(broken.map(r => r.description)).toContain('Avoid overusing tone repetition');
     expect(broken.find(r => r.description === 'Avoid overusing tone repetition')?.severity).toBe(Severity.Warning);
   });
 
   it('can return multiple broken rules simultaneously', () => {
-    const cf = [new Note("D", 4), new Note("E", 4), new Note("F", 4)];
-    const cp = [new Note("F", 4), new Note("G", 4), new Note("B", 3)];
-    expect(validator.getBrokenRules(cf, cp).length).toBeGreaterThan(1);
+    const cf = CANTUS_FIRMUS_LIST[0];
+    const cp = [...fuxsCounterpoint];
+
+    // Break several rules deliberately.
+    cp[0] = new Note("F", 3);  // invalid opening interval if only unison/octave allowed
+    cp[1] = new Note("F", 3);  // repetition
+    cp[2] = new Note("B", 4);  // creates a harsh melodic leap
+
+    const broken = validator.getBrokenRules(cf, cp);
+
+    expect(broken.length).toBeGreaterThan(1);
   });
-});
+})

@@ -1,10 +1,10 @@
-using StrettorAPI.Data;
+﻿using StrettorAPI.Data;
 using StrettorAPI.Models;
 
 namespace StrettorAPI.Repositories;
 
 // Database-backed implementation of IUserRepository.
-// Depends on IUserDbContext — the thin abstraction over the persistence engine
+// Depends on IUserDbContext - the thin abstraction over the persistence engine
 // (replace with an EfUserDbContext : IUserDbContext when connecting to a real DB).
 public class DbUserRepository : IUserRepository
 {

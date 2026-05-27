@@ -113,8 +113,9 @@
   border-bottom: 1px solid #e4d5bf;
 }
 
-.error-label  { color: #b71c1c; }
-.warning-label { color: #e65100; }
+.error-label      { color: #b71c1c; }
+.warning-label    { color: #e65100; }
+.suggestion-label { color: #c17f24; }
 
 .rule-row {
   display: flex;
@@ -181,49 +182,76 @@
   transform: translateX(16px);
 }
 
-#result-pass {
-  color: #2e7d32;
-  font-weight: 600;
-  margin-top: 0.75rem;
+.result-box {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem 0.75rem 1.25rem;
+  border-left: 3px solid;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-#result-fail {
-  color: #b71c1c;
-  font-weight: 600;
-  margin-top: 0.75rem;
+.result-box.pass       { border-color: #2e7d32; background: rgba(46, 125, 50, 0.05); }
+.result-box.fail       { border-color: #b71c1c; background: rgba(183, 28, 28, 0.04); }
+.result-box.warning    { border-color: #e65100; background: rgba(230, 81, 0, 0.04); }
+.result-box.suggestion { border-color: #c17f24; background: rgba(193, 127, 36, 0.04); }
+
+.result-heading {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin: 0 0 0.5rem 0;
 }
+
+.result-pass       { color: #2e7d32; }
+.result-fail       { color: #b71c1c; }
+.result-warning    { color: #e65100; }
+.result-suggestion { color: #c17f24; }
 
 .broken-rules {
   list-style: none;
   padding: 0;
-  margin: 0.5rem 0 0 0;
+  margin: 0.25rem 0 0 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
-#broken-rules li {
-  font-size: 0.875rem;
-  padding-left: 1rem;
+.broken-rules li {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  padding-left: 1.25rem;
   position: relative;
+  line-height: 1.6;
 }
 
-#broken-rules li.error {
+.broken-rules li.error {
   color: #b71c1c;
 }
 
-#broken-rules li.error::before {
+.broken-rules li.error::before {
   content: '✕';
   position: absolute;
   left: 0;
 }
 
-#broken-rules li.warning {
+.broken-rules li.warning {
   color: #e65100;
 }
 
-#broken-rules li.warning::before {
+.broken-rules li.warning::before {
   content: '⚠';
+  position: absolute;
+  left: 0;
+}
+
+.broken-rules li.suggestion {
+  color: #c17f24;
+  font-style: italic;
+}
+
+.broken-rules li.suggestion::before {
+  content: '✦';
   position: absolute;
   left: 0;
 }
