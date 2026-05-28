@@ -45,9 +45,14 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
       return [this._rules[0].rule];
     }
     const enabledRules = this._rules.filter(x => !disabledRuleIDs.includes(x.rule.id));
-    return enabledRules
-      .filter(r => !r.check(cantusFirmus, counterpoint))
-      .map(r => r.rule);
+    let brokenRules = [];
+
+    for (const rule of enabledRules) {
+      if (!rule.check(cantusFirmus, counterpoint)) {
+        brokenRules.push(rule.rule);
+      }
+    }
+    return brokenRules
   }
 
   // Helpers
