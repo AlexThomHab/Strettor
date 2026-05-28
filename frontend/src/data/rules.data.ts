@@ -42,6 +42,7 @@ export enum RuleIdEnum {
   S2_CoincidingClimax = 118,
   S2_NoExcessiveConsecutiveThirdsOrSixths = 119,
   S2_NoExcessivePitchRepetition = 120,
+  S2_NoParallelUnionsOnConsecutiveDownbeats = 121,
 
   // Third Species (200–219)
   S3_CorrectLength = 200,
@@ -102,12 +103,14 @@ export const SECOND_SPECIES_RULES: Rule[] = [
   new Rule(RuleIdEnum.S2_NoAugmentedOrDiminishedMelodicIntervals, 'No dissonant melodic leaps (tritone, seventh, or larger than an octave)', Severity.Warning),
   new Rule(RuleIdEnum.S2_NoVoiceCrossing, 'No voice crossing', Severity.Error),
   new Rule(RuleIdEnum.S2_NoVoiceOverlap, 'No voice overlap', Severity.Error),
-  new Rule(RuleIdEnum.S2_UnisonsOnlyOnUpbeats, 'Unisons are only permitted on upbeats', Severity.Error),
+  new Rule(RuleIdEnum.S2_UnisonsOnlyOnUpbeats, 'Unisons are only allowed on the upbeat, unless they are one the first or last note of the counterpoint', Severity.Error),
   new Rule(RuleIdEnum.S2_LargeLeapsRecoverCorrectly, 'Leaps larger than a third should be recovered by a step in the opposite direction', Severity.Suggestion),
-  new Rule(RuleIdEnum.S2_FinalCadence, 'Approach the final note by step with a proper cadence', Severity.Warning),
+  new Rule(RuleIdEnum.S2_FinalCadence, 'Approach the final note by step with a proper cadence', Severity.Error),
   new Rule(RuleIdEnum.S2_CoincidingClimax, 'Avoid coinciding high points with the cantus firmus', Severity.Suggestion),
   new Rule(RuleIdEnum.S2_NoExcessiveConsecutiveThirdsOrSixths, 'Avoid more than 3 consecutive thirds or sixths on downbeats', Severity.Warning),
   new Rule(RuleIdEnum.S2_NoExcessivePitchRepetition, 'Avoid overusing the same pitch throughout the exercise', Severity.Warning),
+  new Rule(RuleIdEnum.S2_NoParallelUnionsOnConsecutiveDownbeats, 'No parallel unisons on consecutive downbeats', Severity.Error),
+
 ];
 
 export const THIRD_SPECIES_RULES: Rule[] = [

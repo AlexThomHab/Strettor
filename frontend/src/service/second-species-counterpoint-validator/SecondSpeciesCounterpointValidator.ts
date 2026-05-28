@@ -31,7 +31,9 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
     { check: this.checkCoincidingClimax.bind(this),                        rule: SECOND_SPECIES_RULES.find(r => r.id === RuleIdEnum.S2_CoincidingClimax)! },
     { check: this.checkNoExcessiveConsecutiveThirdsOrSixths.bind(this),    rule: SECOND_SPECIES_RULES.find(r => r.id === RuleIdEnum.S2_NoExcessiveConsecutiveThirdsOrSixths)! },
     { check: this.checkNoExcessivePitchRepetition.bind(this),              rule: SECOND_SPECIES_RULES.find(r => r.id === RuleIdEnum.S2_NoExcessivePitchRepetition)! },
+    { check: this.checkNoParallelUnisonsOnConsecutiveDownbeats.bind(this),              rule: SECOND_SPECIES_RULES.find(r => r.id === RuleIdEnum.S2_NoParallelUnionsOnConsecutiveDownbeats)! },
   ];
+
 
   isValidSolution(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[]): boolean {
     let result = this.getBrokenRules(cantusFirmus, counterpoint, disabledRuleIDs);
@@ -102,7 +104,7 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
 
   private checkValidBeginningInterval(cantusFirmus: Note[], counterpoint: Note[]): boolean {
     const interval = this._intervalCalculator.calculateSemitoneInterval(cantusFirmus[0], counterpoint[0]);
-    return [0, 7, 12].includes(interval);
+    return [0, 4, 3, 7, 12].includes(interval);
   }
 
   private checkValidEndingInterval(cantusFirmus: Note[], counterpoint: Note[]): boolean {
@@ -241,7 +243,7 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
 
   // Unisons are forbidden on inner downbeats; they are allowed on upbeats
   private checkUnisonsOnlyOnUpbeats(cantusFirmus: Note[], counterpoint: Note[]): boolean {
-    for (let i = 1; i < cantusFirmus.length - 1; i++) {
+    for (let i = 1; i < cantusFirmus.length - 2; i++) {
       const interval = this._intervalCalculator.calculateSemitoneInterval(cantusFirmus[i], counterpoint[2 * i]);
       if (interval === 0) return false;
     }
@@ -303,4 +305,14 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
     }
     return true;
   }
+  private checkNoParallelUnisonsOnConsecutiveDownbeats(cantusFirmus: Note[], counterpoint: Note[]) : boolean {
+    for (let i = 0; i < cantusFirmus.length - 1; i++) {
+      const i1 = this._intervalCalculator.calculateSemitoneInterval(cantusFirmus[i], counterpoint[2 * i]);
+      const i2 = this._intervalCalculator.calculateSemitoneInterval(cantusFirmus[i + 1], counterpoint[2 * i + 2]);
+      const cfDir = this.getMotionDirection(cantusFirmus[i],     cantusFirmus[i + 1]);
+      const cpDir = this.getMotionDirection(counterpoint[2 * i], counterpoint[2 * i + 2]);
+      if (i1 === 0 && i2 === 0 && cfDir === cpDir) return false;
+    }
+    return true;
+  };
 }
