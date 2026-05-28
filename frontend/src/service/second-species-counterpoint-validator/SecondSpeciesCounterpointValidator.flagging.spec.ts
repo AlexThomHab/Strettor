@@ -52,9 +52,9 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
   it('flags mismatched length as Error', () => {
     const cf = [new Note("D", 4), new Note("E", 4), new Note("F", 4)];
     const cp = [new Note("F", 4), new Note("G", 4)];
-    const broken = validator.getBrokenRules(cf, cp);
-    expect(broken.map(r => r.description)).toContain('Counterpoint must be the correct length for the exercise');
-    expect(broken.find(r => r.description === 'Counterpoint must be the correct length for the exercise')?.severity).toBe(Severity.Error);
+    const brokenRules = validator.getBrokenRules(cf, cp);
+    expect(brokenRules.map(r => r.description)).toContain('Counterpoint must be the correct length for the exercise');
+    expect(brokenRules.find(r => r.description === 'Counterpoint must be the correct length for the exercise')?.severity).toBe(Severity.Error);
   });
 
   it('flags dissonant interval as Error', () => {
@@ -85,25 +85,25 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     // D3 to F3 = 3 semitones (minor third) - valid per Gran for CP above
     const cp = [...mozartsCounterpoint];
     cp[0] = new Note("F", 4);
-    const broken = validator.getBrokenRules(dorianCF, cp);
-    expect(broken.map(r => r.description)).not.toContain('Begin on a unison, octave, fifth, or third above the cantus firmus');
+    const brokenRules = validator.getBrokenRules(dorianCF, cp);
+    expect(brokenRules.map(r => r.description)).not.toContain('Begin on a unison, octave, fifth, or third above the cantus firmus');
   });
 
   it('flags invalid ending interval as Error', () => {
     // D3 to E4 = 14 semitones, not in [0, 12]
     const cp = [...mozartsCounterpoint];
     cp[cp.length - 1] = new Note("E", 4);
-    const broken = validator.getBrokenRules(dorianCF, cp);
-    expect(broken.map(r => r.description)).toContain('Both voices must end on scale degree 1 (unison or octave)');
-    expect(broken.find(r => r.description === 'Both voices must end on scale degree 1 (unison or octave)')?.severity).toBe(Severity.Error);
+    const brokenRules = validator.getBrokenRules(dorianCF, cp);
+    expect(brokenRules.map(r => r.description)).toContain('Both voices must end on scale degree 1 (unison or octave)');
+    expect(brokenRules.find(r => r.description === 'Both voices must end on scale degree 1 (unison or octave)')?.severity).toBe(Severity.Error);
   });
 
   it('flags ending on a fifth as Error (both voices must end on scale degree 1)', () => {
     // D3 to A3 = 7 semitones (fifth) - no longer valid, per Gran must end on scale degree 1
     const cp = [...mozartsCounterpoint];
     cp[cp.length - 1] = new Note("A", 3);
-    const broken = validator.getBrokenRules(dorianCF, cp);
-    expect(broken.map(r => r.description)).toContain('Both voices must end on scale degree 1 (unison or octave)');
+    const brokenRules = validator.getBrokenRules(dorianCF, cp);
+    expect(brokenRules.map(r => r.description)).toContain('Both voices must end on scale degree 1 (unison or octave)');
   });
 
   it('flags final cadence not approached by step as Error', () => {
@@ -113,10 +113,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     // Force a leap into the final note.
     cp[cp.length - 2] = new Note("A", 4);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('Approach the final note by step with a proper cadence');
-    expect(broken.find(r => r.description === 'Approach the final note by step with a proper cadence')?.severity).toBe(Severity.Error);
+    expect(brokenRules.map(r => r.description)).toContain('Approach the final note by step with a proper cadence');
+    expect(brokenRules.find(r => r.description === 'Approach the final note by step with a proper cadence')?.severity).toBe(Severity.Error);
   });
 
   it('flags parallel perfect fifths as Error', () => {
@@ -128,10 +128,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     cp[0] = new Note("A", 4);
     cp[2] = new Note("C", 5);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('No parallel perfect fifths between consecutive downbeats');
-    expect(broken.find(r => r.description === 'No parallel perfect fifths between consecutive downbeats')?.severity).toBe(Severity.Error);
+    expect(brokenRules.map(r => r.description)).toContain('No parallel perfect fifths between consecutive downbeats');
+    expect(brokenRules.find(r => r.description === 'No parallel perfect fifths between consecutive downbeats')?.severity).toBe(Severity.Error);
   });
 
   it('flags parallel octaves as Error', () => {
@@ -143,10 +143,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     cp[0] = new Note("D", 5);
     cp[2] = new Note("F", 5);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('No parallel octaves between consecutive downbeats');
-    expect(broken.find(r => r.description === 'No parallel octaves between consecutive downbeats')?.severity).toBe(Severity.Error);
+    expect(brokenRules.map(r => r.description)).toContain('No parallel octaves between consecutive downbeats');
+    expect(brokenRules.find(r => r.description === 'No parallel octaves between consecutive downbeats')?.severity).toBe(Severity.Error);
   });
 
   it('flags parallel unisons as Error', () => {
@@ -158,10 +158,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     cp[0] = new Note("D", 4);
     cp[2] = new Note("F", 4);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('No parallel unisons on consecutive downbeats');
-    expect(broken.find(r => r.description === 'No parallel unisons on consecutive downbeats')?.severity).toBe(Severity.Error);
+    expect(brokenRules.map(r => r.description)).toContain('No parallel unisons on consecutive downbeats');
+    expect(brokenRules.find(r => r.description === 'No parallel unisons on consecutive downbeats')?.severity).toBe(Severity.Error);
   });
 
   it('flags unison in a middle position as Error', () => {
@@ -171,10 +171,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     // Middle-position unison against F3.
     cp[2] = new Note("F", 4);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('Unisons are only allowed on the upbeat, unless they are one the first or last note of the counterpoint');
-    expect(broken.find(r => r.description === 'Unisons are only allowed on the upbeat, unless they are one the first or last note of the counterpoint')?.severity).toBe(Severity.Error);
+    expect(brokenRules.map(r => r.description)).toContain('Unisons are only allowed on the upbeat, unless they are one the first or last note of the counterpoint');
+    expect(brokenRules.find(r => r.description === 'Unisons are only allowed on the upbeat, unless they are one the first or last note of the counterpoint')?.severity).toBe(Severity.Error);
   });
   //write a test for unisons only being on the first or last beat and upbeats
   it('flags simlar motion perfect interval as Error', () => {
@@ -187,10 +187,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     cp[5] = new Note("E", 5);
     cp[6] = new Note("D", 5);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('No approaching a perfect consonance on a downbeat by direct motion');
-    expect(broken.find(r => r.description === 'No approaching a perfect consonance on a downbeat by direct motion')?.severity).toBe(Severity.Error);
+    expect(brokenRules.map(r => r.description)).toContain('No approaching a perfect consonance on a downbeat by direct motion');
+    expect(brokenRules.find(r => r.description === 'No approaching a perfect consonance on a downbeat by direct motion')?.severity).toBe(Severity.Error);
   });
 
   it('flags dissonant melodic leap tritone as Error', () => {
@@ -201,10 +201,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     cp[3] = new Note("F", 4);
     cp[4] = new Note("B", 4);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('No dissonant melodic leaps (tritone, seventh, or larger than an octave)');
-    expect(broken.find(r => r.description === 'No dissonant melodic leaps (tritone, seventh, or larger than an octave)')?.severity).toBe(Severity.Warning);
+    expect(brokenRules.map(r => r.description)).toContain('No dissonant melodic leaps (tritone, seventh, or larger than an octave)');
+    expect(brokenRules.find(r => r.description === 'No dissonant melodic leaps (tritone, seventh, or larger than an octave)')?.severity).toBe(Severity.Warning);
   });
 
   it('flags dissonant melodic leap seventh as Error', () => {
@@ -215,10 +215,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     cp[1] = new Note("C", 4);
     cp[2] = new Note("B", 4);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('No dissonant melodic leaps (tritone, seventh, or larger than an octave)');
-    expect(broken.find(r => r.description === 'No dissonant melodic leaps (tritone, seventh, or larger than an octave)')?.severity).toBe(Severity.Warning);
+    expect(brokenRules.map(r => r.description)).toContain('No dissonant melodic leaps (tritone, seventh, or larger than an octave)');
+    expect(brokenRules.find(r => r.description === 'No dissonant melodic leaps (tritone, seventh, or larger than an octave)')?.severity).toBe(Severity.Warning);
   });
 
   it('flags large leap not recovered as Warning', () => {
@@ -230,10 +230,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     cp[5] = new Note("A", 4);
     cp[6] = new Note("B", 4);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('Leaps larger than a third should be recovered by a step in the opposite direction');
-    expect(broken.find(r => r.description === 'Leaps larger than a third should be recovered by a step in the opposite direction')?.severity).toBe(Severity.Suggestion);
+    expect(brokenRules.map(r => r.description)).toContain('Leaps larger than a third should be recovered by a step in the opposite direction');
+    expect(brokenRules.find(r => r.description === 'Leaps larger than a third should be recovered by a step in the opposite direction')?.severity).toBe(Severity.Suggestion);
   });
 
   it('flags coinciding climax as Warning', () => {
@@ -244,10 +244,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     // Force CP high point to occur at the same index.
     cp[4] = new Note("D", 5);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('Avoid coinciding high points with the cantus firmus');
-    expect(broken.find(r => r.description === 'Avoid coinciding high points with the cantus firmus')?.severity).toBe(Severity.Suggestion);
+    expect(brokenRules.map(r => r.description)).toContain('Avoid coinciding high points with the cantus firmus');
+    expect(brokenRules.find(r => r.description === 'Avoid coinciding high points with the cantus firmus')?.severity).toBe(Severity.Suggestion);
   });
 
   it('flags more than 3 consecutive thirds as Warning', () => {
@@ -260,10 +260,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     cp[4] = new Note("G", 4);  // third above F3
     cp[6] = new Note("F", 4);  // third above D3
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('Avoid more than 3 consecutive thirds or sixths on downbeats');
-    expect(broken.find(r => r.description === 'Avoid more than 3 consecutive thirds or sixths on downbeats')?.severity).toBe(Severity.Warning);
+    expect(brokenRules.map(r => r.description)).toContain('Avoid more than 3 consecutive thirds or sixths on downbeats');
+    expect(brokenRules.find(r => r.description === 'Avoid more than 3 consecutive thirds or sixths on downbeats')?.severity).toBe(Severity.Warning);
   });
 
   it('flags voice crossing as Error', () => {
@@ -274,10 +274,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     // CF[4] is A3, so F3 crosses below it.
     cp[4] = new Note("F", 3);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('No voice crossing');
-    expect(broken.find(r => r.description === 'No voice crossing')?.severity).toBe(Severity.Error);
+    expect(brokenRules.map(r => r.description)).toContain('No voice crossing');
+    expect(brokenRules.find(r => r.description === 'No voice crossing')?.severity).toBe(Severity.Error);
   });
 
   it('flags voice overlap as Error', () => {
@@ -287,10 +287,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     // Force CP to move below the previous CF note range.
     cp[1] = new Note("C", 3);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('No voice overlap');
-    expect(broken.find(r => r.description === 'No voice overlap')?.severity).toBe(Severity.Error);
+    expect(brokenRules.map(r => r.description)).toContain('No voice overlap');
+    expect(brokenRules.find(r => r.description === 'No voice overlap')?.severity).toBe(Severity.Error);
   });
 
   it('flags overused tone repetition as Warning', () => {
@@ -301,10 +301,10 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     cp[4] = new Note("E", 4);
     cp[5] = new Note("E", 4);
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.map(r => r.description)).toContain('No repeated notes - neither downbeat-to-upbeat nor upbeat-to-following-downbeat');
-    expect(broken.find(r => r.description === 'No repeated notes - neither downbeat-to-upbeat nor upbeat-to-following-downbeat')?.severity).toBe(Severity.Error);
+    expect(brokenRules.map(r => r.description)).toContain('No repeated notes - neither downbeat-to-upbeat nor upbeat-to-following-downbeat');
+    expect(brokenRules.find(r => r.description === 'No repeated notes - neither downbeat-to-upbeat nor upbeat-to-following-downbeat')?.severity).toBe(Severity.Error);
   });
 
   it('can return multiple broken rules simultaneously', () => {
@@ -316,8 +316,8 @@ describe('Given Mozarts and Fuxs Counterpoint to Fuxs Dorian CF', () => {
     cp[1] = new Note("F", 3);  // repetition
     cp[2] = new Note("B", 4);  // creates a harsh melodic leap
 
-    const broken = validator.getBrokenRules(cf, cp);
+    const brokenRules = validator.getBrokenRules(cf, cp);
 
-    expect(broken.length).toBeGreaterThan(1);
+    expect(brokenRules.length).toBeGreaterThan(1);
   });
 })

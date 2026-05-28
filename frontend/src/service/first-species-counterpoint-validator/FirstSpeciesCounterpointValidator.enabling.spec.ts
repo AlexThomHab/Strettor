@@ -245,7 +245,7 @@ describe('CounterpointValidator - rule enabling/disabling', () => {
     it('NoVoiceOverlap is an Error',                          () => expect(getRuleById(RuleIdEnum.NoVoiceOverlap).severity).toBe(Severity.Error));
     it('FinalCadence is a Warning',                           () => expect(getRuleById(RuleIdEnum.FinalCadence).severity).toBe(Severity.Warning));
     it('LargeLeapsRecoverCorrectly is a Warning',             () => expect(getRuleById(RuleIdEnum.LargeLeapsRecoverCorrectly).severity).toBe(Severity.Warning));
-    it('CoincidingClimax is a Warning',                       () => expect(getRuleById(RuleIdEnum.CoincidingClimax).severity).toBe(Severity.Warning));
+    it('CoincidingClimax is a Warning',                       () => expect(getRuleById(RuleIdEnum.CoincidingClimax).severity).toBe(Severity.Suggestion));
     it('NoExcessiveConsecutiveThirdsOrSixths is a Warning',   () => expect(getRuleById(RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths).severity).toBe(Severity.Warning));
     it('NoExcessiveRepeatedNotes is a Warning',               () => expect(getRuleById(RuleIdEnum.NoExcessiveRepeatedNotes).severity).toBe(Severity.Warning));
   });

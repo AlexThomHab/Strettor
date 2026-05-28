@@ -58,7 +58,7 @@ describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
 
     it('there are 21 rules defined', () => {
       const rules = (validator as any)._rules as Array<unknown>;
-      expect(rules).toHaveLength(21);
+      expect(rules).toHaveLength(22);
     });
   });
 
@@ -256,26 +256,34 @@ describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
       return rules.find(r => r.rule.id === id)!.rule;
     };
 
-    it('S2_CorrectLength is an Error',                           () => expect(getRuleById(RuleIdEnum.S2_CorrectLength).severity).toBe(Severity.Error));
-    it('S2_DownbeatConsonance is an Error',                      () => expect(getRuleById(RuleIdEnum.S2_DownbeatConsonance).severity).toBe(Severity.Error));
-    it('S2_ValidBeginningInterval is an Error',                  () => expect(getRuleById(RuleIdEnum.S2_ValidBeginningInterval).severity).toBe(Severity.Error));
-    it('S2_ValidEndingInterval is an Error',                     () => expect(getRuleById(RuleIdEnum.S2_ValidEndingInterval).severity).toBe(Severity.Error));
-    it('S2_NoParallelFifthsBetweenDownbeats is an Error',        () => expect(getRuleById(RuleIdEnum.S2_NoParallelFifthsBetweenDownbeats).severity).toBe(Severity.Error));
-    it('S2_NoParallelOctavesBetweenDownbeats is an Error',       () => expect(getRuleById(RuleIdEnum.S2_NoParallelOctavesBetweenDownbeats).severity).toBe(Severity.Error));
-    it('S2_NoParallelFifthsUpbeatToDownbeat is an Error',        () => expect(getRuleById(RuleIdEnum.S2_NoParallelFifthsUpbeatToDownbeat).severity).toBe(Severity.Error));
-    it('S2_NoParallelOctavesUpbeatToDownbeat is an Error',       () => expect(getRuleById(RuleIdEnum.S2_NoParallelOctavesUpbeatToDownbeat).severity).toBe(Severity.Error));
-    it('S2_NoDirectMotionToPerfectOnDownbeats is an Error',      () => expect(getRuleById(RuleIdEnum.S2_NoDirectMotionToPerfectOnDownbeats).severity).toBe(Severity.Error));
-    it('S2_DissonantUpbeatMustBePassingTone is an Error',        () => expect(getRuleById(RuleIdEnum.S2_DissonantUpbeatMustBePassingTone).severity).toBe(Severity.Error));
-    it('S2_NoToneRepetition is an Error',                        () => expect(getRuleById(RuleIdEnum.S2_NoToneRepetition).severity).toBe(Severity.Error));
-    it('S2_NoDissonantOutlineBetweenDownbeats is an Error',      () => expect(getRuleById(RuleIdEnum.S2_NoDissonantOutlineBetweenDownbeats).severity).toBe(Severity.Error));
-    it('S2_NoAugmentedOrDiminishedMelodicIntervals is an Error', () => expect(getRuleById(RuleIdEnum.S2_NoAugmentedOrDiminishedMelodicIntervals).severity).toBe(Severity.Error));
-    it('S2_NoVoiceCrossing is an Error',                         () => expect(getRuleById(RuleIdEnum.S2_NoVoiceCrossing).severity).toBe(Severity.Error));
-    it('S2_NoVoiceOverlap is an Error',                          () => expect(getRuleById(RuleIdEnum.S2_NoVoiceOverlap).severity).toBe(Severity.Error));
-    it('S2_UnisonsOnlyOnUpbeats is an Error',                    () => expect(getRuleById(RuleIdEnum.S2_UnisonsOnlyOnUpbeats).severity).toBe(Severity.Error));
-    it('S2_LargeLeapsRecoverCorrectly is a Warning',             () => expect(getRuleById(RuleIdEnum.S2_LargeLeapsRecoverCorrectly).severity).toBe(Severity.Warning));
-    it('S2_FinalCadence is a Warning',                           () => expect(getRuleById(RuleIdEnum.S2_FinalCadence).severity).toBe(Severity.Warning));
-    it('S2_CoincidingClimax is a Warning',                       () => expect(getRuleById(RuleIdEnum.S2_CoincidingClimax).severity).toBe(Severity.Warning));
-    it('S2_NoExcessiveConsecutiveThirdsOrSixths is a Warning',   () => expect(getRuleById(RuleIdEnum.S2_NoExcessiveConsecutiveThirdsOrSixths).severity).toBe(Severity.Warning));
-    it('S2_NoExcessivePitchRepetition is a Warning',             () => expect(getRuleById(RuleIdEnum.S2_NoExcessivePitchRepetition).severity).toBe(Severity.Warning));
-  });
-});
+    describe('Second species rule severities', () => {
+      it('S2_CorrectLength is an Error', () => expect(getRuleById(RuleIdEnum.S2_CorrectLength).severity).toBe(Severity.Error));
+      it('S2_DownbeatConsonance is an Error', () => expect(getRuleById(RuleIdEnum.S2_DownbeatConsonance).severity).toBe(Severity.Error));
+      it('S2_ValidBeginningInterval is an Error', () => expect(getRuleById(RuleIdEnum.S2_ValidBeginningInterval).severity).toBe(Severity.Error));
+      it('S2_ValidEndingInterval is an Error', () => expect(getRuleById(RuleIdEnum.S2_ValidEndingInterval).severity).toBe(Severity.Error));
+
+      it('S2_NoParallelFifthsBetweenDownbeats is an Error', () => expect(getRuleById(RuleIdEnum.S2_NoParallelFifthsBetweenDownbeats).severity).toBe(Severity.Error));
+      it('S2_NoParallelOctavesBetweenDownbeats is an Error', () => expect(getRuleById(RuleIdEnum.S2_NoParallelOctavesBetweenDownbeats).severity).toBe(Severity.Error));
+      it('S2_NoParallelFifthsUpbeatToDownbeat is an Error', () => expect(getRuleById(RuleIdEnum.S2_NoParallelFifthsUpbeatToDownbeat).severity).toBe(Severity.Error));
+      it('S2_NoParallelOctavesUpbeatToDownbeat is an Error', () => expect(getRuleById(RuleIdEnum.S2_NoParallelOctavesUpbeatToDownbeat).severity).toBe(Severity.Error));
+      it('S2_NoDirectMotionToPerfectOnDownbeats is an Error', () => expect(getRuleById(RuleIdEnum.S2_NoDirectMotionToPerfectOnDownbeats).severity).toBe(Severity.Error));
+
+      it('S2_DissonantUpbeatMustBePassingTone is an Error', () => expect(getRuleById(RuleIdEnum.S2_DissonantUpbeatMustBePassingTone).severity).toBe(Severity.Error));
+      it('S2_NoToneRepetition is an Error', () => expect(getRuleById(RuleIdEnum.S2_NoToneRepetition).severity).toBe(Severity.Error));
+      it('S2_NoDissonantOutlineBetweenDownbeats is a Suggestion', () => expect(getRuleById(RuleIdEnum.S2_NoDissonantOutlineBetweenDownbeats).severity).toBe(Severity.Suggestion));
+      it('S2_NoAugmentedOrDiminishedMelodicIntervals is a Warning', () => expect(getRuleById(RuleIdEnum.S2_NoAugmentedOrDiminishedMelodicIntervals).severity).toBe(Severity.Warning));
+
+      it('S2_NoVoiceCrossing is an Error', () => expect(getRuleById(RuleIdEnum.S2_NoVoiceCrossing).severity).toBe(Severity.Error));
+      it('S2_NoVoiceOverlap is an Error', () => expect(getRuleById(RuleIdEnum.S2_NoVoiceOverlap).severity).toBe(Severity.Error));
+      it('S2_UnisonsOnlyOnUpbeats is an Error', () => expect(getRuleById(RuleIdEnum.S2_UnisonsOnlyOnUpbeats).severity).toBe(Severity.Error));
+
+      it('S2_LargeLeapsRecoverCorrectly is a Suggestion', () => expect(getRuleById(RuleIdEnum.S2_LargeLeapsRecoverCorrectly).severity).toBe(Severity.Suggestion));
+      it('S2_FinalCadence is an Error', () => expect(getRuleById(RuleIdEnum.S2_FinalCadence).severity).toBe(Severity.Error));
+      it('S2_CoincidingClimax is a Suggestion', () => expect(getRuleById(RuleIdEnum.S2_CoincidingClimax).severity).toBe(Severity.Suggestion));
+      it('S2_NoExcessiveConsecutiveThirdsOrSixths is a Warning', () => expect(getRuleById(RuleIdEnum.S2_NoExcessiveConsecutiveThirdsOrSixths).severity).toBe(Severity.Warning));
+      it('S2_NoExcessivePitchRepetition is a Warning', () => expect(getRuleById(RuleIdEnum.S2_NoExcessivePitchRepetition).severity).toBe(Severity.Warning));
+
+      it('S2_NoParallelUnionsOnConsecutiveDownbeats is an Error', () => expect(getRuleById(RuleIdEnum.S2_NoParallelUnionsOnConsecutiveDownbeats).severity).toBe(Severity.Error));
+    });
+  })
+})
