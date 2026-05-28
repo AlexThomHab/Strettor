@@ -68,11 +68,13 @@ export class FirstSpeciesExercise {
   }
 
   onReset() {
+    this.brokenRules = null;
     this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
     this.counterpointEvent.emit(this.counterpoint)
   }
 
   public onNextExercise() {
+    this.brokenRules = null;
     this.cantusFirmus = this.getRandomCantusFirmus()
     this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
     this.counterpointEvent.emit(this.counterpoint)
