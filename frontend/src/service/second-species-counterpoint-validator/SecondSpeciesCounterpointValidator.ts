@@ -243,7 +243,7 @@ export class SecondSpeciesCounterpointValidator implements ICounterpointValidato
 
   // Unisons are forbidden on inner downbeats; they are allowed on upbeats
   private checkUnisonsOnlyOnUpbeats(cantusFirmus: Note[], counterpoint: Note[]): boolean {
-    for (let i = 1; i < cantusFirmus.length - 2; i++) {
+    for (let i = 1; i <= cantusFirmus.length - 2; i++) {
       const interval = this._intervalCalculator.calculateSemitoneInterval(cantusFirmus[i], counterpoint[2 * i]);
       if (interval === 0) return false;
     }

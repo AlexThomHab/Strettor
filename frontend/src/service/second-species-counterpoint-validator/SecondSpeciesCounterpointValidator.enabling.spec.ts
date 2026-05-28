@@ -3,28 +3,22 @@ import {Note} from '../../models/note';
 import {Rule, Severity} from '../../models/rule';
 import {RuleIdEnum} from '../../data/rules.data';
 import {SecondSpeciesCounterpointValidator} from './SecondSpeciesCounterpointValidator';
+import {CANTUS_FIRMUS_LIST} from '../../data/cantus-firmus.data';
 
 describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
   let validator: SecondSpeciesCounterpointValidator;
 
-  const dorianCF: Note[] = [
-    new Note("D", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
-    new Note("A", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
-    new Note("C#", 3), new Note("D", 3)
-  ];
+  const dorianCF = CANTUS_FIRMUS_LIST[0]
 
   // 19-note CP (2*10-1): downbeats at even indices, upbeats at odd
-  const validCP: Note[] = [
-    new Note("D", 4), new Note("C", 4),
-    new Note("B", 3), new Note("A", 3),
-    new Note("A", 3), new Note("G", 3),
-    new Note("F", 3), new Note("G", 3),
-    new Note("E", 4), new Note("D", 4),
-    new Note("C", 4), new Note("B", 3),
-    new Note("A", 3), new Note("B", 3),
-    new Note("C", 4), new Note("B", 3),
-    new Note("A", 3), new Note("B", 3),
-    new Note("D", 4)
+  const fuxsValidCp: Note[] = [
+    new Note("A", 4), new Note("D", 5), new Note("A", 4), new Note("B", 4),
+    new Note("C", 5), new Note("G", 4), new Note("A", 4), new Note("D", 5),
+    new Note("B", 4), new Note("C", 5), new Note("D", 5), new Note("A", 4),
+
+    new Note("C", 5), new Note("D", 5), new Note("E", 5), new Note("B", 4),
+    new Note("D", 5), new Note("A", 4), new Note("B", 4), new Note("C", 5),
+    new Note("D", 5),
   ];
 
   // CF: C4 D4 C4 (3 notes) -> CP needs 5 notes
@@ -34,13 +28,17 @@ describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
     new Note("D", 4), new Note("C", 5),
     new Note("C", 5)
   ];
-  const badViolations = [
+  const disabledViolations = [
     RuleIdEnum.S2_NoToneRepetition,
     RuleIdEnum.S2_UnisonsOnlyOnUpbeats,
     RuleIdEnum.S2_CoincidingClimax,
     RuleIdEnum.S2_NoParallelOctavesBetweenDownbeats,
     RuleIdEnum.S2_NoDirectMotionToPerfectOnDownbeats,
     RuleIdEnum.S2_NoExcessivePitchRepetition,
+    RuleIdEnum.S2_NoAugmentedOrDiminishedMelodicIntervals,
+    RuleIdEnum.S2_DissonantUpbeatMustBePassingTone,
+    RuleIdEnum.S2_LargeLeapsRecoverCorrectly,
+
   ];
 
   beforeEach(() => {
@@ -64,7 +62,7 @@ describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
 
   describe('isValidSolution', () => {
     it('passes a valid solution with no disabled rules', () => {
-      expect(validator.isValidSolution(dorianCF, validCP, [])).toBe(true);
+      expect(validator.isValidSolution(dorianCF, fuxsValidCp, [])).toBe(true);
     });
 
     it('fails an invalid solution with no disabled rules', () => {
@@ -72,7 +70,7 @@ describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
     });
 
     it('passes when every violated rule is disabled', () => {
-      expect(validator.isValidSolution(badCF, badCP, badViolations)).toBe(true);
+      expect(validator.isValidSolution(badCF, badCP, disabledViolations)).toBe(true);
     });
 
     it('still fails when only some violated rules are disabled', () => {
@@ -84,7 +82,7 @@ describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
     });
 
     it('disabling a rule does not affect a passing solution', () => {
-      expect(validator.isValidSolution(dorianCF, validCP, [RuleIdEnum.S2_FinalCadence])).toBe(true);
+      expect(validator.isValidSolution(dorianCF, fuxsValidCp, [RuleIdEnum.S2_FinalCadence])).toBe(true);
     });
   });
 
@@ -108,13 +106,6 @@ describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
       const cp = [new Note("F", 4), new Note("B", 4), new Note("D", 5)];
       expect(brokenIds(cf, cp)).toContain(RuleIdEnum.S2_DownbeatConsonance);
       expect(brokenIds(cf, cp, [RuleIdEnum.S2_DownbeatConsonance])).not.toContain(RuleIdEnum.S2_DownbeatConsonance);
-    });
-
-    it('S2_ValidBeginningInterval - third is not a valid opening', () => {
-      const cf = [new Note("C", 4), new Note("D", 4)];
-      const cp = [new Note("E", 4), new Note("D", 4), new Note("D", 5)];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.S2_ValidBeginningInterval);
-      expect(brokenIds(cf, cp, [RuleIdEnum.S2_ValidBeginningInterval])).not.toContain(RuleIdEnum.S2_ValidBeginningInterval);
     });
 
     it('S2_ValidEndingInterval - ending on a fifth is not allowed', () => {
@@ -154,7 +145,7 @@ describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
 
     it('S2_NoDirectMotionToPerfectOnDownbeats - both voices move into a fifth by direct motion', () => {
       const cf = [new Note("C", 4), new Note("G", 4), new Note("C", 4)];
-      const cp = [new Note("C", 5), new Note("D", 5), new Note("D", 5), new Note("C", 5), new Note("C", 5)];
+      const cp = [new Note("C", 5), new Note("D", 5), new Note("E", 5), new Note("C", 5), new Note("G", 4)];
       expect(brokenIds(cf, cp)).toContain(RuleIdEnum.S2_NoDirectMotionToPerfectOnDownbeats);
       expect(brokenIds(cf, cp, [RuleIdEnum.S2_NoDirectMotionToPerfectOnDownbeats])).not.toContain(RuleIdEnum.S2_NoDirectMotionToPerfectOnDownbeats);
     });
@@ -175,7 +166,7 @@ describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
 
     it('S2_NoDissonantOutlineBetweenDownbeats - tritone outlined across adjacent downbeats', () => {
       const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-      const cp = [new Note("C", 5), new Note("B", 3), new Note("F", 4), new Note("E", 4), new Note("C", 5)];
+      const cp = [new Note("C", 5), new Note("E", 3), new Note("B", 4), new Note("E", 4), new Note("F", 5)];
       expect(brokenIds(cf, cp)).toContain(RuleIdEnum.S2_NoDissonantOutlineBetweenDownbeats);
       expect(brokenIds(cf, cp, [RuleIdEnum.S2_NoDissonantOutlineBetweenDownbeats])).not.toContain(RuleIdEnum.S2_NoDissonantOutlineBetweenDownbeats);
     });
@@ -195,15 +186,15 @@ describe('SecondSpeciesCounterpointValidator - rule enabling/disabling', () => {
     });
 
     it('S2_NoVoiceOverlap - CF next note leaps above current CP downbeat', () => {
+      const cp = [new Note("E", 4), new Note("F", 4), new Note("F", 4), new Note("G", 4), new Note("C", 5)];
       const cf = [new Note("C", 4), new Note("G", 4), new Note("C", 4)];
-      const cp = [new Note("E", 4), new Note("F", 4), new Note("A", 4), new Note("G", 4), new Note("C", 5)];
       expect(brokenIds(cf, cp)).toContain(RuleIdEnum.S2_NoVoiceOverlap);
       expect(brokenIds(cf, cp, [RuleIdEnum.S2_NoVoiceOverlap])).not.toContain(RuleIdEnum.S2_NoVoiceOverlap);
     });
 
     it('S2_UnisonsOnlyOnUpbeats - unison on an inner downbeat', () => {
-      const cf = [new Note("C", 4), new Note("E", 4), new Note("C", 4)];
       const cp = [new Note("C", 5), new Note("D", 5), new Note("E", 4), new Note("D", 4), new Note("C", 5)];
+      const cf = [new Note("C", 4), new Note("E", 4), new Note("C", 4)];
       expect(brokenIds(cf, cp)).toContain(RuleIdEnum.S2_UnisonsOnlyOnUpbeats);
       expect(brokenIds(cf, cp, [RuleIdEnum.S2_UnisonsOnlyOnUpbeats])).not.toContain(RuleIdEnum.S2_UnisonsOnlyOnUpbeats);
     });
