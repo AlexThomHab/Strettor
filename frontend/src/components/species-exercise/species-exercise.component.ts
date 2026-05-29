@@ -8,14 +8,25 @@ import {ICounterpointValidator} from '../../service/ICounterpointValidator';
 import {
   FirstSpeciesCounterpointValidator
 } from '../../service/first-species-counterpoint-validator/FirstSpeciesCounterpointValidator';
+import {SpeciesExerciseModel} from '../../models/species-exercise';
+import {ActivatedRoute} from '@angular/router';
+import {
+  SecondSpeciesCounterpointValidator
+} from '../../service/second-species-counterpoint-validator/SecondSpeciesCounterpointValidator';
+import {
+  ThirdSpeciesCounterpointValidator
+} from '../../service/third-species-counterpoint-validator/ThirdSpeciesCounterpointValidator';
+import {
+  FourthSpeciesCounterpointValidator
+} from '../../service/fourth-species-counterpoint-validator/FourthSpeciesCounterpointValidator';
 
 @Component({
-  selector: 'app-first-species-exercise',
+  selector: 'app-species-exercise',
   imports: [Staff],
-  templateUrl: './first-species-exercise.html',
-  styleUrl: './first-species-exercise.css',
+  templateUrl: './species-exercise.component.html',
+  styleUrl: './species-exercise.component.css',
 })
-export class FirstSpeciesExercise {
+export class SpeciesExerciseComponent {
   brokenRules: Rule[] | null = null;
   protected readonly Error = Error;
   protected readonly length = length;
@@ -25,21 +36,41 @@ export class FirstSpeciesExercise {
   errorRules: Rule[] = [];
   suggestionRules: Rule[] = [];
   disabledRules: number[] = []
-  species: string = "first";
+  species!: string;
   counterpoint: (Note | null)[] = Array(0).fill(null);
-  @Output() counterpointEvent : EventEmitter<(Note | null)[]> = new EventEmitter();
+  @Output() counterpointEvent: EventEmitter<(Note | null)[]> = new EventEmitter();
   cantusFirmus: Note[] = [];
-  private counterpointValidator: ICounterpointValidator = new FirstSpeciesCounterpointValidator();
+  private counterpointValidator!: ICounterpointValidator;
   private rhythmicProportion: number = 0;
+  public speciesExerciseModel!: SpeciesExerciseModel;
+
+  constructor(private route: ActivatedRoute) {
+
+  }
 
   ngOnInit() {
-    this.cantusFirmus = this.getRandomCantusFirmus()
-    this.setRhythmicProportionGivenSpecies();
-    this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
-    this.listOfRules = this.ruleService.getFirstSpeciesRules()
-    this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
-    this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
-    this.suggestionRules = this.listOfRules.filter(x => x.severity === Severity.Suggestion);
+    this.route.params.subscribe(params => {
+      this.species = this.route.snapshot.params['species'] ?? 'first';
+      this.cantusFirmus = this.getRandomCantusFirmus()
+      this.counterpointValidator = this.getValidatorGivenSpecies()
+      this.speciesExerciseModel = this.getSpeciesExerciseModel()
+      this.setRhythmicProportionGivenSpecies();
+      this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
+      this.listOfRules = this.ruleService.getRulesGivenSpecies(this.species)
+      this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
+      this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
+      this.suggestionRules = this.listOfRules.filter(x => x.severity === Severity.Suggestion);
+    })
+  }
+
+  private getValidatorGivenSpecies(): ICounterpointValidator {
+    let speciesToValidator: Record<string, ICounterpointValidator> = {
+      "first": new FirstSpeciesCounterpointValidator(),
+      "second": new SecondSpeciesCounterpointValidator(),
+      "third": new ThirdSpeciesCounterpointValidator(),
+      "fourth": new FourthSpeciesCounterpointValidator(),
+    };
+    return speciesToValidator[this.species];
   }
 
   hasOnlySuggestions(): boolean {
@@ -87,6 +118,7 @@ export class FirstSpeciesExercise {
     }
     return CANTUS_FIRMUS_LIST[randomIndex];
   }
+
   setRhythmicProportionGivenSpecies() {
     var speciesToRhythmicProportion: Record<string, number> = {
       "first": 1,
@@ -95,6 +127,16 @@ export class FirstSpeciesExercise {
       "fourth": 2,
     }
     this.rhythmicProportion = speciesToRhythmicProportion[this.species];
+  }
+
+  private getSpeciesExerciseModel(): SpeciesExerciseModel {
+    let speciesToExerciseModel: Record<string, SpeciesExerciseModel> = {
+      "first": new SpeciesExerciseModel("First", 1, "Enter counterpoint 1:1 against the given cantus firmus"),
+      "second": new SpeciesExerciseModel("Second", 2, "Enter counterpoint 2:1 against the given cantus firmus"),
+      "third": new SpeciesExerciseModel("Third", 4, "Enter counterpoint 4:1 against the given cantus firmus"),
+      "fourth": new SpeciesExerciseModel("Fourth", 2, "Enter counterpoint suspensions against the given cantus firmus")
+    }
+    return speciesToExerciseModel[this.species];
   }
 }
 

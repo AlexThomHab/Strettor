@@ -28,6 +28,10 @@ export class Staff {
     if (changes['cantusFirmus'] || changes['counterpoint']) {
       this.drawExercise()
     }
+    if (changes['species']) {
+      this.setRhythmicProportionGivenSpecies()
+      this.drawExercise()
+    }
   }
 
   ngAfterViewInit() {

@@ -14,4 +14,13 @@ export class RuleService {
   public getThirdSpeciesRules(): Rule[] {
     return THIRD_SPECIES_RULES;
   }
+  public getRulesGivenSpecies(species : string) : Rule[] {
+
+    const speciesToRules: Record<string, Rule[]> = {
+      'first': FIRST_SPECIES_RULES,
+      'second': SECOND_SPECIES_RULES,
+      'third': THIRD_SPECIES_RULES,
+    };
+    return speciesToRules[species];
+  }
 }

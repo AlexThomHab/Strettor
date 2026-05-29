@@ -4,6 +4,7 @@ import {SecondSpeciesExercise} from '../components/second-species-exercise/secon
 import {ThirdSpeciesExercise} from '../components/third-species-exercise/third-species-exercise';
 import {FourthSpeciesExercise} from '../components/fourth-species-exercise/fourth-species-exercise';
 import {CounterpointChecker} from '../components/counterpoint-checker/counterpoint-checker';
+import {SpeciesExerciseComponent} from '../components/species-exercise/species-exercise.component';
 
 export const routes: Routes = [
   {path: '', redirectTo: 'first-species-exercise', pathMatch: 'full'},
@@ -11,5 +12,5 @@ export const routes: Routes = [
   {path: 'second-species-exercise', component: SecondSpeciesExercise},
   {path: 'third-species-exercise', component: ThirdSpeciesExercise},
   {path: 'fourth-species-exercise', component: FourthSpeciesExercise},
-  {path: 'counterpoint-checker', component: CounterpointChecker}
-];
+  {path: 'counterpoint-checker', component: CounterpointChecker},
+  {path: 'species-exercise/:species', component: SpeciesExerciseComponent},];
