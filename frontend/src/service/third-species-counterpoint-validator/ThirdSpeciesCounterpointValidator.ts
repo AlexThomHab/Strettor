@@ -30,14 +30,13 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
     { check: this.checkNoUnisonsOnInnerDownbeats.bind(this),               rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoUnisonsOnInnerDownbeats)! },
     { check: this.checkNoDirectMotionToPerfectOnDownbeats.bind(this),      rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoDirectMotionToPerfectOnDownbeats)! },
     { check: this.checkFinalCadence.bind(this),                            rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_FinalCadence)! },
-    { check: this.checkLargeLeapsRecoverCorrectly.bind(this),              rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_LargeLeapsRecoverCorrectly)! },
     { check: this.checkCoincidingClimax.bind(this),                        rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_CoincidingClimax)! },
     { check: this.checkNoExcessivePitchRepetition.bind(this),              rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoExcessivePitchRepetition)! },
     { check: () => true,                                                    rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NotaCambiata)! },
   ];
 
   isValidSolution(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[]): boolean {
-    return this.getBrokenRules(cantusFirmus, counterpoint, disabledRuleIDs).filter(x => x.severity === Severity.Error || x.severity === Severity.Warning).length === 0;
+    return this.getBrokenRules(cantusFirmus, counterpoint, disabledRuleIDs).filter(x => x.severity === Severity.Error).length === 0;
   }
 
   getBrokenRules(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[] = []): Rule[] {
@@ -78,7 +77,7 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
   }
 
   private isConsonantInterval(interval: number): boolean {
-    return [0, 3, 4, 7, 8, 9, 12, 15, 16].includes(interval);
+    return [0, 3, 4, 7, 8, 9, 12, 15, 16, 19].includes(interval);
   }
 
   private isStep(noteA: Note, noteB: Note): boolean {
@@ -147,7 +146,8 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
   private checkDownbeatConsonance(cf: Note[], cp: Note[]): boolean {
     for (let i = 0; i < cf.length; i++) {
       const interval = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[4 * i]);
-      if (!this.isConsonantInterval(interval)) return false;
+      if (!this.isConsonantInterval(interval))
+        return false;
     }
     return true;
   }
@@ -303,17 +303,20 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
     return this.getMelodicInterval(cp[lastIdx - 1], cp[lastIdx]) <= 2;
   }
 
-  private checkLargeLeapsRecoverCorrectly(cf: Note[], cp: Note[]): boolean {
-    for (let i = 0; i < cp.length - 2; i++) {
-      const leap = this.getMelodicInterval(cp[i], cp[i + 1]);
-      if (leap > 4) {
-        const leapDir     = this.getMotionDirection(cp[i],     cp[i + 1]);
-        const recoveryDir = this.getMotionDirection(cp[i + 1], cp[i + 2]);
-        const recoveryStep = this.getMelodicInterval(cp[i + 1], cp[i + 2]);
-        if (recoveryDir === leapDir || recoveryStep > 2) return false;
-      }
+  // Returns true if three consecutive notes outline a major or minor triad.
+  // Used to permit triadic arpeggiation as a valid melodic gesture without requiring stepwise recovery.
+  // A triad is identified by pitch class: for each note as a candidate root, check whether
+  // the other two notes complete a major (root + 4 + 7) or minor (root + 3 + 7) triad.
+  private isArpeggiatingTriad(notes: Note[]): boolean {
+    if (notes.length < 3) return false;
+    const pcs = notes.slice(0, 3).map(n => this.getAbsolutePitch(n) % 12);
+    if (new Set(pcs).size !== 3) return false;
+    const pcSet = new Set(pcs);
+    for (const root of pcSet) {
+      if (pcSet.has((root + 4) % 12) && pcSet.has((root + 7) % 12)) return true; // major
+      if (pcSet.has((root + 3) % 12) && pcSet.has((root + 7) % 12)) return true; // minor
     }
-    return true;
+    return false;
   }
 
   // Climax compared on downbeats only

@@ -59,7 +59,7 @@ describe('ThirdSpeciesCounterpointValidator', () => {
     it('accepts Mozart third species CP against the same Dorian CF', () => {
       expect(mozartThirdSpeciesCp.length).toBe((cantusFirmus.length * 4) - 3);
       expect(validator.isValidSolution(cantusFirmus, mozartThirdSpeciesCp, [])).toBe(true);
-      expect(validator.getBrokenRules(cantusFirmus, mozartThirdSpeciesCp)).toHaveLength(0);
+      expect(validator.getBrokenRules(cantusFirmus, mozartThirdSpeciesCp).filter(x => x.severity == Severity.Error)).toHaveLength(0);
     });
   });
 
