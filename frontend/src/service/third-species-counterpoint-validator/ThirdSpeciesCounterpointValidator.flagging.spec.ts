@@ -26,7 +26,7 @@ describe('ThirdSpeciesCounterpointValidator - getBrokenRules flagging', () => {
     expect(validator.getBrokenRules(cf3, validCp)).toHaveLength(0);
   });
 
-  // ── Errors ──────────────────────────────────────────────────────────────
+
 
   it('flags S3_CorrectLength when CP is the wrong length', () => {
     const cp = [new Note("C", 5), new Note("B", 4)];
@@ -177,7 +177,7 @@ describe('ThirdSpeciesCounterpointValidator - getBrokenRules flagging', () => {
     expect(brokenRules.find(r => r.id === RuleIdEnum.S3_NoDirectMotionToPerfectOnDownbeats)?.severity).toBe(Severity.Error);
   });
 
-  // ── Warnings / Suggestions ───────────────────────────────────────────────
+
 
   it('flags S3_FinalCadence (Warning) when final note is approached by leap', () => {
     // A4→C5 = 3 semitones, not a step (>2)
@@ -240,6 +240,33 @@ describe('ThirdSpeciesCounterpointValidator - getBrokenRules flagging', () => {
     const brokenRules = validator.getBrokenRules(cf3, cp);
     expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S3_NoExcessivePitchRepetition);
     expect(brokenRules.find(r => r.id === RuleIdEnum.S3_NoExcessivePitchRepetition)?.severity).toBe(Severity.Warning);
+  });
+
+  describe('S3_NotaCambiata', () => {
+    // Nota cambiata figure: C5(beat1) → B4(beat2, dissonant vs C4) → G4(leap down major third) → A4(step up)
+    // B4 vs C4 = 11 semitones (major seventh) — dissonant, treated by nota cambiata
+    const cfWithCambiata: Note[] = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
+    const cpWithCambiata: Note[] = [
+      new Note("C", 5), new Note("B", 4), new Note("G", 4), new Note("A", 4),
+      new Note("F", 4), new Note("G", 4), new Note("A", 4), new Note("B", 4),
+      new Note("C", 5),
+    ];
+
+    it('accepts a nota cambiata figure when the rule is enabled', () => {
+      const brokenRules = validator.getBrokenRules(cfWithCambiata, cpWithCambiata, []);
+      expect(brokenRules.map(r => r.id)).not.toContain(RuleIdEnum.S3_DissonancesMustBeNonHarmonic);
+    });
+
+    it('rejects a nota cambiata figure when the rule is disabled', () => {
+      const brokenRules = validator.getBrokenRules(cfWithCambiata, cpWithCambiata, [RuleIdEnum.S3_NotaCambiata]);
+      expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S3_DissonancesMustBeNonHarmonic);
+    });
+
+    it('S3_NotaCambiata is a Suggestion', () => {
+      const rules = (validator as any)._rules as Array<{ rule: { id: number; severity: any } }>;
+      const rule = rules.find(r => r.rule.id === RuleIdEnum.S3_NotaCambiata)!.rule;
+      expect(rule.severity).toBe(Severity.Suggestion);
+    });
   });
 
   it('can return multiple broken rules simultaneously', () => {

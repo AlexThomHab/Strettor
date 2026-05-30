@@ -1,6 +1,6 @@
 import {Note} from '../../models/note';
 import {IntervalCalculator} from '../IntervalCalculator';
-import {Rule} from '../../models/rule';
+import {Rule, Severity} from '../../models/rule';
 import {RuleIdEnum, THIRD_SPECIES_RULES} from '../../data/rules.data';
 import {ICounterpointValidator} from '../ICounterpointValidator';
 
@@ -8,6 +8,7 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
 
   private _intervalCalculator: IntervalCalculator = new IntervalCalculator();
   private _chromaticScale: string[] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+  private _currentDisabledRules: number[] = [];
 
   // Beat layout: for CF note i, the 4 CP beats are cp[4i], cp[4i+1], cp[4i+2], cp[4i+3].
   // The last CF note has only one CP note (the final cadence): cp[4*(N-1)].
@@ -26,21 +27,21 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
     { check: this.checkNoToneRepetition.bind(this),                        rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoToneRepetition)! },
     { check: this.checkNoAugmentedOrDiminishedMelodicIntervals.bind(this), rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoAugmentedOrDiminishedMelodicIntervals)! },
     { check: this.checkNoVoiceCrossing.bind(this),                         rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoVoiceCrossing)! },
-    { check: this.checkNoVoiceOverlap.bind(this),                          rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoVoiceOverlap)! },
     { check: this.checkNoUnisonsOnInnerDownbeats.bind(this),               rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoUnisonsOnInnerDownbeats)! },
     { check: this.checkNoDirectMotionToPerfectOnDownbeats.bind(this),      rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoDirectMotionToPerfectOnDownbeats)! },
     { check: this.checkFinalCadence.bind(this),                            rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_FinalCadence)! },
     { check: this.checkLargeLeapsRecoverCorrectly.bind(this),              rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_LargeLeapsRecoverCorrectly)! },
     { check: this.checkCoincidingClimax.bind(this),                        rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_CoincidingClimax)! },
-    { check: this.checkNoExcessiveConsecutiveThirdsOrSixths.bind(this),    rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoExcessiveConsecutiveThirdsOrSixths)! },
     { check: this.checkNoExcessivePitchRepetition.bind(this),              rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NoExcessivePitchRepetition)! },
+    { check: () => true,                                                    rule: THIRD_SPECIES_RULES.find(r => r.id === RuleIdEnum.S3_NotaCambiata)! },
   ];
 
   isValidSolution(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[]): boolean {
-    return this.getBrokenRules(cantusFirmus, counterpoint, disabledRuleIDs).length === 0;
+    return this.getBrokenRules(cantusFirmus, counterpoint, disabledRuleIDs).filter(x => x.severity === Severity.Error || x.severity === Severity.Warning).length === 0;
   }
 
   getBrokenRules(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[] = []): Rule[] {
+    this._currentDisabledRules = disabledRuleIDs;
     if (counterpoint.length !== (4 * cantusFirmus.length) - 3) {
       return [this._rules[0].rule];
     }
@@ -125,7 +126,15 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
         }
       }
     }
-
+    // Nota cambiata: beat 2 only, only when the rule is enabled
+    if (i % 4 === 1 && i + 2 < cp.length && !this._currentDisabledRules.includes(RuleIdEnum.S3_NotaCambiata)) {
+      const afterNext = cp[i + 2];
+      const leapInterval   = this.getMelodicInterval(curr, next);
+      const steppedDown    = this.isStep(prev, curr) && this.getMotionDirection(prev, curr) === -1;
+      const leapsDownThird = this.getMotionDirection(curr, next) === -1 && (leapInterval === 3 || leapInterval === 4);
+      const stepsUp        = this.isStep(next, afterNext) && this.getMotionDirection(next, afterNext) === 1;
+      if (steppedDown && leapsDownThird && stepsUp) return true;
+    }
     return false;
   }
 
@@ -233,29 +242,23 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
   }
 
   // Voice crossing at every beat: CP must stay above the CF note of that measure
+  //problem is what would happen if they were in unison need to think about weather counterpoint will be above or below CF. this will be a field on an exercise object
   private checkNoVoiceCrossing(cf: Note[], cp: Note[]): boolean {
+    const isAbove = this.getAbsolutePitch(cp[0]) >= this.getAbsolutePitch(cf[0]);
+
     for (let i = 0; i < cf.length; i++) {
       const cfPitch = this.getAbsolutePitch(cf[i]);
       const beatCount = (i === cf.length - 1) ? 1 : 4;
       for (let beat = 0; beat < beatCount; beat++) {
-        if (this.getAbsolutePitch(cp[4 * i + beat]) < cfPitch) return false;
+        const cpPitch = this.getAbsolutePitch(cp[4 * i + beat]);
+        if (isAbove && cpPitch < cfPitch) return false;
+        if (!isAbove && cpPitch > cfPitch) return false;
       }
     }
     return true;
   }
 
   // Voice overlap checked downbeat-to-downbeat
-  private checkNoVoiceOverlap(cf: Note[], cp: Note[]): boolean {
-    for (let i = 0; i < cf.length - 1; i++) {
-      const cpNextDownbeat = this.getAbsolutePitch(cp[4 * i + 4]);
-      const cfCurrent      = this.getAbsolutePitch(cf[i]);
-      const cfNext         = this.getAbsolutePitch(cf[i + 1]);
-      const cpCurrentDown  = this.getAbsolutePitch(cp[4 * i]);
-      if (cpNextDownbeat < cfCurrent) return false;
-      if (cfNext > cpCurrentDown)     return false;
-    }
-    return true;
-  }
 
   // Unisons are only permitted on the first and last note (inner downbeats excluded)
   private checkNoUnisonsOnInnerDownbeats(cf: Note[], cp: Note[]): boolean {
@@ -269,12 +272,25 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
   // Hidden 5ths/8ths: approaching a perfect interval on a downbeat by similar motion
   // (measured from the previous downbeat)
   private checkNoDirectMotionToPerfectOnDownbeats(cf: Note[], cp: Note[]): boolean {
-    for (let i = 1; i < cf.length; i++) {
+    outer: for (let i = 1; i < cf.length; i++) {
       const interval = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[4 * i]);
       if (!this.isPerfectInterval(interval) || interval === 0) continue;
-      const cfDir = this.getMotionDirection(cf[i - 1],     cf[i]);
-      const cpDir = this.getMotionDirection(cp[4 * (i - 1)], cp[4 * i]);
-      if (cfDir === cpDir && cfDir !== 0) return false;
+
+      const cfDir = this.getMotionDirection(cf[i - 1], cf[i]);
+      if (cfDir === 0) continue;
+
+      const prevMeasureStart = 4 * (i - 1);
+
+      // From beat 2 onward - if any inner beat approaches the downbeat
+      // in contrary motion to the CF, the hidden interval is excused
+      for (let beat = 1; beat <= 3; beat++) {
+        const cpDir = this.getMotionDirection(cp[prevMeasureStart + beat], cp[4 * i]);
+        if (cpDir !== 0 && cpDir !== cfDir) continue outer;
+      }
+
+      // No contrary approach found anywhere — fall back to checking from the previous downbeat
+      const cpDirOverall = this.getMotionDirection(cp[prevMeasureStart], cp[4 * i]);
+      if (cpDirOverall === cfDir) return false;
     }
     return true;
   }
@@ -307,22 +323,6 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
     const cfClimaxIdx       = cfPitches.indexOf(Math.max(...cfPitches));
     const cpClimaxIdx       = cpDownbeatPitches.indexOf(Math.max(...cpDownbeatPitches));
     return cfClimaxIdx !== cpClimaxIdx;
-  }
-
-  // Consecutive thirds or sixths measured on downbeats only
-  private checkNoExcessiveConsecutiveThirdsOrSixths(cf: Note[], cp: Note[]): boolean {
-    const thirds = [3, 4, 15, 16];
-    const sixths = [8, 9];
-    let thirdCount = 0;
-    let sixthCount = 0;
-    for (let i = 0; i < cf.length; i++) {
-      const interval = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[4 * i]);
-      if (thirds.includes(interval))      { thirdCount++; sixthCount = 0; }
-      else if (sixths.includes(interval)) { sixthCount++; thirdCount = 0; }
-      else                                { thirdCount = 0; sixthCount = 0; }
-      if (thirdCount > 3 || sixthCount > 3) return false;
-    }
-    return true;
   }
 
   private checkNoExcessivePitchRepetition(cf: Note[], cp: Note[]): boolean {

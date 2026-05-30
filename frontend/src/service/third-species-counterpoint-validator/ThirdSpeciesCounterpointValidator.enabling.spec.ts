@@ -24,7 +24,7 @@ describe('ThirdSpeciesCounterpointValidator - rule enabling/disabling', () => {
   const brokenIds = (cf: Note[], cp: Note[], disabled: number[] = []) =>
     validator.getBrokenRules(cf, cp, disabled).map(r => r.id);
 
-  // ── Meta ─────────────────────────────────────────────────────────────────
+
 
   describe('default rule state', () => {
     it('every rule has a numeric id', () => {
