@@ -41,7 +41,9 @@ export class FirstSpeciesCounterpointValidator implements ICounterpointValidator
     const brokenRules: Rule[] = [];
     for (const { check, rule } of this._rules) {
       if (disabledRuleIDs.includes(rule.id)) continue;
-      if (!check(cantusFirmus, counterpoint)) brokenRules.push(rule);
+      if (!check(cantusFirmus, counterpoint)){
+        brokenRules.push(rule);
+      }
     }
     return brokenRules;
   }
@@ -66,7 +68,7 @@ export class FirstSpeciesCounterpointValidator implements ICounterpointValidator
   }
 
   private isConsonantInterval(interval: number): boolean {
-    return [0, 3, 4, 7, 8, 9, 12, 15, 16].includes(interval);
+    return [0, 3, 4, 7, 8, 9, 12, 15, 16, 19].includes(interval);
   }
 
   private isStep(noteA: Note, noteB: Note): boolean {

@@ -66,7 +66,7 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
   }
 
   private isConsonantInterval(interval: number): boolean {
-    return [0, 3, 4, 7, 8, 9, 12, 15, 16].includes(interval);
+    return [0, 3, 4, 7, 8, 9, 12, 15, 16, 19].includes(interval);
   }
 
   private isStep(noteA: Note, noteB: Note): boolean {
