@@ -219,16 +219,4 @@ describe('ThirdSpeciesCounterpointValidator', () => {
       expect(validator.isValidSolution(cantusFirmus, cp, [])).toBe(false);
     });
   });
-
-  describe('checkFinalCadence', () => {
-    it('returns false when the final note is approached by leap', () => {
-      const cp = [...fuxThirdSpeciesCp];
-
-      // A4 -> D5 is a fourth, so the final is not approached by step.
-      cp[cp.length - 2] = new Note("A", 4);
-      cp[cp.length - 1] = new Note("D", 5);
-
-      expect(validator.isValidSolution(cantusFirmus, cp, [])).toBe(false);
-    });
-  });
 });

@@ -11,7 +11,7 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
   private _chromaticScale: string[] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
   private readonly _rules: Array<{ check: (cf: Note[], cp: Note[]) => boolean; rule: Rule }> = [
-    { check: this.checkSameLength.bind(this),                              rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.SameLength)! },
+    { check: this.checkAppropriateLength.bind(this),                              rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.SameLength)! },
     { check: this.checkOnlyConsonantIntervals.bind(this),                  rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.OnlyConsonantIntervals)! },
     { check: this.checkValidBeginningInterval.bind(this),                  rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.ValidBeginningInterval)! },
     { check: this.checkValidEndingInterval.bind(this),                     rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.ValidEndingInterval)! },
@@ -35,7 +35,8 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
   }
 
   getBrokenRules(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[] = []): Rule[] {
-    if (cantusFirmus.length !== counterpoint.length) {
+    let cplengthshouldbe = ((cantusFirmus.length - 2) * 2) + 2;
+    if (cplengthshouldbe !== counterpoint.length) {
       return [this._rules[0].rule];
     }
     const brokenRules: Rule[] = [];
@@ -73,8 +74,9 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
     return this.getMelodicInterval(noteA, noteB) <= 2;
   }
 
-  private checkSameLength(cantusFirmus: Note[], counterpoint: Note[]): boolean {
-    return cantusFirmus.length === counterpoint.length;
+  private checkAppropriateLength(cantusFirmus: Note[], counterpoint: Note[]): boolean {
+    let cpLengthInFourthSpecies = ((cantusFirmus.length - 2) * 2) + 2;
+    return  cpLengthInFourthSpecies === counterpoint.length;
   }
 
   private checkOnlyConsonantIntervals(cantusFirmus: Note[], counterpoint: Note[]): boolean {

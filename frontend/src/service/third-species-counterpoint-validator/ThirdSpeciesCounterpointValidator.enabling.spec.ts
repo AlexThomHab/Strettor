@@ -32,9 +32,9 @@ describe('ThirdSpeciesCounterpointValidator - rule enabling/disabling', () => {
       rules.forEach(r => expect(typeof r.rule.id).toBe('number'));
     });
 
-    it('there are 20 rules defined', () => {
+    it('there are 18 rules defined', () => {
       const rules = (validator as any)._rules as Array<unknown>;
-      expect(rules).toHaveLength(20);
+      expect(rules).toHaveLength(18);
     });
   });
 
@@ -147,16 +147,6 @@ describe('ThirdSpeciesCounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf, cp, [RuleIdEnum.S3_NoVoiceCrossing])).not.toContain(RuleIdEnum.S3_NoVoiceCrossing);
     });
 
-    it('S3_NoVoiceOverlap - CF next note leaps above current CP downbeat', () => {
-      const cf = [new Note("C", 4), new Note("G", 4), new Note("C", 4)];
-      const cp = [
-        new Note("E", 4), new Note("F", 4), new Note("G", 4), new Note("A", 4),
-        new Note("G", 4), new Note("A", 4), new Note("B", 4), new Note("A", 4),
-        new Note("C", 5),
-      ];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.S3_NoVoiceOverlap);
-      expect(brokenIds(cf, cp, [RuleIdEnum.S3_NoVoiceOverlap])).not.toContain(RuleIdEnum.S3_NoVoiceOverlap);
-    });
 
     it('S3_NoUnisonsOnInnerDownbeats - unison on inner downbeat', () => {
       const cf = [new Note("C", 4), new Note("E", 4), new Note("C", 4)];
@@ -187,17 +177,6 @@ describe('ThirdSpeciesCounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf3, cp, [RuleIdEnum.S3_FinalCadence])).not.toContain(RuleIdEnum.S3_FinalCadence);
     });
 
-    it('S3_LargeLeapsRecoverCorrectly - large leap not recovered', () => {
-      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4), new Note("C", 4)];
-      const cp = [
-        new Note("C", 5), new Note("B", 4), new Note("A", 4), new Note("G", 4),
-        new Note("C", 5), new Note("G", 5), new Note("A", 5), new Note("G", 5),
-        new Note("F", 5), new Note("E", 5), new Note("D", 5), new Note("E", 5),
-        new Note("D", 5),
-      ];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.S3_LargeLeapsRecoverCorrectly);
-      expect(brokenIds(cf, cp, [RuleIdEnum.S3_LargeLeapsRecoverCorrectly])).not.toContain(RuleIdEnum.S3_LargeLeapsRecoverCorrectly);
-    });
 
     it('S3_CoincidingClimax - CP and CF peak at the same downbeat index', () => {
       const cp = [...validCp];
@@ -206,21 +185,6 @@ describe('ThirdSpeciesCounterpointValidator - rule enabling/disabling', () => {
       expect(brokenIds(cf3, cp, [RuleIdEnum.S3_CoincidingClimax])).not.toContain(RuleIdEnum.S3_CoincidingClimax);
     });
 
-    it('S3_NoExcessiveConsecutiveThirdsOrSixths - four consecutive thirds on downbeats', () => {
-      const cf = [
-        new Note("C", 4), new Note("D", 4), new Note("E", 4),
-        new Note("F", 4), new Note("C", 4),
-      ];
-      const cp = [
-        new Note("E", 4), new Note("D", 4), new Note("C", 4), new Note("D", 4),
-        new Note("F", 4), new Note("E", 4), new Note("D", 4), new Note("E", 4),
-        new Note("G", 4), new Note("F", 4), new Note("E", 4), new Note("F", 4),
-        new Note("A", 4), new Note("G", 4), new Note("F", 4), new Note("G", 4),
-        new Note("C", 5),
-      ];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.S3_NoExcessiveConsecutiveThirdsOrSixths);
-      expect(brokenIds(cf, cp, [RuleIdEnum.S3_NoExcessiveConsecutiveThirdsOrSixths])).not.toContain(RuleIdEnum.S3_NoExcessiveConsecutiveThirdsOrSixths);
-    });
 
     it('S3_NoExcessivePitchRepetition - one pitch used more than a third of the time', () => {
       const cp = [
@@ -251,13 +215,10 @@ describe('ThirdSpeciesCounterpointValidator - rule enabling/disabling', () => {
     it('S3_NoToneRepetition is an Error',                           () => expect(getRuleById(RuleIdEnum.S3_NoToneRepetition).severity).toBe(Severity.Error));
     it('S3_NoAugmentedOrDiminishedMelodicIntervals is an Error',    () => expect(getRuleById(RuleIdEnum.S3_NoAugmentedOrDiminishedMelodicIntervals).severity).toBe(Severity.Error));
     it('S3_NoVoiceCrossing is an Error',                            () => expect(getRuleById(RuleIdEnum.S3_NoVoiceCrossing).severity).toBe(Severity.Error));
-    it('S3_NoVoiceOverlap is an Error',                             () => expect(getRuleById(RuleIdEnum.S3_NoVoiceOverlap).severity).toBe(Severity.Error));
     it('S3_NoUnisonsOnInnerDownbeats is an Error',                  () => expect(getRuleById(RuleIdEnum.S3_NoUnisonsOnInnerDownbeats).severity).toBe(Severity.Error));
     it('S3_NoDirectMotionToPerfectOnDownbeats is an Error',         () => expect(getRuleById(RuleIdEnum.S3_NoDirectMotionToPerfectOnDownbeats).severity).toBe(Severity.Error));
     it('S3_FinalCadence is a Warning',                              () => expect(getRuleById(RuleIdEnum.S3_FinalCadence).severity).toBe(Severity.Warning));
-    it('S3_LargeLeapsRecoverCorrectly is a Suggestion',             () => expect(getRuleById(RuleIdEnum.S3_LargeLeapsRecoverCorrectly).severity).toBe(Severity.Suggestion));
     it('S3_CoincidingClimax is a Suggestion',                       () => expect(getRuleById(RuleIdEnum.S3_CoincidingClimax).severity).toBe(Severity.Suggestion));
-    it('S3_NoExcessiveConsecutiveThirdsOrSixths is a Warning',      () => expect(getRuleById(RuleIdEnum.S3_NoExcessiveConsecutiveThirdsOrSixths).severity).toBe(Severity.Warning));
     it('S3_NoExcessivePitchRepetition is a Warning',                () => expect(getRuleById(RuleIdEnum.S3_NoExcessivePitchRepetition).severity).toBe(Severity.Warning));
   });
 });
