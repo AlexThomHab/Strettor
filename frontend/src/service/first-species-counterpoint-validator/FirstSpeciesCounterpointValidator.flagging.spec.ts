@@ -30,8 +30,8 @@ describe('CounterpointValidator - getBrokenRules', () => {
     const cf = [new Note("D", 4), new Note("E", 4), new Note("F", 4)];
     const cp = [new Note("F", 4), new Note("G", 4)];
     const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.description)).toContain('Counterpoint must match cantus firmus length');
-    expect(brokenRules.find(r => r.description === 'Counterpoint must match cantus firmus length')?.severity).toBe(Severity.Error);
+    expect(brokenRules.map(r => r.description)).toContain('Counterpoint must be the correct length for the exercise');
+    expect(brokenRules.find(r => r.description === 'Counterpoint must be the correct length for the exercise')?.severity).toBe(Severity.Error);
   });
 
   it('flags dissonant interval as Error', () => {

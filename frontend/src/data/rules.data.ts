@@ -63,10 +63,23 @@ export enum RuleIdEnum {
   S3_CoincidingClimax = 216,
   S3_NoExcessivePitchRepetition = 217,
   S3_NotaCambiata = 218,
+
+  // Fourth Species (300–310)
+  S4_CorrectLength = 300,
+  S4_DissonanceMustBePrepared = 301,
+  S4_DissonanceMustResolveDownByStep = 302,
+  S4_No7_8SuspensionInLowerVoice = 303,
+  S4_ValidBeginningInterval = 304,
+  S4_ValidEndingInterval = 305,
+  S4_NoVoiceCrossing = 306,
+  S4_NoAugmentedOrDiminishedMelodicIntervals = 307,
+  S4_FinalCadence = 308,
+  S4_Avoid9_8Suspensions = 309,
+  S4_CoincidingClimax = 310,
 }
 
 export const FIRST_SPECIES_RULES: Rule[] = [
-  new Rule(RuleIdEnum.SameLength, 'Counterpoint must match cantus firmus length', Severity.Error),
+  new Rule(RuleIdEnum.SameLength, 'Counterpoint must be the correct length for the exercise', Severity.Error),
   new Rule(RuleIdEnum.OnlyConsonantIntervals, 'No harmonic dissonances (fourths are dissonant in two-voice exercises but constant in three-voice exercise between upper voices)', Severity.Error),
   new Rule(RuleIdEnum.ValidBeginningInterval, 'Begin on a unison, octave, fifth, or third above the cantus firmus', Severity.Error),
   new Rule(RuleIdEnum.ValidEndingInterval, 'Both voices must end on scale degree 1 (unison or octave)', Severity.Error),
@@ -112,7 +125,7 @@ export const SECOND_SPECIES_RULES: Rule[] = [
 ];
 
 export const THIRD_SPECIES_RULES: Rule[] = [
-  new Rule(RuleIdEnum.S3_CorrectLength, 'Counterpoint must have exactly 4N−3 notes (4 notes per CF note, last measure beat 1 only)', Severity.Error),
+  new Rule(RuleIdEnum.S3_CorrectLength, 'Counterpoint must be the correct length for the exercise', Severity.Error),
   new Rule(RuleIdEnum.S3_DownbeatConsonance, 'All downbeats (beat 1) must form a consonant interval with the cantus firmus', Severity.Error),
   new Rule(RuleIdEnum.S3_ValidBeginningInterval, 'Begin on a unison, octave, or fifth above the cantus firmus', Severity.Error),
   new Rule(RuleIdEnum.S3_ValidEndingInterval, 'Both voices must end on scale degree 1 (unison or octave)', Severity.Error),
@@ -130,4 +143,18 @@ export const THIRD_SPECIES_RULES: Rule[] = [
   new Rule(RuleIdEnum.S3_CoincidingClimax, 'Avoid coinciding high points with the cantus firmus', Severity.Suggestion),
   new Rule(RuleIdEnum.S3_NoExcessivePitchRepetition, 'Avoid overusing the same pitch throughout the exercise', Severity.Warning),
   new Rule(RuleIdEnum.S3_NotaCambiata, 'Allow nota cambiata figures (step down to dissonance, leap down a third, step up)', Severity.Suggestion),
+];
+export const FOURTH_SPECIES_RULES: Rule[] = [
+  // CP layout: cp[0] = opening, cp[2i-1] = suspension against cf[i], cp[2i] = resolution against cf[i], cp[2N-3] = final note
+  new Rule(RuleIdEnum.S4_CorrectLength,                     'Counterpoint must be the correct length for the exercise', Severity.Error),
+  new Rule(RuleIdEnum.S4_DissonanceMustBePrepared,           'A dissonant suspension must be prepared: the note must be a consonance on the previous upbeat, tied into the dissonance', Severity.Error),
+  new Rule(RuleIdEnum.S4_DissonanceMustResolveDownByStep,    'A dissonant suspension must resolve down by step to a consonance', Severity.Error),
+  new Rule(RuleIdEnum.S4_No7_8SuspensionInLowerVoice,        'The 7-8 suspension in a lower voice is forbidden — it sounds harsh and does not mask parallel motion', Severity.Error),
+  new Rule(RuleIdEnum.S4_ValidBeginningInterval,             'Begin on a unison, third, fifth, or octave', Severity.Error),
+  new Rule(RuleIdEnum.S4_ValidEndingInterval,                'Both voices must end on scale degree 1 (unison or octave)', Severity.Error),
+  new Rule(RuleIdEnum.S4_NoVoiceCrossing,                    'No voice crossing', Severity.Error),
+  new Rule(RuleIdEnum.S4_NoAugmentedOrDiminishedMelodicIntervals, 'No dissonant melodic leaps (tritone, seventh, or larger than an octave)', Severity.Error),
+  new Rule(RuleIdEnum.S4_FinalCadence,                       'Approach the final note by step — use a 7-6 suspension cadence above or a 2-3 suspension cadence below', Severity.Warning),
+  new Rule(RuleIdEnum.S4_Avoid9_8Suspensions,                'Avoid 9-8 and 2-1 suspensions — they sound harsh and anticipate the resolution tone in the other voice', Severity.Warning),
+  new Rule(RuleIdEnum.S4_CoincidingClimax,                   'Avoid coinciding high points with the cantus firmus', Severity.Suggestion),
 ];

@@ -4,153 +4,120 @@ import { Note } from '../../models/note';
 import { Severity } from '../../models/rule';
 import { RuleIdEnum } from '../../data/rules.data';
 
-// Fourth species CP length = ((N-2)*2)+2.
-// For N=3: 4 notes. For N=4: 6 notes. For N=10: 18 notes.
+// CP layout: cp[0]=opening, cp[2i-1]=suspension vs cf[i], cp[2i]=resolution vs cf[i], cp[2N-3]=final
+// N=3 → CP length 4. N=4 → CP length 6.
 describe('FourthSpeciesCounterpointValidator - getBrokenRules', () => {
   let validator: FourthSpeciesCounterpointValidator;
 
-  const dorianCF: Note[] = [
-    new Note("D", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
-    new Note("A", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
-    new Note("C#", 3), new Note("D", 3)
-  ];
+  // N=3 base
+  const cantusFirmus: Note[] = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
 
-  const validCP: Note[] = [
-    new Note("D", 4), new Note("C", 4),
-    new Note("A", 3), new Note("B", 3),
-    new Note("C", 4), new Note("E", 4),
-    new Note("D", 4), new Note("F", 4),
-    new Note("E", 4), new Note("D", 4),
-    new Note("C", 4), new Note("B", 3),
-    new Note("A", 3), new Note("B", 3),
-    new Note("C", 4), new Note("B", 3),
-    new Note("A", 3), new Note("D", 4)
-  ];
+  // Valid 7-6 suspension: C5 (7th above D4) prepared as C5 (octave above C4), resolves to B4 (6th above D4)
+  const validCp: Note[] = [new Note("C", 5), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
 
   beforeEach(() => {
     validator = new FourthSpeciesCounterpointValidator();
   });
 
-  it('flags SameLength when CP is wrong length', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("C", 5), new Note("B", 4)]; // needs 4
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.SameLength);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.SameLength)?.severity).toBe(Severity.Error);
+
+  it('returns empty array for a valid 7-6 suspension exercise', () => {
+    let result = validator.getBrokenRules(cantusFirmus, validCp);
+    expect(result).toHaveLength(0);
   });
 
-  it('flags OnlyConsonantIntervals when a suspension tone is dissonant at its downbeat position', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("C", 5), new Note("E", 4), new Note("B", 4), new Note("C", 5)];
-    // E4 over D4 = major second — dissonant suspension not properly resolved
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.OnlyConsonantIntervals);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.OnlyConsonantIntervals)?.severity).toBe(Severity.Error);
+  it('flags S4_CorrectLength (Error) when CP is wrong length', () => {
+    const cp = [new Note("C", 5), new Note("B", 4)];
+    const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_CorrectLength);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_CorrectLength)?.severity).toBe(Severity.Error);
   });
 
-  it('flags ValidBeginningInterval when opening is a seventh (not unison/third/fifth/octave)', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("B", 4), new Note("C", 5), new Note("A", 4), new Note("C", 5)];
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.ValidBeginningInterval);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.ValidBeginningInterval)?.severity).toBe(Severity.Error);
+  it('flags S4_DissonanceMustBePrepared (Error) when suspension is a different pitch from the previous note', () => {
+    // cp[1]=C5 is a seventh above D4 (dissonant) but cp[0]=G4 — not the same pitch, no tie
+    const cp = [new Note("G", 4), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
+    const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_DissonanceMustBePrepared);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_DissonanceMustBePrepared)?.severity).toBe(Severity.Error);
   });
 
-  it('flags ValidEndingInterval when ending on a fifth instead of unison or octave', () => {
-    const cp = [...validCP];
-    cp[cp.length - 1] = new Note("A", 3);
-    const brokenRules = validator.getBrokenRules(dorianCF, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.ValidEndingInterval);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.ValidEndingInterval)?.severity).toBe(Severity.Error);
-  });
-
-  it('flags NoParallelFifths when consecutive fifths appear in the normalized form', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("C", 5)];
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.NoParallelFifths);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.NoParallelFifths)?.severity).toBe(Severity.Error);
-  });
-
-  it('flags NoParallelOctaves when consecutive octaves appear in the normalized form', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("C", 5), new Note("D", 5), new Note("C", 5), new Note("C", 5)];
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.NoParallelOctaves);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.NoParallelOctaves)?.severity).toBe(Severity.Error);
-  });
-
-  it('flags NoParallelUnisons when consecutive unisons appear', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("C", 4), new Note("D", 4), new Note("C", 4), new Note("C", 5)];
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.NoParallelUnisons);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.NoParallelUnisons)?.severity).toBe(Severity.Error);
-  });
-
-  it('flags NoAugmentedOrDiminishedMelodicIntervals for a tritone leap in the melodic line', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("C", 5), new Note("F#", 4), new Note("C", 5), new Note("C", 5)];
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals)?.severity).toBe(Severity.Error);
-  });
-
-  it('flags NoUnisonsInMiddle when a unison falls on an inner position', () => {
-    const cf = [new Note("C", 4), new Note("E", 4), new Note("C", 4)];
-    const cp = [new Note("C", 5), new Note("E", 4), new Note("C", 5), new Note("C", 5)];
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.NoUnisonsInMiddle);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.NoUnisonsInMiddle)?.severity).toBe(Severity.Error);
-  });
-
-  it('flags NoVoiceCrossing when CP drops below CF', () => {
-    const cf = [new Note("G", 4), new Note("A", 4), new Note("G", 4)];
-    const cp = [new Note("G", 5), new Note("C", 4), new Note("G", 5), new Note("G", 5)];
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.NoVoiceCrossing);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.NoVoiceCrossing)?.severity).toBe(Severity.Error);
-  });
-
-  it('flags FinalCadence (Warning) when final note is not approached by step', () => {
-    const cp = [...validCP];
-    cp[cp.length - 1] = new Note("A", 3);
-    const brokenRules = validator.getBrokenRules(dorianCF, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.FinalCadence);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.FinalCadence)?.severity).toBe(Severity.Warning);
-  });
-
-  it('flags LargeLeapsRecoverCorrectly (Warning) for a large leap not followed by step in opposite direction', () => {
-    const cp = [...validCP];
-    cp[4] = new Note("C", 5); // C5→E4 = large leap down, then E4→D4 same direction
-    const brokenRules = validator.getBrokenRules(dorianCF, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.LargeLeapsRecoverCorrectly);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.LargeLeapsRecoverCorrectly)?.severity).toBe(Severity.Warning);
-  });
-
-  it('flags NoExcessiveConsecutiveThirdsOrSixths (Warning) for 4+ consecutive thirds', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("E", 4), new Note("F", 4), new Note("C", 4)];
-    const cp = [
-      new Note("E", 4), new Note("F", 4),
-      new Note("F", 4), new Note("G", 4),
-      new Note("G", 4), new Note("A", 4),
-      new Note("A", 4), new Note("C", 5)
-    ];
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths);
-    expect(brokenRules.find(r => r.id === RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths)?.severity).toBe(Severity.Warning);
-  });
-
-  it('flags NoExcessiveRepeatedNotes for an immediate note repetition', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
+  it('flags S4_DissonanceMustResolveDownByStep (Error) when suspension resolves by leap (3 semitones)', () => {
+    // C5 (seventh above D4) → A4: 3 semitones down, not a step
     const cp = [new Note("C", 5), new Note("C", 5), new Note("A", 4), new Note("C", 5)];
-    const brokenRules = validator.getBrokenRules(cf, cp);
-    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.NoExcessiveRepeatedNotes);
+    const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_DissonanceMustResolveDownByStep);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_DissonanceMustResolveDownByStep)?.severity).toBe(Severity.Error);
+  });
+
+  it('flags S4_No7_8SuspensionInLowerVoice (Error) when lower voice uses a seventh resolving to an octave', () => {
+    // E4 is a minor seventh below D5 — tied and resolving to D4 (octave below D5): 7-8 forbidden
+    const cfAbove: Note[] = [new Note("C", 5), new Note("D", 5), new Note("C", 5)];
+    const cpBelow: Note[] = [new Note("E", 4), new Note("E", 4), new Note("D", 4), new Note("C", 4)];
+    const brokenRules = validator.getBrokenRules(cfAbove, cpBelow);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_No7_8SuspensionInLowerVoice);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_No7_8SuspensionInLowerVoice)?.severity).toBe(Severity.Error);
+  });
+
+  it('flags S4_ValidBeginningInterval (Error) when opening with a second', () => {
+    // D4 over C4 = major second (2) — not in [0, 3, 4, 7, 12]
+    const cp = [new Note("D", 4), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
+    const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_ValidBeginningInterval);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_ValidBeginningInterval)?.severity).toBe(Severity.Error);
+  });
+
+  it('flags S4_ValidEndingInterval (Error) when ending on a fifth instead of unison or octave', () => {
+    const cp = [...validCp];
+    cp[cp.length - 1] = new Note("G", 4); // fifth above C4
+    const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_ValidEndingInterval);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_ValidEndingInterval)?.severity).toBe(Severity.Error);
+  });
+
+  it('flags S4_NoVoiceCrossing (Error) when CP drops below CF', () => {
+    const cfAbove: Note[] = [new Note("C", 5), new Note("D", 5), new Note("C", 5)];
+    const cpBelow: Note[] = [new Note("C", 4), new Note("C", 4), new Note("B", 3), new Note("C", 4)];
+    const brokenRules = validator.getBrokenRules(cfAbove, cpBelow);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_NoVoiceCrossing);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_NoVoiceCrossing)?.severity).toBe(Severity.Error);
+  });
+
+  it('flags S4_NoAugmentedOrDiminishedMelodicIntervals (Error) for a tritone in the melodic line', () => {
+    // B4 → F5 = 6 semitones (tritone)
+    const cp = [new Note("C", 5), new Note("B", 4), new Note("F", 5), new Note("C", 5)];
+    const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_NoAugmentedOrDiminishedMelodicIntervals);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_NoAugmentedOrDiminishedMelodicIntervals)?.severity).toBe(Severity.Error);
+  });
+
+  it('flags S4_FinalCadence (Warning) when the final note is not approached by step', () => {
+    // G4 → G4 consonant suspension, F4 resolution. F4 → C5 = 7 semitones (perfect fifth) — not a step
+    const cp = [new Note("G", 4), new Note("G", 4), new Note("F", 4), new Note("C", 5)];
+    const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_FinalCadence);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_FinalCadence)?.severity).toBe(Severity.Warning);
+  });
+
+  it('flags S4_Avoid9_8Suspensions (Warning) when a ninth resolves to an octave', () => {
+    // E5 is a major ninth above D4 (compound), tied and resolving down by step to D5 (octave above D4)
+    // Preparation: E5 above C4 = compound major third (16) ✓
+    const cp = [new Note("E", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5)];
+    const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_Avoid9_8Suspensions);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_Avoid9_8Suspensions)?.severity).toBe(Severity.Warning);
+  });
+
+  it('flags S4_CoincidingClimax (Suggestion) when CF and CP both peak at the same position', () => {
+    // CF=[C4,E4,C4]: CF max = E4 at idx 1
+    // CP=[C5,E5,D5,C5]: CP max = E5 at cp indexOf = 1 (suspension position against cf[1])
+    const cfWithPeak: Note[] = [new Note("C", 4), new Note("E", 4), new Note("C", 4)];
+    const cpWithPeak: Note[] = [new Note("C", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5)];
+    const brokenRules = validator.getBrokenRules(cfWithPeak, cpWithPeak);
+    expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_CoincidingClimax);
+    expect(brokenRules.find(r => r.id === RuleIdEnum.S4_CoincidingClimax)?.severity).toBe(Severity.Suggestion);
   });
 
   it('can return multiple broken rules simultaneously', () => {
-    const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-    const cp = [new Note("B", 4), new Note("B", 4), new Note("B", 4), new Note("G", 4)];
-    expect(validator.getBrokenRules(cf, cp).length).toBeGreaterThan(1);
+    const cp = [new Note("D", 4), new Note("D", 4), new Note("C", 5), new Note("A", 4)];
+    expect(validator.getBrokenRules(cantusFirmus, cp).length).toBeGreaterThan(1);
   });
 });

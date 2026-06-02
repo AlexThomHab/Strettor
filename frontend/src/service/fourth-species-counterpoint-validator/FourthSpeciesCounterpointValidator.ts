@@ -1,8 +1,7 @@
 import {Note} from '../../models/note';
 import {IntervalCalculator} from '../IntervalCalculator';
 import {Rule} from '../../models/rule';
-import {RuleIdEnum} from '../../data/rules.data';
-import {FIRST_SPECIES_RULES} from '../../data/rules.data';
+import {RuleIdEnum, FOURTH_SPECIES_RULES} from '../../data/rules.data';
 import {ICounterpointValidator} from '../ICounterpointValidator';
 
 export class FourthSpeciesCounterpointValidator implements ICounterpointValidator {
@@ -11,23 +10,17 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
   private _chromaticScale: string[] = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
   private readonly _rules: Array<{ check: (cf: Note[], cp: Note[]) => boolean; rule: Rule }> = [
-    { check: this.checkAppropriateLength.bind(this),                              rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.SameLength)! },
-    { check: this.checkOnlyConsonantIntervals.bind(this),                  rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.OnlyConsonantIntervals)! },
-    { check: this.checkValidBeginningInterval.bind(this),                  rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.ValidBeginningInterval)! },
-    { check: this.checkValidEndingInterval.bind(this),                     rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.ValidEndingInterval)! },
-    { check: this.checkNoParallelFifths.bind(this),                        rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoParallelFifths)! },
-    { check: this.checkNoParallelOctaves.bind(this),                       rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoParallelOctaves)! },
-    { check: this.checkNoParallelUnisons.bind(this),                       rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoParallelUnisons)! },
-    { check: this.checkNoHiddenPerfectIntervals.bind(this),                rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoHiddenPerfectIntervals)! },
-    { check: this.checkNoAugmentedOrDiminishedMelodicIntervals.bind(this), rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals)! },
-    { check: this.checkNoUnisonsInMiddle.bind(this),                       rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoUnisonsInMiddle)! },
-    { check: this.checkNoVoiceCrossing.bind(this),                         rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoVoiceCrossing)! },
-    { check: this.checkNoVoiceOverlap.bind(this),                          rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoVoiceOverlap)! },
-    { check: this.checkFinalCadence.bind(this),                            rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.FinalCadence)! },
-    { check: this.checkLargeLeapsRecoverCorrectly.bind(this),              rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.LargeLeapsRecoverCorrectly)! },
-    { check: this.checkCoincidingClimax.bind(this),                        rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.CoincidingClimax)! },
-    { check: this.checkNoExcessiveConsecutiveThirdsOrSixths.bind(this),    rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths)! },
-    { check: this.checkNoExcessiveRepeatedNotes.bind(this),                rule: FIRST_SPECIES_RULES.find(r => r.id === RuleIdEnum.NoExcessiveRepeatedNotes)! },
+    { check: this.checkAppropriateLength.bind(this),                           rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_CorrectLength)! },
+    { check: this.checkDissonanceMustBePrepared.bind(this),                    rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_DissonanceMustBePrepared)! },
+    { check: this.checkDissonanceMustResolveDownByStep.bind(this),             rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_DissonanceMustResolveDownByStep)! },
+    { check: this.checkNo7_8SuspensionInLowerVoice.bind(this),                 rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_No7_8SuspensionInLowerVoice)! },
+    { check: this.checkValidBeginningInterval.bind(this),                      rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_ValidBeginningInterval)! },
+    { check: this.checkValidEndingInterval.bind(this),                         rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_ValidEndingInterval)! },
+    { check: this.checkNoVoiceCrossing.bind(this),                             rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_NoVoiceCrossing)! },
+    { check: this.checkNoAugmentedOrDiminishedMelodicIntervals.bind(this),     rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_NoAugmentedOrDiminishedMelodicIntervals)! },
+    { check: this.checkFinalCadence.bind(this),                                rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_FinalCadence)! },
+    { check: this.checkAvoid9_8Suspensions.bind(this),                         rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_Avoid9_8Suspensions)! },
+    { check: this.checkCoincidingClimax.bind(this),                            rule: FOURTH_SPECIES_RULES.find(r => r.id === RuleIdEnum.S4_CoincidingClimax)! },
   ];
 
   isValidSolution(cantusFirmus: Note[], counterpoint: Note[], disabledRuleIDs: number[]): boolean {
@@ -42,7 +35,10 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
     const brokenRules: Rule[] = [];
     for (const { check, rule } of this._rules) {
       if (disabledRuleIDs.includes(rule.id)) continue;
-      if (!check(cantusFirmus, counterpoint)) brokenRules.push(rule);
+      if (!check(cantusFirmus, counterpoint)){
+        brokenRules.push(rule);
+
+      }
     }
     return brokenRules;
   }
@@ -93,8 +89,7 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
   }
 
   private checkValidEndingInterval(cantusFirmus: Note[], counterpoint: Note[]): boolean {
-    const last = cantusFirmus.length - 1;
-    const interval = this._intervalCalculator.calculateSemitoneInterval(cantusFirmus[last], counterpoint[last]);
+    const interval = this._intervalCalculator.calculateSemitoneInterval(cantusFirmus[cantusFirmus.length - 1], counterpoint[counterpoint.length - 1]);
     return [0, 12].includes(interval);
   }
 
@@ -241,6 +236,67 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
     pitches.forEach(p => counts.set(p, (counts.get(p) ?? 0) + 1));
     for (const count of counts.values()) {
       if (count / counterpoint.length > 1 / 3) return false;
+    }
+    return true;
+  }
+
+  // CP layout: cp[0] = opening, for i=1..N-2: cp[2i-1] = suspension vs cf[i], cp[2i] = resolution vs cf[i], cp[2N-3] = final note
+
+  private checkDissonanceMustBePrepared(cf: Note[], cp: Note[]): boolean {
+    for (let i = 1; i < cf.length - 1; i++) {
+      const suspIdx = 2 * i - 1;
+      const suspInterval = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[suspIdx]);
+      if (this.isConsonantInterval(suspInterval)) continue;
+      // Dissonant suspension: preparation note (cp[suspIdx-1]) must be consonant against cf[i-1]
+      const prepInterval = this._intervalCalculator.calculateSemitoneInterval(cf[i - 1], cp[suspIdx - 1]);
+      if (!this.isConsonantInterval(prepInterval)) return false;
+      // Preparation note must be the same pitch as the suspension (the tie)
+      if (this.getAbsolutePitch(cp[suspIdx - 1]) !== this.getAbsolutePitch(cp[suspIdx])) return false;
+    }
+    return true;
+  }
+
+  private checkDissonanceMustResolveDownByStep(cf: Note[], cp: Note[]): boolean {
+    for (let i = 1; i < cf.length - 1; i++) {
+      const suspIdx = 2 * i - 1;
+      const resIdx  = 2 * i;
+      const suspInterval = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[suspIdx]);
+      if (this.isConsonantInterval(suspInterval)) continue;
+      // Dissonant suspension must move down by step (1 or 2 semitones) to the resolution
+      const diff = this.getAbsolutePitch(cp[suspIdx]) - this.getAbsolutePitch(cp[resIdx]);
+      if ((diff !== 1 && diff !== 2) && !this.isABreakOfSyncopation(cp, i) )
+        return false;
+    }
+    return true;
+  }
+
+  private isABreakOfSyncopation(cp: Note[], i: number): boolean {
+      if (cp[i] != cp[i+1]) return true;
+      return false
+  }
+
+  private checkNo7_8SuspensionInLowerVoice(cf: Note[], cp: Note[]): boolean {
+    const isBelow = this.getAbsolutePitch(cp[0]) <= this.getAbsolutePitch(cf[0]);
+    if (!isBelow) return true;
+    for (let i = 1; i < cf.length - 1; i++) {
+      const suspIdx = 2 * i - 1;
+      const resIdx  = 2 * i;
+      const suspInterval = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[suspIdx]);
+      const resInterval  = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[resIdx]);
+      // Minor or major seventh resolving to an octave in the lower voice — forbidden
+      if ((suspInterval === 10 || suspInterval === 11) && (resInterval === 12 || resInterval === 0)) return false;
+    }
+    return true;
+  }
+
+  // 9-8 suspension: major ninth (14) or major second (2) resolving to octave or unison — harsh, avoid
+  private checkAvoid9_8Suspensions(cf: Note[], cp: Note[]): boolean {
+    for (let i = 1; i < cf.length - 1; i++) {
+      const suspIdx = 2 * i - 1;
+      const resIdx  = 2 * i;
+      const suspInterval = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[suspIdx]);
+      const resInterval  = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[resIdx]);
+      if ((suspInterval === 14 || suspInterval === 2) && (resInterval === 12 || resInterval === 0)) return false;
     }
     return true;
   }

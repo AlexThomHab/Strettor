@@ -10,56 +10,74 @@ describe('FourthSpeciesCounterpointValidator - regression', () => {
     validator = new FourthSpeciesCounterpointValidator();
   });
 
-  it('accepts a valid normalized fourth species CP over Haydn Dorian CF with no errors', () => {
-    // Haydn Dorian CF (11 notes) — as referenced in the Gran lecture as the basis for Beethoven's suspension exercise
-    // CP length = ((11-2)*2)+2 = 20 notes
-    const haydnCF: Note[] = [
+  it('accepts Fux fourth species exercise above the fux Dorian CF with no errors', () => {
+    // Haydn Dorian CF — 11 notes → CP needs ((11-2)*2)+2 = 20 notes
+    // Fux's solution uses all consonant suspensions, referenced in the Gran lecture.
+    const fuxDorianCF: Note[] = [
       new Note("D", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4),
       new Note("G", 4), new Note("F", 4), new Note("A", 4), new Note("G", 4),
       new Note("F", 4), new Note("E", 4), new Note("D", 4)
     ];
-
-    // Normalized reduction of a valid fourth species exercise above this CF.
-    // Downbeat positions must be consonant; ending must be unison or octave.
-    const cp: Note[] = [
-      new Note("D", 5), new Note("C", 5),
-      new Note("A", 4), new Note("B", 4),
-      new Note("C", 5), new Note("B", 4),
-      new Note("A", 4), new Note("B", 4),
-      new Note("C", 5), new Note("B", 4),
-      new Note("A", 4), new Note("G", 4),
-      new Note("F", 4), new Note("G", 4),
-      new Note("A", 4), new Note("G", 4),
-      new Note("F", 4), new Note("E", 4),
-      new Note("C#", 4), new Note("D", 4)
+//F = cf, sus = G
+    const fuxCp: Note[] = [
+      new Note("A", 4), new Note("A", 4),
+      new Note("D", 5), new Note("D", 5),
+      new Note("C", 5), new Note("C", 5),
+      new Note("B", 4), new Note("B", 4),
+      new Note("G", 4), new Note("A", 4),
+      new Note("C", 5), new Note("C", 5),
+      new Note("F", 5), new Note("F", 5),
+      new Note("E", 5), new Note("E", 5),
+      new Note("D", 5), new Note("D", 5),
+      new Note("C", 5), new Note("D", 5)
     ];
 
-    expect(cp.length).toBe(((haydnCF.length - 2) * 2) + 2);
-    expect(validator.getBrokenRules(haydnCF, cp).filter(x => x.severity === Severity.Error)).toHaveLength(0);
+    expect(fuxCp.length).toBe(((fuxDorianCF.length - 2) * 2) + 2);
+    expect(validator.isValidSolution(fuxDorianCF, fuxCp, [])).toBe(true);
+    expect(validator.getBrokenRules(fuxDorianCF, fuxCp).filter(r => r.severity === Severity.Error)).toHaveLength(0);
   });
 
-  it('accepts a valid normalized fourth species CP over the Fux Dorian CF with no errors', () => {
-    // Fux Dorian CF (10 notes) → CP length = ((10-2)*2)+2 = 18
-    const dorianCF: Note[] = [
-      new Note("D", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
-      new Note("A", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
-      new Note("C#", 3), new Note("D", 3)
-    ];
+  it('accepts a valid 7-6 suspension exercise over a 3-note CF with no broken rules', () => {
+    // C5 tied → dissonant seventh above D4, resolves down by step to B4 (major sixth above D4)
+    const cf: Note[] = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
+    const cp: Note[] = [new Note("C", 5), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
 
-    const cp: Note[] = [
-      new Note("D", 4), new Note("C", 4),
-      new Note("A", 3), new Note("B", 3),
-      new Note("C", 4), new Note("E", 4),
-      new Note("D", 4), new Note("F", 4),
-      new Note("E", 4), new Note("D", 4),
-      new Note("C", 4), new Note("B", 3),
-      new Note("A", 3), new Note("B", 3),
-      new Note("C", 4), new Note("B", 3),
-      new Note("A", 3), new Note("D", 4)
-    ];
-
-    expect(cp.length).toBe(((dorianCF.length - 2) * 2) + 2);
-    expect(validator.isValidSolution(dorianCF, cp, [])).toBe(true);
-    expect(validator.getBrokenRules(dorianCF, cp).filter(x => x.severity === Severity.Error)).toHaveLength(0);
+    expect(validator.isValidSolution(cf, cp, [])).toBe(true);
+    expect(validator.getBrokenRules(cf, cp)).toHaveLength(0);
   });
-});
+
+  it('accepts a valid 4-3 suspension exercise over a 3-note CF with no broken rules', () => {
+    // C5 tied → dissonant fourth above G4, resolves down by step to B4 (major third above G4)
+    const cf: Note[] = [new Note("C", 4), new Note("G", 4), new Note("C", 4)];
+    const cp: Note[] = [new Note("C", 5), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
+
+    expect(validator.isValidSolution(cf, cp, [])).toBe(true);
+    expect(validator.getBrokenRules(cf, cp)).toHaveLength(0);
+  });
+  it('does not accept a counterpoint over the dorian cantus firmus with a 2nd that does not resolve downward', () => {
+    // Haydn Dorian CF — 11 notes → CP needs ((11-2)*2)+2 = 20 notes
+    // Fux's solution uses all consonant suspensions, referenced in the Gran lecture.
+    const fuxDorianCF: Note[] = [
+      new Note("D", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4),
+      new Note("G", 4), new Note("F", 4), new Note("A", 4), new Note("G", 4),
+      new Note("F", 4), new Note("E", 4), new Note("D", 4)
+    ];
+    const cp: Note[] = [
+      new Note("A", 4), new Note("A", 4),
+      new Note("D", 5), new Note("D", 5),
+      new Note("C", 5), new Note("C", 5),
+      new Note("B", 4), new Note("B", 4),
+      new Note("G", 4), new Note("G", 4),
+      new Note("A", 4), new Note("A", 4),
+      new Note("F", 5), new Note("F", 5),
+      new Note("E", 5), new Note("E", 5),
+      new Note("D", 5), new Note("D", 5),
+      new Note("C", 5), new Note("D", 5)
+    ];
+    expect(cp.length).toBe(((fuxDorianCF.length - 2) * 2) + 2);
+    expect(validator.isValidSolution(fuxDorianCF, cp, [])).toBe(false);
+    let result = validator.getBrokenRules(fuxDorianCF, cp).filter(r => r.severity === Severity.Error);
+    expect(result).toHaveLength(1);
+    expect(result.filter(r => r.description === "No dissonant melodic leaps (tritone, seventh, or larger than an octave")).toHaveLength(1);
+  });
+})

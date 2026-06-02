@@ -7,23 +7,29 @@ import { RuleIdEnum } from '../../data/rules.data';
 describe('FourthSpeciesCounterpointValidator - rule enabling/disabling', () => {
   let validator: FourthSpeciesCounterpointValidator;
 
-  const dorianCF: Note[] = [
-    new Note("D", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
-    new Note("A", 3), new Note("E", 3), new Note("F", 3), new Note("D", 3),
-    new Note("C#", 3), new Note("D", 3)
+  // Haydn Dorian CF (11 notes) → CP needs ((11-2)*2)+2 = 20 notes
+  const haydnCF: Note[] = [
+    new Note("D", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4),
+    new Note("G", 4), new Note("F", 4), new Note("A", 4), new Note("G", 4),
+    new Note("F", 4), new Note("E", 4), new Note("D", 4)
   ];
 
-  const validCP: Note[] = [
-    new Note("D", 4), new Note("C", 4),
-    new Note("A", 3), new Note("B", 3),
-    new Note("C", 4), new Note("E", 4),
-    new Note("D", 4), new Note("F", 4),
-    new Note("E", 4), new Note("D", 4),
-    new Note("C", 4), new Note("B", 3),
-    new Note("A", 3), new Note("B", 3),
-    new Note("C", 4), new Note("B", 3),
-    new Note("A", 3), new Note("D", 4)
+  // Fux's suspension exercise above the Haydn CF — all consonant suspensions, no 7-8, valid ending
+  const fuxCp: Note[] = [
+    new Note("A", 4), new Note("A", 4),
+    new Note("D", 5), new Note("D", 5),
+    new Note("C", 5), new Note("C", 5),
+    new Note("B", 4), new Note("B", 4),
+    new Note("G", 4), new Note("G", 4),
+    new Note("A", 4), new Note("A", 4),
+    new Note("F", 5), new Note("F", 5),
+    new Note("E", 5), new Note("E", 5),
+    new Note("D", 5), new Note("D", 5),
+    new Note("C", 5), new Note("D", 5)
   ];
+
+  // N=3 CF for targeted per-rule tests
+  const cf3: Note[] = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
 
   beforeEach(() => {
     validator = new FourthSpeciesCounterpointValidator();
@@ -38,106 +44,91 @@ describe('FourthSpeciesCounterpointValidator - rule enabling/disabling', () => {
       rules.forEach(r => expect(typeof r.rule.id).toBe('number'));
     });
 
-    it('there are 17 rules defined', () => {
+    it('there are 11 rules defined', () => {
       const rules = (validator as any)._rules as Array<unknown>;
-      expect(rules).toHaveLength(17);
+      expect(rules).toHaveLength(11);
     });
   });
 
   describe('isValidSolution', () => {
-    it('passes a valid solution with no disabled rules', () => {
-      expect(validator.isValidSolution(dorianCF, validCP, [])).toBe(true);
+    it('passes Fux fourth species exercise with no disabled rules', () => {
+      expect(validator.isValidSolution(haydnCF, fuxCp, [])).toBe(true);
     });
 
     it('disabling a rule does not affect a passing solution', () => {
-      expect(validator.isValidSolution(dorianCF, validCP, [RuleIdEnum.FinalCadence])).toBe(true);
+      expect(validator.isValidSolution(haydnCF, fuxCp, [RuleIdEnum.S4_FinalCadence])).toBe(true);
     });
   });
 
-  describe('SameLength - always enforced', () => {
-    it('rejects a CP that is too short even if the rule is disabled', () => {
-      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-      const cp = [new Note("C", 5)];
-      expect(validator.isValidSolution(cf, cp, [RuleIdEnum.SameLength])).toBe(false);
+  describe('S4_CorrectLength - always enforced', () => {
+    it('rejects wrong-length CP even when rule is disabled', () => {
+      const cp = [new Note("C", 5), new Note("B", 4)];
+      expect(validator.isValidSolution(cf3, cp, [RuleIdEnum.S4_CorrectLength])).toBe(false);
     });
   });
 
   describe('each rule fires and can be silenced individually', () => {
-    it('OnlyConsonantIntervals - dissonant at a downbeat position', () => {
-      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-      const cp = [new Note("C", 5), new Note("E", 4), new Note("B", 4), new Note("C", 5)];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.OnlyConsonantIntervals);
-      expect(brokenIds(cf, cp, [RuleIdEnum.OnlyConsonantIntervals])).not.toContain(RuleIdEnum.OnlyConsonantIntervals);
+    it('S4_DissonanceMustBePrepared - suspension is a different pitch from preparation note', () => {
+      const cp = [new Note("G", 4), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
+      expect(brokenIds(cf3, cp)).toContain(RuleIdEnum.S4_DissonanceMustBePrepared);
+      expect(brokenIds(cf3, cp, [RuleIdEnum.S4_DissonanceMustBePrepared])).not.toContain(RuleIdEnum.S4_DissonanceMustBePrepared);
     });
 
-    it('ValidBeginningInterval - seventh is not a valid opening', () => {
-      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-      const cp = [new Note("B", 4), new Note("C", 5), new Note("A", 4), new Note("C", 5)];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.ValidBeginningInterval);
-      expect(brokenIds(cf, cp, [RuleIdEnum.ValidBeginningInterval])).not.toContain(RuleIdEnum.ValidBeginningInterval);
-    });
-
-    it('ValidEndingInterval - ending on a fifth', () => {
-      const cp = [...validCP];
-      cp[cp.length - 1] = new Note("A", 3);
-      expect(brokenIds(dorianCF, cp)).toContain(RuleIdEnum.ValidEndingInterval);
-      expect(brokenIds(dorianCF, cp, [RuleIdEnum.ValidEndingInterval])).not.toContain(RuleIdEnum.ValidEndingInterval);
-    });
-
-    it('NoParallelFifths - consecutive fifths in normalized form', () => {
-      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-      const cp = [new Note("G", 4), new Note("A", 4), new Note("G", 4), new Note("C", 5)];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoParallelFifths);
-      expect(brokenIds(cf, cp, [RuleIdEnum.NoParallelFifths])).not.toContain(RuleIdEnum.NoParallelFifths);
-    });
-
-    it('NoParallelOctaves - consecutive octaves', () => {
-      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-      const cp = [new Note("C", 5), new Note("D", 5), new Note("C", 5), new Note("C", 5)];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoParallelOctaves);
-      expect(brokenIds(cf, cp, [RuleIdEnum.NoParallelOctaves])).not.toContain(RuleIdEnum.NoParallelOctaves);
-    });
-
-    it('NoParallelUnisons - consecutive unisons', () => {
-      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-      const cp = [new Note("C", 4), new Note("D", 4), new Note("C", 4), new Note("C", 5)];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoParallelUnisons);
-      expect(brokenIds(cf, cp, [RuleIdEnum.NoParallelUnisons])).not.toContain(RuleIdEnum.NoParallelUnisons);
-    });
-
-    it('NoAugmentedOrDiminishedMelodicIntervals - tritone leap', () => {
-      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
-      const cp = [new Note("C", 5), new Note("F#", 4), new Note("C", 5), new Note("C", 5)];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals);
-      expect(brokenIds(cf, cp, [RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals])).not.toContain(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals);
-    });
-
-    it('NoUnisonsInMiddle - unison at an inner position', () => {
-      const cf = [new Note("C", 4), new Note("E", 4), new Note("C", 4)];
-      const cp = [new Note("C", 5), new Note("E", 4), new Note("C", 5), new Note("C", 5)];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoUnisonsInMiddle);
-      expect(brokenIds(cf, cp, [RuleIdEnum.NoUnisonsInMiddle])).not.toContain(RuleIdEnum.NoUnisonsInMiddle);
-    });
-
-    it('NoVoiceCrossing - CP dips below CF', () => {
-      const cf = [new Note("G", 4), new Note("A", 4), new Note("G", 4)];
-      const cp = [new Note("G", 5), new Note("C", 4), new Note("G", 5), new Note("G", 5)];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoVoiceCrossing);
-      expect(brokenIds(cf, cp, [RuleIdEnum.NoVoiceCrossing])).not.toContain(RuleIdEnum.NoVoiceCrossing);
-    });
-
-    it('FinalCadence - final note not approached by step', () => {
-      const cp = [...validCP];
-      cp[cp.length - 1] = new Note("A", 3);
-      expect(brokenIds(dorianCF, cp)).toContain(RuleIdEnum.FinalCadence);
-      expect(brokenIds(dorianCF, cp, [RuleIdEnum.FinalCadence])).not.toContain(RuleIdEnum.FinalCadence);
-    });
-
-    it('NoExcessiveRepeatedNotes - immediate note repetition', () => {
-      const cf = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
+    it('S4_DissonanceMustResolveDownByStep - suspension resolves by leap (3 semitones)', () => {
       const cp = [new Note("C", 5), new Note("C", 5), new Note("A", 4), new Note("C", 5)];
-      expect(brokenIds(cf, cp)).toContain(RuleIdEnum.NoExcessiveRepeatedNotes);
-      expect(brokenIds(cf, cp, [RuleIdEnum.NoExcessiveRepeatedNotes])).not.toContain(RuleIdEnum.NoExcessiveRepeatedNotes);
+      expect(brokenIds(cf3, cp)).toContain(RuleIdEnum.S4_DissonanceMustResolveDownByStep);
+      expect(brokenIds(cf3, cp, [RuleIdEnum.S4_DissonanceMustResolveDownByStep])).not.toContain(RuleIdEnum.S4_DissonanceMustResolveDownByStep);
+    });
+
+    it('S4_No7_8SuspensionInLowerVoice - seventh resolving to octave in lower voice', () => {
+      const cfAbove: Note[] = [new Note("C", 5), new Note("D", 5), new Note("C", 5)];
+      const cpBelow: Note[] = [new Note("E", 4), new Note("E", 4), new Note("D", 4), new Note("C", 4)];
+      expect(brokenIds(cfAbove, cpBelow)).toContain(RuleIdEnum.S4_No7_8SuspensionInLowerVoice);
+      expect(brokenIds(cfAbove, cpBelow, [RuleIdEnum.S4_No7_8SuspensionInLowerVoice])).not.toContain(RuleIdEnum.S4_No7_8SuspensionInLowerVoice);
+    });
+
+    it('S4_ValidBeginningInterval - opening with a second', () => {
+      const cp = [new Note("D", 4), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
+      expect(brokenIds(cf3, cp)).toContain(RuleIdEnum.S4_ValidBeginningInterval);
+      expect(brokenIds(cf3, cp, [RuleIdEnum.S4_ValidBeginningInterval])).not.toContain(RuleIdEnum.S4_ValidBeginningInterval);
+    });
+
+    it('S4_ValidEndingInterval - ending on a fifth', () => {
+      const cp = [new Note("C", 5), new Note("C", 5), new Note("B", 4), new Note("G", 4)];
+      expect(brokenIds(cf3, cp)).toContain(RuleIdEnum.S4_ValidEndingInterval);
+      expect(brokenIds(cf3, cp, [RuleIdEnum.S4_ValidEndingInterval])).not.toContain(RuleIdEnum.S4_ValidEndingInterval);
+    });
+
+    it('S4_NoVoiceCrossing - CP drops below CF', () => {
+      const cfAbove: Note[] = [new Note("C", 5), new Note("D", 5), new Note("C", 5)];
+      const cpBelow: Note[] = [new Note("C", 4), new Note("C", 4), new Note("B", 3), new Note("C", 4)];
+      expect(brokenIds(cfAbove, cpBelow)).toContain(RuleIdEnum.S4_NoVoiceCrossing);
+      expect(brokenIds(cfAbove, cpBelow, [RuleIdEnum.S4_NoVoiceCrossing])).not.toContain(RuleIdEnum.S4_NoVoiceCrossing);
+    });
+
+    it('S4_NoAugmentedOrDiminishedMelodicIntervals - tritone in the melodic line', () => {
+      const cp = [new Note("C", 5), new Note("B", 4), new Note("F", 5), new Note("C", 5)];
+      expect(brokenIds(cf3, cp)).toContain(RuleIdEnum.S4_NoAugmentedOrDiminishedMelodicIntervals);
+      expect(brokenIds(cf3, cp, [RuleIdEnum.S4_NoAugmentedOrDiminishedMelodicIntervals])).not.toContain(RuleIdEnum.S4_NoAugmentedOrDiminishedMelodicIntervals);
+    });
+
+    it('S4_FinalCadence - final note not approached by step', () => {
+      const cp = [new Note("G", 4), new Note("G", 4), new Note("F", 4), new Note("C", 5)];
+      expect(brokenIds(cf3, cp)).toContain(RuleIdEnum.S4_FinalCadence);
+      expect(brokenIds(cf3, cp, [RuleIdEnum.S4_FinalCadence])).not.toContain(RuleIdEnum.S4_FinalCadence);
+    });
+
+    it('S4_Avoid9_8Suspensions - ninth resolving to octave', () => {
+      const cp = [new Note("E", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5)];
+      expect(brokenIds(cf3, cp)).toContain(RuleIdEnum.S4_Avoid9_8Suspensions);
+      expect(brokenIds(cf3, cp, [RuleIdEnum.S4_Avoid9_8Suspensions])).not.toContain(RuleIdEnum.S4_Avoid9_8Suspensions);
+    });
+
+    it('S4_CoincidingClimax - CP and CF both peak at the same index', () => {
+      const cfPeak: Note[] = [new Note("C", 4), new Note("E", 4), new Note("C", 4)];
+      const cpPeak: Note[] = [new Note("C", 5), new Note("E", 5), new Note("D", 5), new Note("C", 5)];
+      expect(brokenIds(cfPeak, cpPeak)).toContain(RuleIdEnum.S4_CoincidingClimax);
+      expect(brokenIds(cfPeak, cpPeak, [RuleIdEnum.S4_CoincidingClimax])).not.toContain(RuleIdEnum.S4_CoincidingClimax);
     });
   });
 
@@ -147,22 +138,16 @@ describe('FourthSpeciesCounterpointValidator - rule enabling/disabling', () => {
       return rules.find(r => r.rule.id === id)!.rule;
     };
 
-    it('SameLength is an Error',                              () => expect(getRuleById(RuleIdEnum.SameLength).severity).toBe(Severity.Error));
-    it('OnlyConsonantIntervals is an Error',                  () => expect(getRuleById(RuleIdEnum.OnlyConsonantIntervals).severity).toBe(Severity.Error));
-    it('ValidBeginningInterval is an Error',                  () => expect(getRuleById(RuleIdEnum.ValidBeginningInterval).severity).toBe(Severity.Error));
-    it('ValidEndingInterval is an Error',                     () => expect(getRuleById(RuleIdEnum.ValidEndingInterval).severity).toBe(Severity.Error));
-    it('NoParallelFifths is an Error',                        () => expect(getRuleById(RuleIdEnum.NoParallelFifths).severity).toBe(Severity.Error));
-    it('NoParallelOctaves is an Error',                       () => expect(getRuleById(RuleIdEnum.NoParallelOctaves).severity).toBe(Severity.Error));
-    it('NoParallelUnisons is an Error',                       () => expect(getRuleById(RuleIdEnum.NoParallelUnisons).severity).toBe(Severity.Error));
-    it('NoHiddenPerfectIntervals is an Error',                () => expect(getRuleById(RuleIdEnum.NoHiddenPerfectIntervals).severity).toBe(Severity.Error));
-    it('NoAugmentedOrDiminishedMelodicIntervals is an Error', () => expect(getRuleById(RuleIdEnum.NoAugmentedOrDiminishedMelodicIntervals).severity).toBe(Severity.Error));
-    it('NoUnisonsInMiddle is an Error',                       () => expect(getRuleById(RuleIdEnum.NoUnisonsInMiddle).severity).toBe(Severity.Error));
-    it('NoVoiceCrossing is an Error',                         () => expect(getRuleById(RuleIdEnum.NoVoiceCrossing).severity).toBe(Severity.Error));
-    it('NoVoiceOverlap is an Error',                          () => expect(getRuleById(RuleIdEnum.NoVoiceOverlap).severity).toBe(Severity.Error));
-    it('FinalCadence is a Warning',                           () => expect(getRuleById(RuleIdEnum.FinalCadence).severity).toBe(Severity.Warning));
-    it('LargeLeapsRecoverCorrectly is a Warning',             () => expect(getRuleById(RuleIdEnum.LargeLeapsRecoverCorrectly).severity).toBe(Severity.Warning));
-    it('CoincidingClimax is a Suggestion',                    () => expect(getRuleById(RuleIdEnum.CoincidingClimax).severity).toBe(Severity.Suggestion));
-    it('NoExcessiveConsecutiveThirdsOrSixths is a Warning',   () => expect(getRuleById(RuleIdEnum.NoExcessiveConsecutiveThirdsOrSixths).severity).toBe(Severity.Warning));
-    it('NoExcessiveRepeatedNotes is a Warning',               () => expect(getRuleById(RuleIdEnum.NoExcessiveRepeatedNotes).severity).toBe(Severity.Warning));
+    it('S4_CorrectLength is an Error',                              () => expect(getRuleById(RuleIdEnum.S4_CorrectLength).severity).toBe(Severity.Error));
+    it('S4_DissonanceMustBePrepared is an Error',                   () => expect(getRuleById(RuleIdEnum.S4_DissonanceMustBePrepared).severity).toBe(Severity.Error));
+    it('S4_DissonanceMustResolveDownByStep is an Error',            () => expect(getRuleById(RuleIdEnum.S4_DissonanceMustResolveDownByStep).severity).toBe(Severity.Error));
+    it('S4_No7_8SuspensionInLowerVoice is an Error',                () => expect(getRuleById(RuleIdEnum.S4_No7_8SuspensionInLowerVoice).severity).toBe(Severity.Error));
+    it('S4_ValidBeginningInterval is an Error',                     () => expect(getRuleById(RuleIdEnum.S4_ValidBeginningInterval).severity).toBe(Severity.Error));
+    it('S4_ValidEndingInterval is an Error',                        () => expect(getRuleById(RuleIdEnum.S4_ValidEndingInterval).severity).toBe(Severity.Error));
+    it('S4_NoVoiceCrossing is an Error',                            () => expect(getRuleById(RuleIdEnum.S4_NoVoiceCrossing).severity).toBe(Severity.Error));
+    it('S4_NoAugmentedOrDiminishedMelodicIntervals is an Error',    () => expect(getRuleById(RuleIdEnum.S4_NoAugmentedOrDiminishedMelodicIntervals).severity).toBe(Severity.Error));
+    it('S4_FinalCadence is a Warning',                              () => expect(getRuleById(RuleIdEnum.S4_FinalCadence).severity).toBe(Severity.Warning));
+    it('S4_Avoid9_8Suspensions is a Warning',                       () => expect(getRuleById(RuleIdEnum.S4_Avoid9_8Suspensions).severity).toBe(Severity.Warning));
+    it('S4_CoincidingClimax is a Suggestion',                       () => expect(getRuleById(RuleIdEnum.S4_CoincidingClimax).severity).toBe(Severity.Suggestion));
   });
 });
