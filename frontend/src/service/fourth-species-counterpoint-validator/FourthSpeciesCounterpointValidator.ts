@@ -271,7 +271,7 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
   }
 
   private isABreakOfSyncopation(cp: Note[], resolutionIndex: number): boolean {
-    if (this.getAbsolutePitch(cp[resolutionIndex]) !== this.getAbsolutePitch(cp[resolutionIndex + 1])){
+    if (this.getAbsolutePitch(cp[resolutionIndex]) !== this.getAbsolutePitch(cp[resolutionIndex + 1]) && (resolutionIndex !== cp.length - 2)){ //check if it breaks into syncopation anywhere expect the 2nd to last note as that is needed for the exercise
       return true
     }
     return false;
