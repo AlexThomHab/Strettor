@@ -78,6 +78,6 @@ describe('FourthSpeciesCounterpointValidator - regression', () => {
     expect(validator.isValidSolution(fuxDorianCF, cp, [])).toBe(false);
     let result = validator.getBrokenRules(fuxDorianCF, cp).filter(r => r.severity === Severity.Error);
     expect(result).toHaveLength(1);
-    expect(result.filter(r => r.description === "No dissonant melodic leaps (tritone, seventh, or larger than an octave")).toHaveLength(1);
+    expect(result.filter(r => r.description === "A dissonant suspension must resolve down by step to a consonance")).toHaveLength(1);
   });
 })

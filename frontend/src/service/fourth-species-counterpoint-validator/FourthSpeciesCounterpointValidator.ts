@@ -258,21 +258,23 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
 
   private checkDissonanceMustResolveDownByStep(cf: Note[], cp: Note[]): boolean {
     for (let i = 1; i < cf.length - 1; i++) {
-      const suspIdx = 2 * i - 1;
-      const resIdx  = 2 * i;
-      const suspInterval = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[suspIdx]);
+      const suspensionIndex = (2 * i) - 1;
+      const resIdx  = suspensionIndex + 1
+      const suspInterval = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[suspensionIndex]);
       if (this.isConsonantInterval(suspInterval)) continue;
       // Dissonant suspension must move down by step (1 or 2 semitones) to the resolution
-      const diff = this.getAbsolutePitch(cp[suspIdx]) - this.getAbsolutePitch(cp[resIdx]);
-      if ((diff !== 1 && diff !== 2) && !this.isABreakOfSyncopation(cp, i) )
+      const diff = this.getAbsolutePitch(cp[suspensionIndex]) - this.getAbsolutePitch(cp[resIdx]);
+      if (diff !== 1 && diff !== 2 && this.isABreakOfSyncopation(cp, resIdx) === false )
         return false;
     }
     return true;
   }
 
-  private isABreakOfSyncopation(cp: Note[], i: number): boolean {
-      if (cp[i] != cp[i+1]) return true;
-      return false
+  private isABreakOfSyncopation(cp: Note[], resolutionIndex: number): boolean {
+    if (this.getAbsolutePitch(cp[resolutionIndex]) !== this.getAbsolutePitch(cp[resolutionIndex + 1])){
+      return true
+    }
+    return false;
   }
 
   private checkNo7_8SuspensionInLowerVoice(cf: Note[], cp: Note[]): boolean {
