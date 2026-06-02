@@ -8,7 +8,7 @@ describe('FourthSpeciesCounterpointValidator - rule enabling/disabling', () => {
   let validator: FourthSpeciesCounterpointValidator;
 
   // Haydn Dorian CF (11 notes) → CP needs ((11-2)*2)+2 = 20 notes
-  const haydnCF: Note[] = [
+  const dorainCF: Note[] = [
     new Note("D", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4),
     new Note("G", 4), new Note("F", 4), new Note("A", 4), new Note("G", 4),
     new Note("F", 4), new Note("E", 4), new Note("D", 4)
@@ -20,8 +20,8 @@ describe('FourthSpeciesCounterpointValidator - rule enabling/disabling', () => {
     new Note("D", 5), new Note("D", 5),
     new Note("C", 5), new Note("C", 5),
     new Note("B", 4), new Note("B", 4),
-    new Note("G", 4), new Note("G", 4),
-    new Note("A", 4), new Note("A", 4),
+    new Note("G", 4), new Note("A", 4),
+    new Note("C", 5), new Note("C", 5),
     new Note("F", 5), new Note("F", 5),
     new Note("E", 5), new Note("E", 5),
     new Note("D", 5), new Note("D", 5),
@@ -52,11 +52,11 @@ describe('FourthSpeciesCounterpointValidator - rule enabling/disabling', () => {
 
   describe('isValidSolution', () => {
     it('passes Fux fourth species exercise with no disabled rules', () => {
-      expect(validator.isValidSolution(haydnCF, fuxCp, [])).toBe(true);
+      expect(validator.isValidSolution(dorainCF, fuxCp, [])).toBe(true);
     });
 
     it('disabling a rule does not affect a passing solution', () => {
-      expect(validator.isValidSolution(haydnCF, fuxCp, [RuleIdEnum.S4_FinalCadence])).toBe(true);
+      expect(validator.isValidSolution(dorainCF, fuxCp, [RuleIdEnum.S4_FinalCadence])).toBe(true);
     });
   });
 
