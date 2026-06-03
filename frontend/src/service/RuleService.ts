@@ -1,5 +1,5 @@
 import {Rule} from '../models/rule';
-import {FIRST_SPECIES_RULES, FOURTH_SPECIES_RULES, SECOND_SPECIES_RULES, THIRD_SPECIES_RULES} from '../data/rules.data';
+import {FIRST_SPECIES_RULES, SECOND_SPECIES_RULES, THIRD_SPECIES_RULES} from '../data/rules.data';
 
 export class RuleService {
 
@@ -20,7 +20,6 @@ export class RuleService {
       'first': FIRST_SPECIES_RULES,
       'second': SECOND_SPECIES_RULES,
       'third': THIRD_SPECIES_RULES,
-      'fourth': FOURTH_SPECIES_RULES
     };
     return speciesToRules[species];
   }

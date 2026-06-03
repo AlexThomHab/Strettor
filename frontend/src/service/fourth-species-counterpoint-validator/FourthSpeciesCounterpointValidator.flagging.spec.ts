@@ -33,7 +33,7 @@ describe('FourthSpeciesCounterpointValidator - getBrokenRules', () => {
   });
 
   it('flags S4_DissonanceMustBePrepared (Error) when suspension is a different pitch from the previous note', () => {
-    // cp[1]=C5 is a seventh above D4 (dissonant) but cp[0]=G4 - not the same pitch, no tie
+    // cp[1]=C5 is a seventh above D4 (dissonant) but cp[0]=G4 — not the same pitch, no tie
     const cp = [new Note("G", 4), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
     const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
     expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_DissonanceMustBePrepared);
@@ -49,7 +49,7 @@ describe('FourthSpeciesCounterpointValidator - getBrokenRules', () => {
   });
 
   it('flags S4_No7_8SuspensionInLowerVoice (Error) when lower voice uses a seventh resolving to an octave', () => {
-    // E4 is a minor seventh below D5 - tied and resolving to D4 (octave below D5): 7-8 forbidden
+    // E4 is a minor seventh below D5 — tied and resolving to D4 (octave below D5): 7-8 forbidden
     const cfAbove: Note[] = [new Note("C", 5), new Note("D", 5), new Note("C", 5)];
     const cpBelow: Note[] = [new Note("E", 4), new Note("E", 4), new Note("D", 4), new Note("C", 4)];
     const brokenRules = validator.getBrokenRules(cfAbove, cpBelow);
@@ -58,7 +58,7 @@ describe('FourthSpeciesCounterpointValidator - getBrokenRules', () => {
   });
 
   it('flags S4_ValidBeginningInterval (Error) when opening with a second', () => {
-    // D4 over C4 = major second (2) - not in [0, 3, 4, 7, 12]
+    // D4 over C4 = major second (2) — not in [0, 3, 4, 7, 12]
     const cp = [new Note("D", 4), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
     const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
     expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_ValidBeginningInterval);
@@ -90,7 +90,7 @@ describe('FourthSpeciesCounterpointValidator - getBrokenRules', () => {
   });
 
   it('flags S4_FinalCadence (Warning) when the final note is not approached by step', () => {
-    // G4 → G4 consonant suspension, F4 resolution. F4 → C5 = 7 semitones (perfect fifth) - not a step
+    // G4 → G4 consonant suspension, F4 resolution. F4 → C5 = 7 semitones (perfect fifth) — not a step
     const cp = [new Note("G", 4), new Note("G", 4), new Note("F", 4), new Note("C", 5)];
     const brokenRules = validator.getBrokenRules(cantusFirmus, cp);
     expect(brokenRules.map(r => r.id)).toContain(RuleIdEnum.S4_FinalCadence);

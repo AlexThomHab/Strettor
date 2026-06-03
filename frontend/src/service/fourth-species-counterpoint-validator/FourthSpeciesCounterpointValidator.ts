@@ -285,13 +285,13 @@ export class FourthSpeciesCounterpointValidator implements ICounterpointValidato
       const resIdx  = 2 * i;
       const suspInterval = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[suspIdx]);
       const resInterval  = this._intervalCalculator.calculateSemitoneInterval(cf[i], cp[resIdx]);
-      // Minor or major seventh resolving to an octave in the lower voice - forbidden
+      // Minor or major seventh resolving to an octave in the lower voice — forbidden
       if ((suspInterval === 10 || suspInterval === 11) && (resInterval === 12 || resInterval === 0)) return false;
     }
     return true;
   }
 
-  // 9-8 suspension: major ninth (14) or major second (2) resolving to octave or unison - harsh, avoid
+  // 9-8 suspension: major ninth (14) or major second (2) resolving to octave or unison — harsh, avoid
   private checkAvoid9_8Suspensions(cf: Note[], cp: Note[]): boolean {
     for (let i = 1; i < cf.length - 1; i++) {
       const suspIdx = 2 * i - 1;

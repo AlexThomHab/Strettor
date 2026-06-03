@@ -14,7 +14,7 @@ describe('FourthSpeciesCounterpointValidator - rule enabling/disabling', () => {
     new Note("F", 4), new Note("E", 4), new Note("D", 4)
   ];
 
-  // Fux's suspension exercise above the Haydn CF - all consonant suspensions, no 7-8, valid ending
+  // Fux's suspension exercise above the Haydn CF — all consonant suspensions, no 7-8, valid ending
   const fuxCp: Note[] = [
     new Note("A", 4), new Note("A", 4),
     new Note("D", 5), new Note("D", 5),

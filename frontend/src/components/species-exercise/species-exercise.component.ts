@@ -33,7 +33,6 @@ export class SpeciesExerciseComponent {
   listOfRules: Rule[] = [];
   ruleService: RuleService = new RuleService();
   warningRules: Rule[] = [];
-
   errorRules: Rule[] = [];
   suggestionRules: Rule[] = [];
   disabledRules: number[] = []
@@ -135,8 +134,7 @@ export class SpeciesExerciseComponent {
       "first": new SpeciesExerciseModel("First", 1, "Enter counterpoint 1:1 against the given cantus firmus"),
       "second": new SpeciesExerciseModel("Second", 2, "Enter counterpoint 2:1 against the given cantus firmus"),
       "third": new SpeciesExerciseModel("Third", 4, "Enter counterpoint 4:1 against the given cantus firmus"),
-      "fourth": new SpeciesExerciseModel("Fourth", 2, "Enter counterpoint suspensions against the given cantus firmus"),
-      "fifth": new SpeciesExerciseModel("Fifth", 0, "Enter a florid melody")
+      "fourth": new SpeciesExerciseModel("Fourth", 2, "Enter counterpoint suspensions against the given cantus firmus")
     }
     return speciesToExerciseModel[this.species];
   }

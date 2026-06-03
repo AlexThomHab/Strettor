@@ -11,7 +11,7 @@ describe('FourthSpeciesCounterpointValidator - regression', () => {
   });
 
   it('accepts Fux fourth species exercise above the fux Dorian CF with no errors', () => {
-    // Haydn Dorian CF - 11 notes → CP needs ((11-2)*2)+2 = 20 notes
+    // Haydn Dorian CF — 11 notes → CP needs ((11-2)*2)+2 = 20 notes
     // Fux's solution uses all consonant suspensions, referenced in the Gran lecture.
     const fuxDorianCF: Note[] = [
       new Note("D", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4),
@@ -55,7 +55,7 @@ describe('FourthSpeciesCounterpointValidator - regression', () => {
     expect(validator.getBrokenRules(cf, cp)).toHaveLength(0);
   });
   it('does not accept a counterpoint over the dorian cantus firmus with a 2nd that does not resolve downward', () => {
-    // Haydn Dorian CF - 11 notes → CP needs ((11-2)*2)+2 = 20 notes
+    // Haydn Dorian CF — 11 notes → CP needs ((11-2)*2)+2 = 20 notes
     // Fux's solution uses all consonant suspensions, referenced in the Gran lecture.
     const fuxDorianCF: Note[] = [
       new Note("D", 4), new Note("F", 4), new Note("E", 4), new Note("D", 4),
