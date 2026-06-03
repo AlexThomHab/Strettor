@@ -288,7 +288,7 @@ export class ThirdSpeciesCounterpointValidator implements ICounterpointValidator
         if (cpDir !== 0 && cpDir !== cfDir) continue outer;
       }
 
-      // No contrary approach found anywhere — fall back to checking from the previous downbeat
+      // No contrary approach found anywhere - fall back to checking from the previous downbeat
       const cpDirOverall = this.getMotionDirection(cp[prevMeasureStart], cp[4 * i]);
       if (cpDirOverall === cfDir) return false;
     }

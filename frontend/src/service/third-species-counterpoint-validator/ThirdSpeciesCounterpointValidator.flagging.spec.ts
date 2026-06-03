@@ -11,7 +11,7 @@ describe('ThirdSpeciesCounterpointValidator - getBrokenRules flagging', () => {
   // Beat layout: cp[0..3] vs CF[0], cp[4..7] vs CF[1], cp[8] = final
   const cf3: Note[] = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
 
-  // Known-valid CP for cf3 — used as mutation base
+  // Known-valid CP for cf3 - used as mutation base
   const validCp: Note[] = [
     new Note("C", 5), new Note("B", 4), new Note("A", 4), new Note("G", 4),
     new Note("F", 4), new Note("G", 4), new Note("A", 4), new Note("B", 4),
@@ -100,7 +100,7 @@ describe('ThirdSpeciesCounterpointValidator - getBrokenRules flagging', () => {
   });
 
   it('flags S3_DissonancesMustBeNonHarmonic when off-beat dissonance is not a passing/neighbour tone', () => {
-    // cp[1]=D5: ninth above C4 (dissonant). C5→D5→A4 changes direction — not a passing tone
+    // cp[1]=D5: ninth above C4 (dissonant). C5→D5→A4 changes direction - not a passing tone
     const cp = [...validCp];
     cp[1] = new Note("D", 5);
     const brokenRules = validator.getBrokenRules(cf3, cp);
@@ -204,7 +204,7 @@ describe('ThirdSpeciesCounterpointValidator - getBrokenRules flagging', () => {
 
   describe('S3_NotaCambiata', () => {
     // Nota cambiata figure: C5(beat1) → B4(beat2, dissonant vs C4) → G4(leap down major third) → A4(step up)
-    // B4 vs C4 = 11 semitones (major seventh) — dissonant, treated by nota cambiata
+    // B4 vs C4 = 11 semitones (major seventh) - dissonant, treated by nota cambiata
     const cfWithCambiata: Note[] = [new Note("C", 4), new Note("D", 4), new Note("C", 4)];
     const cpWithCambiata: Note[] = [
       new Note("C", 5), new Note("B", 4), new Note("G", 4), new Note("A", 4),

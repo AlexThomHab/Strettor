@@ -62,13 +62,13 @@ describe('FourthSpeciesCounterpointValidator', () => {
 
   describe('checkDissonanceMustBePrepared', () => {
     it('returns false when the suspension note is a different pitch from the preparation note', () => {
-      // cp[1]=C5 is dissonant (7th above D4) but cp[0]=G4 (different pitch) — not properly tied
+      // cp[1]=C5 is dissonant (7th above D4) but cp[0]=G4 (different pitch) - not properly tied
       const cp = [new Note("G", 4), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
       expect(validator.isValidSolution(cf3, cp, [])).toBe(false);
     });
 
     it('accepts a consonant suspension that does not require preparation', () => {
-      // cp[1]=A4 is a fifth above D4 (consonant) — preparation rule does not apply
+      // cp[1]=A4 is a fifth above D4 (consonant) - preparation rule does not apply
       const cp = [new Note("G", 4), new Note("A", 4), new Note("B", 4), new Note("C", 5)];
       expect(validator.getBrokenRules(cf3, cp).map(r => r.id)).not.toContain(300);
     });
@@ -100,12 +100,12 @@ describe('FourthSpeciesCounterpointValidator', () => {
   describe('checkValidBeginningInterval', () => {
     it('returns false when opening with a second', () => {
       const cp = [new Note("D", 4), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
-      // D4 over C4 = major second (2) — not in [0, 3, 4, 7, 12]
+      // D4 over C4 = major second (2) - not in [0, 3, 4, 7, 12]
       expect(validator.isValidSolution(cf3, cp, [])).toBe(false);
     });
 
     it('allows opening with a third (unlike first species)', () => {
-      // E4 over C4 = major third (4) — valid in fourth species
+      // E4 over C4 = major third (4) - valid in fourth species
       const cp = [new Note("E", 4), new Note("C", 5), new Note("B", 4), new Note("C", 5)];
       expect(validator.getBrokenRules(cf3, cp).map(r => r.id)).not.toContain(304);
     });
@@ -114,14 +114,14 @@ describe('FourthSpeciesCounterpointValidator', () => {
   describe('checkValidEndingInterval', () => {
     it('returns false when ending on a fifth instead of unison or octave', () => {
       const cp = [new Note("C", 5), new Note("C", 5), new Note("B", 4), new Note("G", 4)];
-      // G4 over C4 = fifth — must end on unison or octave
+      // G4 over C4 = fifth - must end on unison or octave
       expect(validator.isValidSolution(cf3, cp, [])).toBe(false);
     });
   });
 
   describe('checkFinalCadence', () => {
     it('returns false when the final note is not approached by step', () => {
-      // F4 to C5 = 7 semitones (perfect fifth) — not a step
+      // F4 to C5 = 7 semitones (perfect fifth) - not a step
       const cp = [new Note("G", 4), new Note("G", 4), new Note("F", 4), new Note("C", 5)];
       expect(validator.isValidSolution(cf3, cp, [])).toBe(false);
     });
