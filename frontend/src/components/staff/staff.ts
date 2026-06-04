@@ -31,7 +31,6 @@ export class Staff {
     }
     if (changes['species']) {
       this.setRhythmicProportionGivenSpecies()
-      this.errorNoteIndexes = []
       this.drawExercise()
     }
   }

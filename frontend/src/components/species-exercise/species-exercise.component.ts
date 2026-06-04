@@ -52,6 +52,7 @@ export class SpeciesExerciseComponent {
       this.errorRules = this.listOfRules.filter(x => x.severity === Severity.Error);
       this.warningRules = this.listOfRules.filter(x => x.severity === Severity.Warning);
       this.suggestionRules = this.listOfRules.filter(x => x.severity === Severity.Suggestion);
+      this.brokenRules = null;
     });
   }
 
@@ -130,6 +131,7 @@ export class SpeciesExerciseComponent {
       "third":  new SpeciesExerciseModel("Third",  4, "Enter counterpoint 4:1 against the given cantus firmus"),
       "fourth": new SpeciesExerciseModel("Fourth", 2, "Enter counterpoint suspensions against the given cantus firmus"),
     };
+    this.errorNoteIndexes = []
     return speciesToExerciseModel[this.species];
   }
 }
