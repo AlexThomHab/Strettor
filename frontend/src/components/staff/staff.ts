@@ -21,15 +21,17 @@ export class Staff {
   @Input() species!: string;
   private previewNote: (Note | null) = null;
   private previewNoteXIndex: number = 0;
+  @Input() errorNoteIndexes: number[] | undefined = []
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.staffContainer) return;
 
-    if (changes['cantusFirmus'] || changes['counterpoint']) {
+    if (changes['cantusFirmus'] || changes['counterpoint'] || changes['errorNoteIndexes']) {
       this.drawExercise()
     }
     if (changes['species']) {
       this.setRhythmicProportionGivenSpecies()
+      this.errorNoteIndexes = []
       this.drawExercise()
     }
   }
@@ -67,6 +69,12 @@ export class Staff {
     })
     counterpointVoice.setStrict(false)
     const counterpointStaveNotes = this.counterpointNotesToStaveNotes(this.counterpoint)
+    const errorStyle = { fillStyle: 'rgba(255, 0, 0, 0.8)', strokeStyle: 'rgba(255, 0, 0, 0.8)' }
+    if(this.errorNoteIndexes){ //if there's errors
+      this.errorNoteIndexes.forEach((errorNoteIndex) => {
+        counterpointStaveNotes[errorNoteIndex].setStyle(errorStyle)
+      })
+    }
     counterpointVoice.addTickables(counterpointStaveNotes)
 
     // Expand SVG width if notes need more space than the container provides
@@ -170,6 +178,7 @@ export class Staff {
 
     }
     else {
+      this.errorNoteIndexes = this.errorNoteIndexes?.filter(x => x !== beatIndex);
       this.counterpoint[beatIndex] = inputNote;
     }
     this.drawExercise()

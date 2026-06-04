@@ -36,6 +36,7 @@ export class SpeciesExerciseComponent {
   private counterpointValidator!: ICounterpointValidator;
   private rhythmicProportion: number = 0;
   public speciesExerciseModel!: SpeciesExerciseModel;
+  public errorNoteIndexes : number[] | undefined
 
   constructor(private route: ActivatedRoute) {}
 
@@ -89,9 +90,11 @@ export class SpeciesExerciseComponent {
   onCheck() {
     const counterpoint = this.counterpoint.filter(note => note !== null) as Note[];
     this.brokenRules = this.counterpointValidator.getBrokenRules(this.cantusFirmus, counterpoint, this.disabledRules);
+    this.errorNoteIndexes = this.brokenRules.map(x => x.index).filter(x => x !== undefined) as number[];
   }
 
   onReset() {
+    this.errorNoteIndexes = []
     this.brokenRules = null;
     this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null);
     this.counterpointEvent.emit(this.counterpoint);
@@ -99,6 +102,7 @@ export class SpeciesExerciseComponent {
 
   onNextExercise() {
     this.brokenRules = null;
+    this.errorNoteIndexes = []
     this.cantusFirmus = this.getRandomCantusFirmus();
     this.counterpoint = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null);
     this.counterpointEvent.emit(this.counterpoint);
