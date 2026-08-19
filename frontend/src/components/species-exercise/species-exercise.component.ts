@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Output, ViewChild} from '@angular/core';
 import {Staff} from '../staff/staff';
 import {Rule, Severity} from '../../models/rule';
 import {BrokenRule} from '../../models/broken-rule';
@@ -37,6 +37,9 @@ export class SpeciesExerciseComponent {
   private rhythmicProportion: number = 0;
   public speciesExerciseModel!: SpeciesExerciseModel;
   public errorNoteIndexes : number[] | undefined
+  @ViewChild('staff', { read: ElementRef })
+  staff!: ElementRef<HTMLElement>;
+  public staffScroll: number = 0;
 
   constructor(private route: ActivatedRoute) {}
 
@@ -55,6 +58,7 @@ export class SpeciesExerciseComponent {
       this.brokenRules = null;
     });
   }
+
 
   private getValidatorGivenSpecies(): ICounterpointValidator {
     const speciesToValidator: Record<string, ICounterpointValidator> = {
@@ -133,5 +137,13 @@ export class SpeciesExerciseComponent {
     };
     this.errorNoteIndexes = []
     return speciesToExerciseModel[this.species];
+  }
+
+  saveScrollForStaff() {
+    this.staffScroll = this.staff.nativeElement.scrollLeft;
+  }
+
+  writeScrollForStaff() {
+    this.staff.nativeElement.scrollTo(this.staffScroll, 0);
   }
 }

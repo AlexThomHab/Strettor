@@ -22,6 +22,9 @@ export class Staff {
   private previewNote: (Note | null) = null;
   private previewNoteXIndex: number = 0;
   @Input() errorNoteIndexes: number[] | undefined = []
+  @Output() saveScroll = new EventEmitter<void>();
+  @Output() writeScroll = new EventEmitter<void>();
+  @Input() staffScroll!: number;
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.staffContainer) return;
@@ -50,11 +53,15 @@ export class Staff {
   }
 
   private drawExercise(): void {
+
+    this.saveScroll.emit()
     this.staffContainer.nativeElement.innerHTML = "";
 
     const {Renderer, Stave, StaveNote, Voice, Formatter} = Vex;
     const containerWidth = this.staffContainer.nativeElement.clientWidth;
+
     const renderer = new Renderer(this.staffContainer.nativeElement, Renderer.Backends.SVG);
+
 
     // Build voices first to measure minimum width needed
     const cantusFirmusVoice = new Voice({numBeats: this.cantusFirmus.length, beatValue: 1})
@@ -95,10 +102,12 @@ export class Staff {
       .format([cantusFirmusVoice, counterpointVoice], this.stave.getWidth() - 60)
 
     cantusFirmusVoice.draw(context, this.stave);
+    this.writeScroll.emit()
 
     if (this.previewNote != null) {
       const previewNoteArray = Array(this.cantusFirmus.length * this.rhythmicProportion).fill(null)
       let pairStart = this.previewNoteXIndex;
+      console.log("Preview note here")
       if (this.species === "fourth" && this.previewNoteXIndex != 0 && this.previewNoteXIndex < this.counterpoint.length - 2) {
         pairStart = this.previewNoteXIndex % 2 == 1 ? this.previewNoteXIndex : this.previewNoteXIndex - 1;
 
@@ -137,6 +146,8 @@ export class Staff {
           lastNote: previewStaveNotes[pairStart + 1],
         }).setContext(context).draw();
       }
+      this.writeScroll.emit()
+
     }
 
     counterpointVoice.draw(context, this.stave);
@@ -152,6 +163,7 @@ export class Staff {
         tie.setContext(context).draw();
       }
     }
+
   }
 
   private addNoteGivenClick(clickYAxis: number, clickXAxis: number): void {
@@ -299,12 +311,12 @@ export class Staff {
   private getBeatPositionGivenMouseX(hoverXAxis: number): number {
     const svg = this.staffContainer.nativeElement.querySelector('svg');
     const rect = svg.getBoundingClientRect();
-    const x = (hoverXAxis - rect.left) / this.scaleFactor;
+    const x = ((hoverXAxis  - rect.left) / this.scaleFactor);
     const noteStartX = this.stave.getNoteStartX();
     const noteWidth = this.stave.getWidth() - 60;
     const totalSlots = this.cantusFirmus.length * this.rhythmicProportion;
     const division = noteWidth / totalSlots;
-    let rawIndex = ((x - noteStartX) / division);
+    let rawIndex = (x - noteStartX) / division;
     if (this.rhythmicProportion > 1) {
       rawIndex = rawIndex - (1 / this.rhythmicProportion);
     }

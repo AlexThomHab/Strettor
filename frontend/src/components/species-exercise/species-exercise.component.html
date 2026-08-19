@@ -8,7 +8,7 @@
 
     <div id="panel-body">
       <div id="staff-area">
-        <app-staff #staff [errorNoteIndexes]="errorNoteIndexes"[disabledRules]="disabledRules" [species]="species" [cantusFirmus]="cantusFirmus" [counterpoint]="counterpoint" (counterpointChange)="counterpoint = $event"></app-staff>
+        <app-staff #staff  (saveScroll)="saveScrollForStaff()" (writeScroll)="writeScrollForStaff()" [staffScroll]="staffScroll" [errorNoteIndexes]="errorNoteIndexes"[disabledRules]="disabledRules" [species]="species" [cantusFirmus]="cantusFirmus" [counterpoint]="counterpoint" (counterpointChange)="counterpoint = $event"></app-staff>
       </div>
 
       @if (brokenRules !== null) {
