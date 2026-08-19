@@ -25,6 +25,7 @@ export class Staff {
   @Output() saveScroll = new EventEmitter<void>();
   @Output() writeScroll = new EventEmitter<void>();
   @Input() staffScroll!: number;
+  private previewNotePitch!: Note;
 
   ngOnChanges(changes: SimpleChanges) {
     if (!this.staffContainer) return;
@@ -57,7 +58,7 @@ export class Staff {
     this.saveScroll.emit()
     this.staffContainer.nativeElement.innerHTML = "";
 
-    const {Renderer, Stave, StaveNote, Voice, Formatter} = Vex;
+    const {Renderer, Stave, Voice, Formatter} = Vex;
     const containerWidth = this.staffContainer.nativeElement.clientWidth;
 
     const renderer = new Renderer(this.staffContainer.nativeElement, Renderer.Backends.SVG);
@@ -146,7 +147,6 @@ export class Staff {
           lastNote: previewStaveNotes[pairStart + 1],
         }).setContext(context).draw();
       }
-      this.writeScroll.emit()
 
     }
 
@@ -248,9 +248,14 @@ export class Staff {
   }
 
   private onMouseHover(hoverYAxis: number, hoverXAxis: number) {
-    let previewNote = this.getNoteGivenMouseY(hoverYAxis);
+
+    if (this.previewNotePitch == this.getNoteGivenMouseY(hoverYAxis) && this.previewNoteXIndex == this.getBeatPositionGivenMouseX(hoverXAxis)){
+      return // if the note is the same don't redraw
+    }
+    this.previewNotePitch = this.getNoteGivenMouseY(hoverYAxis);
     this.previewNoteXIndex = this.getBeatPositionGivenMouseX(hoverXAxis);
-    if (!previewNote) return;
+
+    if (!this.previewNotePitch) return;
 
     if ((this.previewNoteXIndex == 0 || this.previewNoteXIndex == this.counterpoint.length - 1) && this.species == "fourth") {
       this.previewNote = null;
@@ -262,9 +267,9 @@ export class Staff {
       this.previewNote = null;
     }
     else{
-      this.previewNote = previewNote;
+      this.previewNote = this.previewNotePitch;
     }
-    this.drawExercise()
+  this.drawExercise()
   }
 
   getNoteGivenMouseY(mouseY: number): Note {
