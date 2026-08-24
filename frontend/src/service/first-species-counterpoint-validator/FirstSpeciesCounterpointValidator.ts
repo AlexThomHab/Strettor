@@ -109,7 +109,7 @@ export class FirstSpeciesCounterpointValidator implements ICounterpointValidator
 
   private checkValidBeginningInterval(cantusFirmus: Note[], counterpoint: Note[]): checkRuleResponse {
     const interval = this._intervalCalculator.calculateSemitoneInterval(cantusFirmus[0], counterpoint[0]);
-    if ([0, 3, 4, 7, 12].includes(interval)) return new checkRuleResponse(true);
+    if ([0, 3, 4, 7,8, 12].includes(interval)) return new checkRuleResponse(true);
     return new checkRuleResponse(false, 0);
   }
 

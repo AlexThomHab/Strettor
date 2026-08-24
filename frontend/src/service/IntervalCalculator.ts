@@ -38,7 +38,7 @@ export class IntervalCalculator {
 
     return intervalNames[semitones];
   }
-  private getNoteValue(note: Note): number {
+  public getNoteValue(note: Note): number {
     return (note.pitchClass * 12) + this.chromaticScale.indexOf(note.noteValue);
   }
 
@@ -49,4 +49,11 @@ export class IntervalCalculator {
   private getLowestNote(noteA: Note, noteB: Note): Note {
     return this.getNoteValue(noteA) <= this.getNoteValue(noteB) ? noteA : noteB;
   }
+  public absNoteToNote(absValue : number){
+    let pitch = Math.floor(absValue / 12);
+    let note = this.chromaticScale[absValue % 12];
+
+    return new Note(note, pitch);
+  }
+
 }
