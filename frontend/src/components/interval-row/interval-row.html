@@ -1,0 +1,47 @@
+<div class="legend">
+  <div class="legend-item"><span class="swatch fixedConsonant"></span> Fixed Consonances</div>
+  <div class="legend-item"><span class="swatch fixedDissonant"></span> Fixed Dissonances</div>
+  <div class="legend-item"><span class="swatch variableConsonant"></span> Variable Consonances</div>
+  <div class="legend-item"><span class="swatch variableDissonant"></span> Variable Dissonances</div>
+</div>
+
+<div class="grid">
+  <div
+    *ngFor="let i of _intervalsList"
+    [ngClass]="getClassForIndex(i)"
+    class="cell"
+    [matTooltip]="'Interval ' + i"
+  >
+    <div class="glyph glyph-top"
+         [ngClass]="_twoVoiceCells[i]?.topClass"
+         [title]="_twoVoiceCells[i]?.topTitle">
+      {{ _twoVoiceCells[i]?.topGlyph || '' }}
+    </div>
+
+    <div class="interval-number">{{ i }}</div>
+
+    <div class="glyph glyph-bottom"
+         [ngClass]="_twoVoiceCells[i]?.bottomClass"
+         [title]="_twoVoiceCells[i]?.bottomTitle">
+      {{ _twoVoiceCells[i]?.bottomGlyph || '' }}
+    </div>
+
+    <span
+      *ngIf="_twoVoiceCells[i]?.upgrade"
+      class="ip-flag"
+      [matTooltip]="'Imperfect consonance becomes perfect after JV'">
+          </span>
+    <span
+      *ngIf="_twoVoiceCells[i]?.becomesAFourth"
+      class="isAFourth-flag"
+      [matTooltip]="'This interval transforms to a 4th hence be cautious if it appears in the lower voice'">
+          4</span>
+  </div>
+</div>
+
+<div class="buckets">
+  <strong>Fixed Consonances:</strong> {{ toIndexList(_intervals.fixedConsonances) }}
+  <strong>Fixed Dissonances:</strong> {{ toIndexList(_intervals.fixedDissonances) }}
+  <strong>Variable Consonances:</strong> {{ toIndexList(_intervals.variableConsonances) }}
+  <strong>Variable Dissonances:</strong> {{ toIndexList(_intervals.variableDissonances) }}
+</div>

@@ -1,0 +1,134 @@
+<div class="cp-wrapper" [class.dark]="_dark">
+  <mat-card class="cp-card" [ngSwitch]="_activeTab">
+    <p class="subtitle" style="margin-top:6px">
+      This tool applies Sergei Taneyev’s vertical shifting (invertible) counterpoint. Enter JV indices to see
+      how intervals behave after inversion in 2- and 3-voice textures.
+    </p>
+    <details class="info" style="margin-bottom:12px;">
+      <summary class="info-summary" aria-label="Open information panel">
+        ℹ️ What is all this, I'm confused?
+      </summary>
+      <div class="info-body">
+        <p>
+          This tool was created for my own studies of Sergei Taneyev’s theories of invertible counterpoint,
+          inspired by Jacob Gran’s video lectures on the subject
+          (<a href="https://www.youtube.com/watch?v=dBTh9PVJ0Ps&list=PL6Towqbh0pdoozx7YmEkb8EHJI7iCMxwU&index=2" target="_blank">YouTube playlist</a>).
+        </p>
+        <p>
+          It is meant as a way to explore and visualize interval transformations after inversion, both for my own practice
+          and as a resource for anyone else who may find it useful.
+        </p>
+      </div>
+    </details>
+
+    <div class="card-top">
+      <h1 class="title">
+        {{
+          _activeTab === 'two'
+            ? "Two-Voice Vertical Shifting Counterpoint"
+            : "Three-Voice Vertical Shifting Counterpoint"
+        }}
+      </h1>
+      <button
+        type="button"
+        class="theme-toggle"
+        (click)="toggleDark()"
+        [attr.aria-pressed]="_dark"
+        [matTooltip]="_dark ? 'Switch to light mode' : 'Switch to dark mode'">
+        <span aria-hidden="true">{{ _dark ? '☀️' : '🌙' }}</span>
+        <span class="sr-only">{{ _dark ? 'Light mode' : 'Dark mode' }}</span>
+      </button>
+      <div class="view-toggle" role="tablist" aria-label="View">
+        <button
+          class="toggle"
+          role="tab"
+          [attr.aria-selected]="_activeTab === 'two'"
+          [class.active]="_activeTab === 'two'"
+          (click)="_activeTab = 'two'">
+          2-voice
+        </button>
+        <button
+          class="toggle"
+          role="tab"
+          [attr.aria-selected]="_activeTab === 'three'"
+          [class.active]="_activeTab === 'three'"
+          (click)="_activeTab = 'three'">
+          3-voice
+        </button>
+      </div>
+    </div>
+
+    <ng-container *ngSwitchCase="'two'">
+      <div class="card-header"></div>
+
+      <p class="subtitle">
+        Enter a JV (inversion index) to see which intervals stay or switch between consonance and dissonance after
+        inversion.
+      </p>
+      <div class="controls">
+        <div class="control">
+          <label for="jv">JV</label>
+          <input
+            id="jv"
+            type="number"
+            [(ngModel)]="_jvInput"
+          />
+        </div>
+      </div>
+
+      <app-interval-row
+        [_intervalsList]="_intervalJvList"
+        [_twoVoiceCells]="_cells"
+        [_intervals]="_intervals"
+        [_jvInput]="_jvInput">
+      </app-interval-row>
+    </ng-container>
+
+    <ng-container *ngSwitchCase="'three'">
+      <p class="subtitle">
+        Enter JV′ and JV″. JVΣ is computed as JV′ + JV″ (visualized below as three separate two-voice rows).
+      </p>
+
+      <div class="controls">
+        <div class="control">
+          <label for="jvPrime">JV′</label>
+          <input id="jvPrime" type="number" [(ngModel)]="_jvPrimeInput" (ngModelChange)="CalculateJvSigma()"/>
+        </div>
+
+        <div class="control">
+          <label for="jvDoublePrime">JV″</label>
+          <input id="jvDoublePrime" type="number" [(ngModel)]="_jvDoublePrimeInput" (ngModelChange)="CalculateJvSigma()"/>
+        </div>
+
+        <div class="control">
+          <label for="jvSigma">JVΣ</label>
+          <input id="jvSigma" type="number" [value]="_jvSigmaView" readonly/>
+        </div>
+      </div>
+
+      <h3 style="margin-top:10px">I ↔ II (JV′ = {{ _jvPrimeInput }})</h3>
+      <app-interval-row
+        [_intervalsList]="_intervalJvList"
+        [_twoVoiceCells]="_cells"
+        [_intervals]="_intervals"
+        [_jvInput]="_jvPrimeInput">
+      </app-interval-row>
+
+      <h3>II ↔ III (JV″ = {{ _jvDoublePrimeInput }})</h3>
+      <app-interval-row
+        [_intervalsList]="_intervalJvList"
+        [_twoVoiceCells]="_cells"
+        [_intervals]="_intervals"
+        [_jvInput]="_jvDoublePrimeInput">
+      </app-interval-row>
+
+      <h3>I ↔ III (JVΣ = {{ _jvSigmaView }})</h3>
+      <app-interval-row
+        [_intervalsList]="_intervalJvList"
+        [_twoVoiceCells]="_cells"
+        [_intervals]="_intervals"
+        [_jvInput]="_jvSigmaView">
+      </app-interval-row>
+    </ng-container>
+  </mat-card>
+</div>

@@ -25,6 +25,7 @@
               }
             ],
             "styles": [
+              "frontend/src/material-theme.scss",
               "frontend/src/styles.css"
             ]
           },
