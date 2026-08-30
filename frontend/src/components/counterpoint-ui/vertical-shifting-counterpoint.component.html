@@ -1,4 +1,4 @@
-<div class="cp-wrapper" [class.dark]="_dark">
+<div class="cp-wrapper">
   <mat-card class="cp-card" [ngSwitch]="_activeTab">
     <p class="subtitle" style="margin-top:6px">
       This tool applies Sergei Taneyev’s vertical shifting (invertible) counterpoint. Enter JV indices to see
@@ -29,15 +29,7 @@
             : "Three-Voice Vertical Shifting Counterpoint"
         }}
       </h1>
-      <button
-        type="button"
-        class="theme-toggle"
-        (click)="toggleDark()"
-        [attr.aria-pressed]="_dark"
-        [matTooltip]="_dark ? 'Switch to light mode' : 'Switch to dark mode'">
-        <span aria-hidden="true">{{ _dark ? '☀️' : '🌙' }}</span>
-        <span class="sr-only">{{ _dark ? 'Light mode' : 'Dark mode' }}</span>
-      </button>
+
       <div class="view-toggle" role="tablist" aria-label="View">
         <button
           class="toggle"

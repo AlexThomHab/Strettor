@@ -33,11 +33,11 @@ function emptyDetailed(): CalculatedIntervalList {
   selector: 'app-counterpoint-ui',
   standalone: true,
   imports: [CommonModule, FormsModule, MatCard, MatTooltipModule, IntervalRow],
-  templateUrl: './counterpoint-ui.component.html',
-  styleUrls: ['./counterpoint-ui.component.css'],
+  templateUrl: './vertical-shifting-counterpoint.component.html',
+  styleUrls: ['./vertical-shifting-counterpoint.component.css'],
 })
 
-export class CounterpointUiComponent {
+export class VerticalShiftingCounterpoint {
   _dark = false;
   _activeTab: 'two' | 'three' = 'two';
   _intervalJvList = [0, 1, 2, 3, 4, 5, 6, 7];
